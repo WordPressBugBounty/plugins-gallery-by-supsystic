@@ -1,0 +1,107 @@
+{% extends 'grid-gallery.twig' %}
+
+{% block content %}
+
+    {% import '@core/helpers.twig' as h %}
+
+    <form action="{{ environment.generateUrl('settings', 'saveSettings', {'_wpnonce': _wpnonce}) }}" method="POST">
+        {% block beforeSettingsList %}
+            <button class="button">
+                <i class="fa fa-fw fa-save"></i>
+                {{ environment.translate('Save') }}
+            </button>
+        {% endblock %}
+        <div class="settings-list">
+            {% block beforeSettings %}{% endblock %}
+            <div class="settings">
+                <div class="setting">
+                    <div class="setting-description">
+                        <label>{{ environment.translate('Image Preprocessor') }}</label>
+                        {{ h.showTooltip('Choose the preprocessor for image transformations (cropping, resizing etc.) Note: Changing the default settings may affect image quality. If you are not sure about how to use this option, please leave the settings by default.', 'top', true) }}
+                    </div>
+                    <div class="setting-control">
+                        <select name="settings[image_editor]">
+                            {% set editors = {
+                                auto: 'Auto',
+                                gd: 'GD',
+								imagic: 'Imagick',
+                            } %}
+                            {% for name, title in editors %}
+                                <option value="{{ name }}"
+                                {% if name == settings.image_editor %}
+                                    selected="selected"
+                                {% endif %}
+                                >{{ title }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                                    <div class="setting">
+                                        <div class="setting-description">
+                                            <label>{{ environment.translate('Show promo link') }}</label>
+                                            {{ h.showTooltip(environment.translate('To promote our plugin, you can show the promo link below the table, if you don\'t want to show the promo link you can also hide it. You can completely remove the link under the table by purchasing the PRO version of the plugin. Thank you for cooperation!'), 'top', true) }} </label>
+                                        </div>
+                                        <div class="setting-control">
+                                            <input type="checkbox"  name="settings[add_love_link]" {% if settings.add_love_link == 'on' %} checked {%  endif %}>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="setting">
+                                        <div class="setting-description">
+                                            <label>{{ environment.translate('Remove promo link') }}</label>
+                                            {{ h.showTooltip(environment.translate('If you want to delete promo link below the table from HTML just check this box. Only for PRO users.'), 'top', true) }} </label>
+                                            {% if environment.isPro() == false %}
+                                                <a target="_blank" href="{{ build_pro_url({ 'utm_medium': 'load_by_ajax_enabled' }) }}">
+                                                    {{ environment.translate('PRO option') }}
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                        <div class="setting-control">
+                                            {% if environment.isPro() == false %}
+                                                <input type="checkbox" disabled value=""/>
+                                            {% else %}
+                                                <input type="checkbox"  name="settings[remove_love_link]" {% if settings.remove_love_link == 'on' %} checked {%  endif %}>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                <div class="setting">
+                    <div class="setting-description">
+
+                        <label>{{ environment.translate('Roles') }}</label>
+                        {{ h.showTooltip('Here you may assign the roles of the persons, that are allowed to use the plugin. This feature is useful when you need to depute your site management to someone else. Administrator is included by default.', 'top', true) }}
+
+                        {% if environment.isPro() == false %}
+                            <a target="_blank" href="{{ build_pro_url({ 'utm_medium': 'manage_roles' }) }}">
+                                {{ environment.translate('PRO option') }}
+                            </a>
+                        {% endif %}
+                    </div>
+                    <div class="setting-control">
+                        <select multiple="multiple" name="settings[access_roles][]" class="chosen-select" data-placeholder="{{ ('Select avalilable roles to use tables.')}}">
+                            <option value="administrator" disabled selected>Administrator</option>
+                            {% set roles = {
+                                editor:'Editor',
+                                author:'Author',
+                                contributor:'Contributor',
+                                subscriber:'Subscriber'
+                            } %}
+                            {% for role, title in roles %}
+                                <option value="{{ role }}"
+                                {% if role in settings.access_roles %}
+                                    selected="selected"
+                                {% endif %}
+                                >{{ title }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            {% block afterSettings %}{% endblock %}
+        </div>
+        {% block afterSettingsList %}{% endblock %}
+    </form>
+{% endblock %}

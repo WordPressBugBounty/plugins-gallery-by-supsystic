@@ -1,0 +1,221 @@
+{% extends 'grid-gallery.twig' %}
+
+{% block header %}
+
+    <nav id="supsystic-breadcrumbs" class="supsystic-breadcrumbs">
+        <a href="{{ environment.generateUrl('galleries') }}">{{ translate('Galleries') }}</a>
+        <i class="fa fa-angle-right"></i>
+        <a href="{{ environment.generateUrl('galleries') }}">{{ translate('Overview') }}</a>
+    </nav>
+
+{% endblock %}
+
+{% block content %}
+    <div class="supsystic-overview">
+        <div class="full-page">
+          <div class="plugin-title"><img src="{{ SGG_PLUGIN_URL }}/src/GridGallery/Overview/assets/img/plugin-icon.png">Photo Gallery by Supsystic</div>
+          <div class="plugin-description">Easily arrange your photos and videos with the WordPress Photo Gallery plugin by Supsystic. This Photo Gallery plugin is seriously powerful. It’s perfect for people who want the tools and flexibility to showcase their photos and videos in a truly spectacular fashion. And, best of all, it’s user friendly!
+This plugin will help you bring your ideas to life quickly and easily. In no time you’ll be showing off an impressive gallery of all your photo and video assets.</div>
+        </div>
+        <div class="supsystic-overview-flex">
+        <div class="half-page half-page-left">
+            <div class="border-wrapper">
+              <ul>
+                <li class="overview-section-btn" data-section="faq"><i class="fa fa-info-circle"></i> FAQ and Documentation</li>
+                <li class="overview-section-btn" data-section="video"><i class="fa fa-play"></i> Video tutorial</li>
+                <li class="overview-section-btn" data-section="settings"><i class="fa fa-cog"></i> Server Settings</li>
+                <li class="overview-section-btn" data-section="support"><i class="fa fa-life-ring"></i> Support</li>
+                <li class="overview-section-btn" data-section="promo_video"><i class="fa fa-star"></i> Our promo video</li>
+                <li class="overview-section-btn"><a target="_blank" title="Go to supsystic.com" href="https://supsystic.com/plugins/photo-gallery/?utm_source=plugin&utm_campaign=gallery"> Plugin page on supsystic.com <sup><i class="fa fa-external-link"></i></sup></a></li>
+                <li class="overview-section-btn"><a target="_blank" title="Go to supsystic.com" href="https://supsystic.com/plugins/photo-gallery/?utm_source=plugin&utm_campaign=gallery"> Compare FREE and PRO features <sup><i class="fa fa-external-link"></i></sup></a></li>
+                <li class="overview-section-btn"><a target="_blank" title="Go to supsystic.com" href="https://supsystic.com/wordpress-plugins/?utm_source=plugin&utm_campaign=gallery"> Check other supsystic FREE plugins <sup><i class="fa fa-external-link"></i></sup></a></li>
+              </ul>
+            </div>
+
+            <div class="border-wrapper">
+            <div class="overview-contact-form overview-section" data-section="support">
+                <h3><i class="fa fa-life-ring"></i> Support</h3>
+                <div class="contact-info-section">
+                  <p><i class="fa fa-clock-o" aria-hidden="true"></i> Our official support hours are 09:00 -18:00 GMT+02:00, Monday to Friday – excluding bank holidays and other official holidays.</p>
+                  <p>The timescales listed below refer to these working hours.</p><br>
+                  <p><em>Support requests are prioritized based on the type of license:</em></p>
+                  <ul>
+                    <li><p><em>Pro Support</em> is reserved for customers with an active Pro license. We respond to new priority support requests within 12 hours.</p></li>
+                    <li><p><em>Standard Support</em> is provided to customers with an active Free license. We respond to standard support requests within 24h-48h.</p></li>
+                  </ul><br>
+                  <p><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> While we don’t guarantee that we will resolve the request in this time period, we will acknowledge it and communicate with the customer as appropriate to help resolve the issue.</p>
+                </div>
+                {% import '@core/form.twig' as form %}
+
+                {{ form.open('post', environment.generateUrl('overview', 'sendMail'), { 'id': 'form-settings', 'style': 'max-width: 100%;', '_wpnonce': _wpnonce }) }}
+
+                <table class="contact-form-table" style="width: 100%;">
+                    <thead>
+                    {{ form.row(translate('Name') ~ ' *',
+                        form.text('name', SG_USER_NAME, { 'required': '' })) }}
+
+                    {{ form.row(translate('Email') ~ ' *',
+                        form.text('email', contactForm.email, { 'required': '' })) }}
+
+                    {{ form.row(translate('Website') ~ ' *',
+                        form.text('website', contactForm.website, { 'required': '' })) }}
+
+                    {{ form.row(translate('Subject') ~ ' *',
+                        form.text('subject', '', { 'required': '' })) }}
+                    <tr>
+                        <th scope="row">
+                            <label for="select-question">{{ translate('Topic') }}</label>
+                        </th>
+                        <td>
+                            <select id="select-question" name="question">
+                                <option value="plugin_options">
+                                    {{ translate('Plugin options') }}
+                                </option>
+                                <option value="bug">
+                                    {{ translate('Report a bug') }}
+                                </option>
+                                <option value="functionallity">
+                                    {{ translate('Require a new functionallity') }}
+                                </option>
+                                <option value="security_issue">
+                                    {{ translate('Report about security issue (XSS/SQLi and others)') }}
+                                </option>
+                                <option value="other">
+                                    {{ translate('Other') }}
+                                </option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row" style="vertical-align: top;">
+                            <label for="mail-text">{{ translate('Message') ~ ' *' }}</label>
+                        </th>
+                        <td>
+                            <textarea id="mail-text" name="message" cols="50" rows="3" placeholder="{{ translate('Hello Supsystic Team!') }}" required=""></textarea>
+                        </td>
+                    </tr>
+
+                    </thead>
+                </table>
+                <button id="send-mail" type="submit" class="button button-primary button-hero">
+                    <i class="fa fa-check-square" aria-hidden="true"></i>
+                    Send email
+                </button>
+                <div class="required-notification" style="color: red; float: left;" hidden>Fields with * are required to fill</div>
+                {{ form.close() }}
+                <div class="clear"></div>
+            </div>
+
+            <div id="contact-form-dialog" hidden>
+                <div class="on-error" style="display:none">
+                    <p>{{ translate('Some errors occurred while sending mail please send your message trough this contact form:') }}</p>
+                    <p><a href="https://supsystic.com/plugins/photo-gallery/#contact" target="_blank">https://supsystic.com/plugins/photo-gallery/#contact</a></p>
+                </div>
+                <div class="message"></div>
+            </div>
+
+            <div data-section="faq" class="faq-list overview-section">
+                <h3><i class="fa fa-info-circle"></i> FAQ and Documentation</h3>
+                <div class="faq-title">
+                    <i class="fa fa-info-circle"></i>
+                    Gallery plugin installation
+                    <div class="description" hidden>
+                        One more advantage of responsive grid gallery WordPress plugin is an easy installation. To install it, you should make three following steps:</br>
+                        1. Download Supsystic Gallery WordPress plugin.</br>
+                        2. Upload to your WordPress plugins directory.</br>
+                        3. Activate and enjoy.
+                    </div>
+                </div>
+                <div class="faq-title">
+                    <i class="fa fa-info-circle"></i>
+                    Gallery doesn’t load on the front end. If the loading gallery icon just keeps playing but never loads the gallery.
+                    <div class="description" hidden>
+                        Most likely there are conflicts with your theme or other plugins. Please contact us through our <a href="//supsystic.com/contact-us/" target="_blank">internal support</a>. We will check what is wrong and will help you to solve the problem.
+                    </div>
+                </div>
+                <div class="faq-title">
+                    <i class="fa fa-info-circle"></i>
+                    How to change the position of photos in gallery?
+
+                    <div class="description" hidden>
+                        To change the position of photos just drag them manually on the Images List and click save.  Also there you can sort the images by add date, create date, size, name and tags.
+                    </div>
+                </div>
+				<div class="faq-title">
+                    <i class="fa fa-info-circle"></i>
+                    What is Gallery Loader?
+
+                    <div class="description" hidden>
+                        This is a new option of Photo Gallery by Supsystic, which can be found on the Main tab settings. With its help you can choose funny loader icons to entertain your users while they are waiting. Also you can set the color for your icon or disable this option at all, if you don’t need it.
+						Learn more about it in <a href="//supsystic.com/main-settings/" target="_blank">Main Settings.</a>
+                    </div>
+                </div>
+                <div style="clear: both;"></div>
+                <a href="{{ environment.generateUrl('promo', 'showTutorial') }}" class="button button-primary button-hero">
+                    <i class="fa fa-info-circle"></i>
+                    {{ translate('Start step-by-step tutorial') }}
+                </a>
+                <a target="_blank" href="https://supsystic.com/docs/gallery/?utm_source=plugin&utm_medium=faq&utm_campaign=gallery" class="button button-primary button-hero">
+                    <i class="fa fa-info-circle"></i>
+                    Check all FAQs
+                </a>
+                <div class="clear"></div>
+            </div>
+
+            <div data-section="video" class="video overview-section">
+                <h3><i class="fa fa-play"></i> Video tutorial</h3>
+                <div align="center">
+                <iframe type="text/html"
+                        style="max-width: 640px;width: 100%;height: 360px;"
+                        src="http://www.youtube.com/embed/Tjr5j5grHlg"
+                        frameborder="0">
+                </iframe>
+                <iframe type="text/html"
+                        style="max-width: 640px;width: 100%;height: 360px;"
+                        src="http://www.youtube.com/embed/CsFLxfsckpU"
+                        frameborder="0">
+                </iframe>
+                </div>
+                <div class="clear"></div>
+            </div>
+
+            <div data-section="promo_video" class="video overview-section">
+                <h3><i class="fa fa-star"></i> Our promo video</h3>
+                <div align="center">
+                <iframe type="text/html"
+                        style="max-width: 640px;width: 100%;height: 360px;"
+                        src="http://www.youtube.com/embed/dKd_9g6JzfU"
+                        frameborder="0">
+                </iframe>
+                </div>
+                <div class="clear"></div>
+            </div>
+
+            <div data-section="settings" class="server-settings overview-section">
+                <h3><i class="fa fa-cog"></i> Server settings</h3>
+                <ul class="settings-list">
+                    {% for title, element in serverSettings %}
+                        <li class="settings-line" style="float: none;">
+                            <div class="settings-title">{{ title|trim }}:</div>
+                            <span>{{ element.value|trim }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <div class="clear"></div>
+            </div>
+            </div>
+
+        </div>
+
+        <div class="half-page half-page-right">
+            {% if environment.isPro() == false %}
+            <a href="https://supsystic.com/?mod=user&action=addToCart&pid=23284&addQty=1&goto=checkout&lang=en" target="_blank"><img class="overview-supsystic-img" src="{{ SGG_PLUGIN_URL }}/src/GridGallery/Overview/assets/img/overview-trial.png"></a>
+            {% endif %}
+            <a href="https://supsystic.com/pricing/?utm_source=plugin&utm_campaign=gallery" target="_blank"><img class="overview-supsystic-img" src="{{ SGG_PLUGIN_URL }}/src/GridGallery/Overview/assets/img/overview-01.png"></a>
+            <a href="https://supsystic.com/plugins/plugins-bundle/?utm_source=plugin&utm_campaign=gallery" target="_blank"><img class="overview-supsystic-img" src="{{ SGG_PLUGIN_URL }}/src/GridGallery/Overview/assets/img/overview-02.png"></a>
+            <a href="https://supsystic.com/wordpress-plugins/?utm_source=plugin&utm_campaign=gallery" target="_blank"><img style="margin-top:20px;"  class="overview-supsystic-img" src="{{ SGG_PLUGIN_URL }}/src/GridGallery/Overview/assets/img/overview-03.png"></a>
+            <div class="clear"></div>
+        </div>
+        </div>
+    </div>
+{% endblock %}
