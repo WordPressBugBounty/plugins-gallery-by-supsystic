@@ -42,6 +42,11 @@ class GridGallery_Galleries_Module extends GridGallery_Core_Module
             array($this, 'pregReplace')
         );
 
+        $unitReplaceFilter = new Twig_SupTwgSgg_SimpleFilter(
+            'unitReplace', // The name of the filter in Twig
+            array($this, 'unitReplace') // The function that will handle the replacement logic
+        );
+
         $httpFilter = new Twig_SupTwgSgg_SimpleFilter(
             'force_http',
             array($this, 'forceHttpUrl')
@@ -63,6 +68,7 @@ class GridGallery_Galleries_Module extends GridGallery_Core_Module
         $twig = $this->getEnvironment()->getTwig();
         $twig->enableAutoReload();
         $twig->addFilter($pregReplaceFilter);
+        $twig->addFilter($unitReplaceFilter);
         $twig->addFilter($httpFilter);
 		$twig->addFilter($htmlspecialchars_decode);
         $twig->addFunction($function);
@@ -269,6 +275,20 @@ class GridGallery_Galleries_Module extends GridGallery_Core_Module
 
     public function registerWidget() {
         register_widget('sggWidget');
+    }
+
+    public function unitReplace($key, array $unitMap = [])
+    {
+        // Provide a default array if none is provided
+        $defaultMap = [
+            0 => 'px',
+            1 => '%',
+            2 => 'em',
+        ];
+        // Use provided array if it's not empty, otherwise fallback to default
+        $map = !empty($unitMap) ? $unitMap : $defaultMap;
+        // Check if the key exists in the map, return the value if found, otherwise return the key itself
+        return $map[$key] ?? $key;
     }
 
     public function pregReplace($value, $pattern, $replacement) {

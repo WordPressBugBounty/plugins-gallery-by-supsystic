@@ -284,7 +284,7 @@ class GridGallery_Galleries_Attachment
                     $crop_w = round($new_w / $size_ratio);
                     $crop_h = round($new_h / $size_ratio);
 
-					if(count($crop) > 1) {
+					if(is_array($crop) && count($crop) > 1) {
 						list($x, $y) = $crop;
 					} else {
 						$x = null;
