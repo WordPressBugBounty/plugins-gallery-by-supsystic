@@ -1372,7 +1372,7 @@ else {
             return strlen((string) $thing);
         }
 
-        return count($thing);
+        return $thing ? count($thing) : 0; 
     }
 
     /**
