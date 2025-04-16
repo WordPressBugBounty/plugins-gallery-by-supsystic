@@ -185,7 +185,7 @@ class RscSgg_Environment
             );
         }
 
-        $this->getLang()->loadTextDomain();
+        //$this->getLang()->loadTextDomain();
 
         /** @TODO THROW TRY CATCH */
         if ($this->config->has('plugin_menu')) {
