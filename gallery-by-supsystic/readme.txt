@@ -2,8 +2,8 @@
 Contributors: supsystic.com
 Donate link: https://supsystic.com/plugins/gallery
 Tags:photo gallery, grid gallery, image gallery, responsive gallery, polaroid gallery 
-Tested up to: 6.7
-Stable tag: 1.15.27
+Tested up to: 6.8
+Stable tag: 1.15.28
 License: GNU General Public License v2.0 or later
 
 Photo Gallery with template editor to build amazing media gallery. Responsive mobile gallery with grid, masonry, carousel, polaroid and more gallery
@@ -177,6 +177,13 @@ Add watermark on each image in your gallery and you protect your photos from the
 14. Photo gallery plugin admin area. Captions and Icons tab. Create impressive gallery with icons and fantastic caption effect.
 
 == Changelog ==
+= Gallery 1.15.29 / 14.05.2025 =
+ * Minor fixes
+
+
+= Gallery 1.15.28 / 06.05.2025 =
+ * Minor fixes
+
 = Gallery 1.15.27 / 16.04.2025 =
  * Fixed issue with activation server
  * Fix textdomain notice
