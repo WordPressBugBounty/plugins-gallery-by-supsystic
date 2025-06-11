@@ -251,6 +251,11 @@ class RscSgg_Environment
         return $this->config->get('is_pro', false);
     }
 
+    public function isWoo()
+    {
+        return class_exists( 'WooCommerce' );
+    }
+
     /**
      * Returns an instance of the Twig
      * @return Twig_SupTwgSgg_Environment
