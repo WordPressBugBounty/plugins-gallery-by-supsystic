@@ -1,9 +1,9 @@
 ﻿=== Photo Gallery by Supsystic ===
 Contributors: supsystic.com
 Donate link: https://supsystic.com/plugins/gallery
-Tags:photo gallery, grid gallery, image gallery, responsive gallery, polaroid gallery 
+Tags:photo gallery, grid gallery, image gallery, responsive gallery, polaroid gallery
 Tested up to: 6.8
-Stable tag: 1.15.30
+Stable tag: 1.15.31
 License: GNU General Public License v2.0 or later
 
 Photo Gallery with template editor to build amazing media gallery. Responsive mobile gallery with grid, masonry, carousel, polaroid and more gallery
@@ -24,7 +24,7 @@ Photo Gallery with template editor to build amazing media gallery. Responsive mo
 * [Fixed Gallery](https://supsystic.com/documentation/fixed-type?utm_source=wordpress&utm_medium=fixedgallery&utm_campaign=gallery "Fixed Gallery")
 * [Post Feed Gallery](https://supsystic.com/documentation/gallery-posts-feature?utm_source=wordpress&utm_medium=postfeed&utm_campaign=gallery "Post Feed Gallery")
 * [Carousel Gallery](http://supsystic.com/gallery-horizontal-scroll?utm_source=wordpress&utm_medium=Carousel&utm_campaign=gallery "Carousel Gallery")
-* [Masonry Gallery](https://supsystic.com/example/masonry-gallery?utm_source=wordpress&utm_medium=masonry&utm_campaign=gallery "Masonry Gallery") 
+* [Masonry Gallery](https://supsystic.com/example/masonry-gallery?utm_source=wordpress&utm_medium=masonry&utm_campaign=gallery "Masonry Gallery")
 * [Mosaic Gallery](https://supsystic.com/example/mosaic-gallery-example?utm_source=wordpress&utm_medium=descriptionmosaic&utm_campaign=gallery "Mosaic Gallery")
 * [Gallery with Captions and Icons](https://supsystic.com/example/captionsicons-gallery-example?utm_source=wordpress&utm_medium=captionandicons&utm_campaign=gallery "Captions and Icons")
 * [Gallery with Pagination & Load More](https://supsystic.com/feature/pagination-load-more-features?utm_source=wordpress&utm_medium=paginationloadmore&utm_campaign=gallery "Paginaion and Load more")
@@ -45,21 +45,21 @@ Set title and description of the gallery media to make your gallery SEO friendly
 
 * **[Responsive Mobile Friendly](https://supsystic.com/documentation/gallery-responsive-mode?utm_source=wordpress&utm_medium=responsive&utm_campaign=gallery "Responsive Mobile Friendly WordPress Gallery")**
 
-* **[Load More button](https://supsystic.com/documentation/load-more-button?utm_source=wordpress&utm_medium=loadmore&utm_campaign=gallery "Load More button")**, [Pagination](https://supsystic.com/example/pagination-gallery-example?utm_source=wordpress&utm_medium=pagination&utm_campaign=gallery "Paginations") and **[Lazy Load](https://supsystic.com/documentation/lazy-load?utm_source=wordpress&utm_medium=lazyload&utm_campaign=gallery "Lazy Load")** 
+* **[Load More button](https://supsystic.com/documentation/load-more-button?utm_source=wordpress&utm_medium=loadmore&utm_campaign=gallery "Load More button")**, [Pagination](https://supsystic.com/example/pagination-gallery-example?utm_source=wordpress&utm_medium=pagination&utm_campaign=gallery "Paginations") and **[Lazy Load](https://supsystic.com/documentation/lazy-load?utm_source=wordpress&utm_medium=lazyload&utm_campaign=gallery "Lazy Load")**
 
-* **[Watermark option](https://supsystic.com/example/gallery-watermark-example?utm_source=wordpress&utm_medium=watermark&utm_campaign=gallery "Watermark 
+* **[Watermark option](https://supsystic.com/example/gallery-watermark-example?utm_source=wordpress&utm_medium=watermark&utm_campaign=gallery "Watermark
 option")**
 Protect your photos against theft and make them unique using Watermark (PRO feature). You can also reflect the logo of your organization on each photo to build a branded gallery.
 
 * **[CDN options](https://supsystic.com/documentation/transfer-to-cdn?utm_source=wordpress&utm_medium=cdn&utm_campaign=gallery "CDN options")**, **[Image compression and optimization](https://supsystic.com/documentation/optimization-gallery-images?utm_source=wordpress&utm_medium=imagecompressionandoptimization&utm_campaign=gallery "Image compression and optimization")**.
-Transfer to CDN function can maintain and boost image loading speed. 
+Transfer to CDN function can maintain and boost image loading speed.
 Images compression and optimization speed up your website and improve your visitors' experience.
 
-* **[Add Images to the Gallery from FTP and Social Media](https://supsystic.com/docs/import-images?utm_source=wordpress&utm_medium=importimages&utm_campaign=gallery "Import images")** 
+* **[Add Images to the Gallery from FTP and Social Media](https://supsystic.com/docs/import-images?utm_source=wordpress&utm_medium=importimages&utm_campaign=gallery "Import images")**
 
 
 Video tutorial how to set up Photo Gallery by Supsystic
-[youtube https://youtu.be/XJ0MpAvJWVkg] 
+[youtube https://youtu.be/XJ0MpAvJWVkg]
 
 
 = Support =
@@ -69,7 +69,7 @@ Ask your questions in the [support forum](https://wordpress.org/support/plugin/g
 = Translate Photo Gallery by Supsystic to Your Language =
 
 You have an incredible opportunity to get PRO version of the photo gallery for free. Just translate the Photo Gallery via Supsystic plugin!
-* Arabic 
+* Arabic
 * Chinese
 * Czech
 * Dutch
@@ -93,7 +93,7 @@ You have an incredible opportunity to get PRO version of the photo gallery for f
 
 Our plugin is overloaded by different features and abilities, so you can look at tutorial [How to create your first WordPress Media Gallery](https://supsystic.com/documentation/gallery-getting-started?utm_source=wordpress&utm_medium=gettingstarted&utm_campaign=gallery "How to create your first WordPress media gallery")
  to learn to create Photo Gallery for a couple of minutes.
- 
+
 = How to import images to the Gallery by Supsystic plugin? =
 In order to add images to the Gallery, click on Add Images button.
 Here you can import images via:
@@ -138,8 +138,8 @@ Absolutely not. You can create and customize beautiful image and video galleries
 Yes, Photo Gallery is a popular and well-established WordPress gallery plugin, and has been for a long time. It will work well with most other WordPress themes and plugins.
 
 = Are the galleries mobile friendly? =
-Yes, we’ve put a lot of work into this. Photo Galleries are responsive and look good on diverse screen sizes. 
-[Responsive mode](https://supsystic.com/documentation/gallery-responsive-mode?utm_source=wordpress&utm_medium=responsive&utm_campaign=gallery "Responsive mode") in Photo Gallery plugin is enable by default. 
+Yes, we’ve put a lot of work into this. Photo Galleries are responsive and look good on diverse screen sizes.
+[Responsive mode](https://supsystic.com/documentation/gallery-responsive-mode?utm_source=wordpress&utm_medium=responsive&utm_campaign=gallery "Responsive mode") in Photo Gallery plugin is enable by default.
 
 = How to add a watermark to the my photos? =
 Using Gallery by Supsystic you can [add watermark](https://supsystic.com/example/gallery-watermark-example?utm_source=wordpress&utm_medium=watermark&utm_campaign=gallery "Watermark") on each image in your gallery. This helps you protect your photos from theft and make them unique on the Internet.
@@ -154,8 +154,8 @@ In order to create Gallery with Watermarks you need:
 7. Transparency – is another one appearance parameter for Watermark image, it can be established in percents.
 
 = How can I report security bugs? =
-You can report security bugs through the Patchstack Vulnerability Disclosure Program. 
-The Patchstack team help validate, triage and handle any security vulnerabilities. 
+You can report security bugs through the Patchstack Vulnerability Disclosure Program.
+The Patchstack team help validate, triage and handle any security vulnerabilities.
 [Report a security vulnerability.](https://patchstack.com/database/vdp/gallery-by-supsystic)
 
 == Screenshots ==
@@ -172,14 +172,17 @@ Set the attributes and use a Multi filtering option with drop-down list and  sea
 10.[Load More](http://supsystic.com/plugins/photo-gallery?utm_source=wordpress&utm_medium=screenshots&utm_campaign=gallery "Photo Gallery WordPress plugin").Display a gallery in the most intuitive way while still providing the full volume of images some visitors may require. Increase a Page load speed!
 11. With Social Sharing you can spread photos with your followers on Facebook, Pinterest, Twitter or any other social media.
 Add watermark on each image in your gallery and you protect your photos from theft or provide branding for your Gallery.
-12. Photo gallery plugin admin area. Image list. Add images, links, tags, keywords, categories, attributes, meta, choose caption effects and other. 
+12. Photo gallery plugin admin area. Image list. Add images, links, tags, keywords, categories, attributes, meta, choose caption effects and other.
 13. Photo gallery plugin admin area. Main Tab. Choose one of the professional image gallery template and manage any aspect of the gallery with easy-to-use options.
 14. Photo gallery plugin admin area. Captions and Icons tab. Create impressive gallery with icons and fantastic caption effect.
 
 == Changelog ==
+= Gallery 1.15.31 / 17.06.2025 =
+ * Minor fixes and overview update
+
 = Gallery 1.15.30 / 11.06.2025 =
  * Minor fixes
- 
+
 = Gallery 1.15.29 / 14.05.2025 =
  * Minor fixes
 
@@ -192,7 +195,7 @@ Add watermark on each image in your gallery and you protect your photos from the
  * Fix textdomain notice
 
 = Gallery 1.15.26 / 05.04.2025 =
- * Fix TypeError: count() 
+ * Fix TypeError: count()
  * Minor fixes
 = Gallery 1.15.25 / 30.09.2024 =
  * Fix for crop dimension
@@ -208,12 +211,12 @@ Add watermark on each image in your gallery and you protect your photos from the
  * Fixed issue with closing PHP tag displaying as text after 'Select gallery' label
  * Add fix for AC is_pro
  * Add fix for link and title for social buttons
- 
+
 = Gallery 1.15.21 / 20.03.2024 =
  * Fix Caption, Links, ALT, Description, etc.
 
 = Gallery 1.15.20 / 16.03.2024 =
- * Fix for hover 
+ * Fix for hover
 
 = Gallery 1.15.19 / 13.03.2024 =
  * Fix for AC
@@ -226,12 +229,12 @@ Add watermark on each image in your gallery and you protect your photos from the
 = Gallery 1.15.17 / 19.02.2024 =
  * Fix Strip tags for captions twig
  * Add security fix for XSS
- 
+
 = Gallery 1.15.16 / 15.02.2024 =
  * Minor fixes
 
 = Gallery 1.15.15 / 13.12.2023 =
- * Fixes for lovelink 
+ * Fixes for lovelink
 
 = Gallery 1.15.14 / 29.09.2023 =
  * Add love link feature
@@ -335,7 +338,7 @@ Add watermark on each image in your gallery and you protect your photos from the
  * Added fixes for responsive mod gallery type: Fixed, Vertical, Horizontal, Fixed Columns, Mosaic
  * Add fix for mosaic counter align
  * Fix for lightbox on mobile
- 
+
 = Gallery 1.14.0 / 25.09.2019 =
  * Add fix for init easing.js
  * Fixed mosaic watermarked thumbnail
