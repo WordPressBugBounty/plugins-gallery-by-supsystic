@@ -189,10 +189,8 @@ class Twig_SupTwgSgg_Extension_Core extends Twig_SupTwgSgg_Extension
             new Twig_SupTwgSgg_SimpleFilter('e', 'Twig_SupTwgSgg_escape_filter', array('needs_environment' => true, 'is_safe_callback' => 'Twig_SupTwgSgg_escape_filter_is_safe')),
         );
 
-        if (function_exists('mb_get_info')) {
-            $filters[] = new Twig_SupTwgSgg_SimpleFilter('upper', 'Twig_SupTwgSgg_upper_filter', array('needs_environment' => true));
-            $filters[] = new Twig_SupTwgSgg_SimpleFilter('lower', 'Twig_SupTwgSgg_lower_filter', array('needs_environment' => true));
-        }
+        $filters[] = new Twig_SupTwgSgg_SimpleFilter('upper', 'Twig_SupTwgSgg_upper_filter', array('needs_environment' => true));
+        $filters[] = new Twig_SupTwgSgg_SimpleFilter('lower', 'Twig_SupTwgSgg_lower_filter', array('needs_environment' => true));
 
         return $filters;
     }
@@ -1255,6 +1253,44 @@ function _Twig_SupTwgSgg_escape_html_attr_callback($matches)
     return sprintf('&#x%s;', $hex);
 }
 
+    /**
+     * Converts a string to uppercase.
+     *
+     * @param Twig_SupTwgSgg_Environment $env
+     * @param string           $string A string
+     *
+     * @return string The uppercased string
+     */
+    function Twig_SupTwgSgg_upper_filter(Twig_SupTwgSgg_Environment $env, $string)
+    {
+        if (function_exists('mb_get_info')) {
+          if (null !== $charset = $env->getCharset()) {
+              return mb_strtoupper($string, $charset);
+          }
+        }
+
+        return strtoupper($string);
+    }
+
+    /**
+     * Converts a string to lowercase.
+     *
+     * @param Twig_SupTwgSgg_Environment $env
+     * @param string           $string A string
+     *
+     * @return string The lowercased string
+     */
+    function Twig_SupTwgSgg_lower_filter(Twig_SupTwgSgg_Environment $env, $string)
+    {
+        if (function_exists('mb_get_info')) {
+          if (null !== $charset = $env->getCharset()) {
+              return mb_strtolower($string, $charset);
+          }
+        }
+
+        return strtolower($string);
+    }
+
 // add multibyte extensions if possible
 if (function_exists('mb_get_info')) {
     /**
@@ -1284,39 +1320,6 @@ if (function_exists('mb_get_info')) {
 		return count($thing);
     }
 
-    /**
-     * Converts a string to uppercase.
-     *
-     * @param Twig_SupTwgSgg_Environment $env
-     * @param string           $string A string
-     *
-     * @return string The uppercased string
-     */
-    function Twig_SupTwgSgg_upper_filter(Twig_SupTwgSgg_Environment $env, $string)
-    {
-        if (null !== $charset = $env->getCharset()) {
-            return mb_strtoupper($string, $charset);
-        }
-
-        return strtoupper($string);
-    }
-
-    /**
-     * Converts a string to lowercase.
-     *
-     * @param Twig_SupTwgSgg_Environment $env
-     * @param string           $string A string
-     *
-     * @return string The lowercased string
-     */
-    function Twig_SupTwgSgg_lower_filter(Twig_SupTwgSgg_Environment $env, $string)
-    {
-        if (null !== $charset = $env->getCharset()) {
-            return mb_strtolower($string, $charset);
-        }
-
-        return strtolower($string);
-    }
 
     /**
      * Returns a titlecased string.
@@ -1351,9 +1354,8 @@ if (function_exists('mb_get_info')) {
 
         return ucfirst(strtolower($string));
     }
-}
 // and byte fallback
-else {
+} else {
     /**
      * Returns the length of a variable.
      *

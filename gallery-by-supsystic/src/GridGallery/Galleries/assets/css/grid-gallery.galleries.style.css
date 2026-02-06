@@ -1081,3 +1081,21 @@ label.sggCheckboxLabelInOneRow {
 #gg-galleries #delete-group{
     margin-top: 10px;
 }
+
+.edit-image {
+  cursor:pointer;
+  color:green !important;
+  font-weight:bold !important;
+}
+
+.tui-image-editor-container .tui-image-editor-controls-logo > img, .tui-image-editor-container .tui-image-editor-header-logo > img {
+  width: 100% !important;
+  max-width: 150px !important;
+  height: auto !important;
+}
+
+#sggToastClose {
+  cursor:pointer;
+  color:black;
+  text-decoration:none;
+}

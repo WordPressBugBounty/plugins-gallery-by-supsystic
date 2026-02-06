@@ -228,6 +228,9 @@
             {{ image.attachment.width }}x{{ image.attachment.height }}</br></br>
             <div class="gg-wraper-option-links">
                 {% if(environment.isPro() == true) %}
+                <div href="#gg-edit" class="gg-option-links edit-image" data-image-id="{{ image.id }}" data-attachment-id="{{ image.attachment.id }}">{{ translate('Edit image (NEW)') }}</div></br>
+                {% endif %}
+                {% if(environment.isPro() == true) %}
                     <a href="#gg-attributes" class="gg-option-links attributes-image" data-image-id="{{ image.id }}" data-values="{{ image.attributes|json_encode|e }}">{{ translate('Attributes') }}</a></br>
                 {% endif %}
                 {% if(environment.isPro() == false) %}
@@ -269,6 +272,9 @@
             <form id="photo-editor-{{ image.id }}" class="photo-editor attachment-{{ image.attachment.id }}" data-id="{{ image.id }}" style="margin-top: 0;">
                 <div class="gg-image-option-links">
                     <div class="gg-wraper-option-links" style="float: left">
+                        {% if(environment.isPro() == true) %}
+                        <div href="#gg-edit" class="gg-option-links option-link edit-image" data-image-id="{{ image.id }}" data-attachment-id="{{ image.attachment.id }}">{{ translate('Edit image (NEW)') }}</div></br>
+                        {% endif %}
                         <a href="#gg-effect" class="gg-option-links option-link">{{ translate('Choose effect') }}</a></br>
                         <a href="#gg-linked" class="gg-option-links option-link">{{ translate('Linked Images') }}</a></br>
                         <a href="#gg-hover" class="gg-option-links option-link">{{ translate('Image on Hover') }}</a></br>
