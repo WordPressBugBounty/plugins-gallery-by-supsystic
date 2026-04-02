@@ -18,14 +18,14 @@
  */
 interface Twig_SupTwgSgg_SourceContextLoaderInterface
 {
-    /**
-     * Returns the source context for a given template logical name.
-     *
-     * @param string $name The template logical name
-     *
-     * @return Twig_SupTwgSgg_Source
-     *
-     * @throws Twig_SupTwgSgg_Error_Loader When $name is not found
-     */
-    public function getSourceContext($name);
+  /**
+   * Returns the source context for a given template logical name.
+   *
+   * @param string $name The template logical name
+   *
+   * @return Twig_SupTwgSgg_Source
+   *
+   * @throws Twig_SupTwgSgg_Error_Loader When $name is not found
+   */
+  public function getSourceContext($name);
 }

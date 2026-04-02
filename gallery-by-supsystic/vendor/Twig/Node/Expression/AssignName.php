@@ -12,12 +12,8 @@
 
 class Twig_SupTwgSgg_Node_Expression_AssignName extends Twig_SupTwgSgg_Node_Expression_Name
 {
-    public function compile(Twig_SupTwgSgg_Compiler $compiler)
-    {
-        $compiler
-            ->raw('$context[')
-            ->string($this->getAttribute('name'))
-            ->raw(']')
-        ;
-    }
+  public function compile(Twig_SupTwgSgg_Compiler $compiler)
+  {
+    $compiler->raw('$context[')->string($this->getAttribute('name'))->raw(']');
+  }
 }

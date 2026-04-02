@@ -14,17 +14,15 @@
  */
 class Twig_SupTwgSgg_Extension_StringLoader extends Twig_SupTwgSgg_Extension
 {
-    public function getFunctions()
-    {
-        return array(
-            new Twig_SupTwgSgg_SimpleFunction('template_from_string', 'Twig_SupTwgSgg_template_from_string', array('needs_environment' => true)),
-        );
-    }
+  public function getFunctions()
+  {
+    return [new Twig_SupTwgSgg_SimpleFunction('template_from_string', 'Twig_SupTwgSgg_template_from_string', ['needs_environment' => true])];
+  }
 
-    public function getName()
-    {
-        return 'string_loader';
-    }
+  public function getName()
+  {
+    return 'string_loader';
+  }
 }
 
 /**
@@ -41,5 +39,5 @@ class Twig_SupTwgSgg_Extension_StringLoader extends Twig_SupTwgSgg_Extension
  */
 function Twig_SupTwgSgg_template_from_string(Twig_SupTwgSgg_Environment $env, $template)
 {
-    return $env->createTemplate((string) $template);
+  return $env->createTemplate((string) $template);
 }

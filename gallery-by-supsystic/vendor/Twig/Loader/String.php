@@ -29,30 +29,30 @@
  */
 class Twig_SupTwgSgg_Loader_String implements Twig_SupTwgSgg_LoaderInterface, Twig_SupTwgSgg_ExistsLoaderInterface, Twig_SupTwgSgg_SourceContextLoaderInterface
 {
-    public function getSource($name)
-    {
-        //@trigger_error(sprintf('Calling "getSource" on "%s" is deprecated since 1.27. Use getSourceContext() instead.', get_class($this)), E_USER_DEPRECATED);
+  public function getSource($name)
+  {
+    //@trigger_error(sprintf('Calling "getSource" on "%s" is deprecated since 1.27. Use getSourceContext() instead.', get_class($this)), E_USER_DEPRECATED);
 
-        return $name;
-    }
+    return $name;
+  }
 
-    public function getSourceContext($name)
-    {
-        return new Twig_SupTwgSgg_Source($name, $name);
-    }
+  public function getSourceContext($name)
+  {
+    return new Twig_SupTwgSgg_Source($name, $name);
+  }
 
-    public function exists($name)
-    {
-        return true;
-    }
+  public function exists($name)
+  {
+    return true;
+  }
 
-    public function getCacheKey($name)
-    {
-        return $name;
-    }
+  public function getCacheKey($name)
+  {
+    return $name;
+  }
 
-    public function isFresh($name, $time)
-    {
-        return true;
-    }
+  public function isFresh($name, $time)
+  {
+    return true;
+  }
 }

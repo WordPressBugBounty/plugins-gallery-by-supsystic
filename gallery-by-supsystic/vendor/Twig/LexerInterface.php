@@ -18,15 +18,15 @@
  */
 interface Twig_SupTwgSgg_LexerInterface
 {
-    /**
-     * Tokenizes a source code.
-     *
-     * @param string|Twig_SupTwgSgg_Source $code The source code
-     * @param string             $name A unique identifier for the source code
-     *
-     * @return Twig_SupTwgSgg_TokenStream
-     *
-     * @throws Twig_SupTwgSgg_Error_Syntax When the code is syntactically wrong
-     */
-    public function tokenize($code, $name = null);
+  /**
+   * Tokenizes a source code.
+   *
+   * @param string|Twig_SupTwgSgg_Source $code The source code
+   * @param string             $name A unique identifier for the source code
+   *
+   * @return Twig_SupTwgSgg_TokenStream
+   *
+   * @throws Twig_SupTwgSgg_Error_Syntax When the code is syntactically wrong
+   */
+  public function tokenize($code, $name = null);
 }

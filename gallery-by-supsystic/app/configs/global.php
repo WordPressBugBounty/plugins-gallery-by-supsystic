@@ -1,5 +1,5 @@
 <?php
 
-return array(
-    'pro_url' => 'http://supsystic.com/plugins/photo-gallery/'
-);
+return [
+  'pro_url' => 'http://supsystic.com/plugins/photo-gallery/',
+];

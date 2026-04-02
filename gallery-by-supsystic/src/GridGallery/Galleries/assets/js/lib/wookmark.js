@@ -17,8 +17,7 @@
   } else {
     factory(window, document);
   }
-}(function (window, document) {
-
+})(function (window, document) {
   // Wookmark default options
   // ------------------------
   var defaultOptions = {
@@ -38,7 +37,7 @@
     placeholderClass: 'wookmark-placeholder',
     possibleFilters: [],
     resizeDelay: 50,
-    verticalOffset: undefined
+    verticalOffset: undefined,
   };
 
   // Helper functions
@@ -52,7 +51,11 @@
   }
 
   // Function for executing css writes to dom on the next animation frame if supported
-  var executeNextFrame = window.requestAnimationFrame || function (callback) { callback(); };
+  var executeNextFrame =
+    window.requestAnimationFrame ||
+    function (callback) {
+      callback();
+    };
 
   // Update multiple css values on an object
   function setCSS(el, properties) {
@@ -171,7 +174,10 @@
 
   // Remove duplicates from given array
   function removeDuplicates(items) {
-    var temp = {}, result = [], x, i = items.length;
+    var temp = {},
+      result = [],
+      x,
+      i = items.length;
     while (i--) {
       x = getData(items[i], 'id', true);
       if (!temp.hasOwnProperty(x)) {
@@ -187,10 +193,10 @@
     return window.getComputedStyle !== undefined ? window.getComputedStyle(el, null).getPropertyValue(prop) : el.currentStyle[prop];
   }
 
-
   // IE 8 compatible indexOf
   function indexOf(items, item) {
-    var len = items.length, i;
+    var len = items.length,
+      i;
     for (i = 0; i < len; i++) {
       if (items[i] === item) {
         return i;
@@ -256,8 +262,10 @@
   Wookmark.prototype.initItems = function () {
     // By select all children of the container if no selector is specified
     if (this.itemSelector === undefined) {
-      var items = [], child, children = this.container.children,
-          i = children.length;
+      var items = [],
+        child,
+        children = this.container.children,
+        i = children.length;
       while (i--) {
         child = children[i];
         // Skip comment nodes on IE8
@@ -282,9 +290,15 @@
   // Reload all filter classes from all items and cache them
   Wookmark.prototype.updateFilterClasses = function () {
     // Collect filter data
-    var i = this.items.length, j, filterClasses = {}, itemFilterClasses,
-      item, filterClass, possibleFilters = this.possibleFilters,
-      k = possibleFilters.length, possibleFilter;
+    var i = this.items.length,
+      j,
+      filterClasses = {},
+      itemFilterClasses,
+      item,
+      filterClass,
+      possibleFilters = this.possibleFilters,
+      k = possibleFilters.length,
+      possibleFilter;
 
     while (i--) {
       item = this.items[i];
@@ -354,8 +368,13 @@
   // @param filters array of string
   // @param mode 'or' or 'and'
   Wookmark.prototype.filter = function (filters, mode, dryRun) {
-    var activeFilters = [], activeFiltersLength, activeItems = [],
-      i, j, k, filter;
+    var activeFilters = [],
+      activeFiltersLength,
+      activeItems = [],
+      i,
+      j,
+      k,
+      filter;
 
     filters = filters || [];
     mode = mode || 'or';
@@ -378,8 +397,11 @@
           activeItems = activeItems.concat(activeFilters[i]);
         }
       } else if (mode === 'and') {
-        var shortestFilter = activeFilters[0], itemValid = true,
-          foundInFilter, currentItem, currentFilter;
+        var shortestFilter = activeFilters[0],
+          itemValid = true,
+          foundInFilter,
+          currentItem,
+          currentFilter;
 
         // Find shortest filter class
         while (i--) {
@@ -469,8 +491,8 @@
       this.placeholders = this.container.querySelectorAll('.' + this.placeholderClass);
     }
 
-    innerOffset = (this.offset + parseInt(getStyle(this.placeholders[0], 'border-left-width'), 10) * 2) || 0;
-    innerOffset += (parseInt(getStyle(this.placeholders[0], 'padding-left'), 10) * 2)  || 0;
+    innerOffset = this.offset + parseInt(getStyle(this.placeholders[0], 'border-left-width'), 10) * 2 || 0;
+    innerOffset += parseInt(getStyle(this.placeholders[0], 'padding-left'), 10) * 2 || 0;
 
     // Update each placeholder
     for (i = 0; i < this.placeholders.length; i++) {
@@ -487,10 +509,10 @@
         setCSS(placeholder, {
           position: 'absolute',
           display: height > 0 ? 'block' : 'none',
-          left: (i * columnWidth + sideOffset) + 'px',
+          left: i * columnWidth + sideOffset + 'px',
           top: top + 'px',
-          width: (columnWidth - innerOffset) + 'px',
-          height: height + 'px'
+          width: columnWidth - innerOffset + 'px',
+          height: height + 'px',
         });
       }
     }
@@ -530,7 +552,7 @@
     if (this.items.length > 0 && (itemWidth === undefined || (itemWidth === 0 && !this.flexibleWidth))) {
       itemWidth = getWidth(this.items[0]);
     } else if (typeof itemWidth === 'string' && itemWidth.indexOf('%') >= 0) {
-      itemWidth = parseFloat(itemWidth) / 100 * innerWidth;
+      itemWidth = (parseFloat(itemWidth) / 100) * innerWidth;
     }
 
     // Calculate flexible item width if option is set
@@ -540,11 +562,11 @@
       }
 
       if (typeof flexibleWidth === 'string' && flexibleWidth.indexOf('%') >= 0) {
-        flexibleWidth = parseFloat(flexibleWidth) / 100 * innerWidth;
+        flexibleWidth = (parseFloat(flexibleWidth) / 100) * innerWidth;
       }
 
       // Find highest column count
-      var paddedInnerWidth = (innerWidth + this.offset),
+      var paddedInnerWidth = innerWidth + this.offset,
         flexibleColumns = Math.floor(0.5 + paddedInnerWidth / (flexibleWidth + this.offset)),
         fixedColumns = Math.floor(paddedInnerWidth / (itemWidth + this.offset)),
         columns = Math.max(flexibleColumns, fixedColumns),
@@ -559,7 +581,9 @@
   // Main layout method.
   Wookmark.prototype.layout = function (force, callback) {
     // Do nothing if container isn't visible
-    if (!force && isHidden(this.container)) { return; }
+    if (!force && isHidden(this.container)) {
+      return;
+    }
 
     // Calculate basic layout parameters.
     var calculatedItemWidth = this.getItemWidth(),
@@ -594,7 +618,7 @@
     // Calculate the offset based on the alignment of columns to the parent container
     offset = this.outerOffset;
     if (this.align === 'center') {
-      offset += Math.floor(0.5 + (innerWidth - (columns * columnWidth - this.offset)) >> 1);
+      offset += Math.floor((0.5 + (innerWidth - (columns * columnWidth - this.offset))) >> 1);
     }
 
     // Get direction for positioning
@@ -633,8 +657,18 @@
 
   // Perform a full layout update.
   Wookmark.prototype.layoutFull = function (columnWidth, columns, offset) {
-    var item, k = 0, i = 0, activeItems, activeItemCount, shortest = null, shortestIndex = null,
-        sideOffset, heights = [], itemBulkCSS = [], leftAligned = this.align === 'left', self = this;
+    var item,
+      k = 0,
+      i = 0,
+      activeItems,
+      activeItemCount,
+      shortest = null,
+      shortestIndex = null,
+      sideOffset,
+      heights = [],
+      itemBulkCSS = [],
+      leftAligned = this.align === 'left',
+      self = this;
 
     this.columns = [];
 
@@ -674,8 +708,8 @@
         el: item,
         css: {
           position: 'absolute',
-          top: shortest + 'px'
-        }
+          top: shortest + 'px',
+        },
       };
       itemBulkCSS[i].css[this.direction] = sideOffset + 'px';
 
@@ -700,9 +734,15 @@
   // This layout method only updates the vertical position of the
   // existing column assignments.
   Wookmark.prototype.layoutColumns = function (columnWidth, offset) {
-    var heights = [], itemBulkCSS = [], k = 0, j = 0,
-      i = this.columns.length, currentHeight,
-      column, item, sideOffset;
+    var heights = [],
+      itemBulkCSS = [],
+      k = 0,
+      j = 0,
+      i = this.columns.length,
+      currentHeight,
+      column,
+      item,
+      sideOffset;
 
     while (i--) {
       currentHeight = this.outerOffset;
@@ -716,8 +756,8 @@
         itemBulkCSS[j] = {
           el: item,
           css: {
-            top: currentHeight + 'px'
-          }
+            top: currentHeight + 'px',
+          },
         };
         itemBulkCSS[j].css[this.direction] = sideOffset + 'px';
 
@@ -772,4 +812,4 @@
 
   window.Wookmark = Wookmark;
   return Wookmark;
-}));
+});

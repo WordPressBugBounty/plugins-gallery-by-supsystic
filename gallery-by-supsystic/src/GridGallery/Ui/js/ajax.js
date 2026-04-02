@@ -1,45 +1,45 @@
 /*global jQuery*/
 
 (function (app, url, $) {
-    function Post(route, data) {
+  function Post(route, data) {
+    this.url = url;
+    this.route = route;
+    this.data = {
+      action: 'grid-gallery',
+      _wpnonce: SupsysticGallery.nonce,
+    };
 
-        this.url = url;
-        this.route = route;
-        this.data = {
-            action: 'grid-gallery',
-            _wpnonce: SupsysticGallery.nonce
-        };
-
-        if (typeof data !== 'undefined') {
-            this.data = $.extend(this.data, data);
-        }
-
-        return this;
+    if (typeof data !== 'undefined') {
+      this.data = $.extend(this.data, data);
     }
 
-    Post.prototype.add = function (key, value) {
-        if (key === 'action') {
-            throw new Error('Invalid key: "action"');
-        }
+    return this;
+  }
 
-        this.data[key] = value;
+  Post.prototype.add = function (key, value) {
+    if (key === 'action') {
+      throw new Error('Invalid key: "action"');
+    }
 
-        return this;
-    };
+    this.data[key] = value;
 
-    Post.prototype.send = function (fn) {
+    return this;
+  };
 
-        this.data.route = this.route;
+  Post.prototype.send = function (fn) {
+    this.data.route = this.route;
 
-        return $.post(this.url, this.data, $.proxy(function (response, status) {
-            fn(response, this.data);
-        }, this));
+    return $.post(
+      this.url,
+      this.data,
+      $.proxy(function (response, status) {
+        fn(response, this.data);
+      }, this)
+    );
+  };
 
-    };
-
-    app.Ajax = app.Ajax || {};
-    app.Ajax.Post = function (route, data) {
-        return new Post(route, data);
-    };
-
-}(window.SupsysticGallery = window.SupsysticGallery || {}, ajaxurl, jQuery));
+  app.Ajax = app.Ajax || {};
+  app.Ajax.Post = function (route, data) {
+    return new Post(route, data);
+  };
+})((window.SupsysticGallery = window.SupsysticGallery || {}), ajaxurl, jQuery);

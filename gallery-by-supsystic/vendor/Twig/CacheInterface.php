@@ -20,37 +20,37 @@
  */
 interface Twig_SupTwgSgg_CacheInterface
 {
-    /**
-     * Generates a cache key for the given template class name.
-     *
-     * @param string $name      The template name
-     * @param string $className The template class name
-     *
-     * @return string
-     */
-    public function generateKey($name, $className);
+  /**
+   * Generates a cache key for the given template class name.
+   *
+   * @param string $name      The template name
+   * @param string $className The template class name
+   *
+   * @return string
+   */
+  public function generateKey($name, $className);
 
-    /**
-     * Writes the compiled template to cache.
-     *
-     * @param string $key     The cache key
-     * @param string $content The template representation as a PHP class
-     */
-    public function write($key, $content);
+  /**
+   * Writes the compiled template to cache.
+   *
+   * @param string $key     The cache key
+   * @param string $content The template representation as a PHP class
+   */
+  public function write($key, $content);
 
-    /**
-     * Loads a template from the cache.
-     *
-     * @param string $key The cache key
-     */
-    public function load($key);
+  /**
+   * Loads a template from the cache.
+   *
+   * @param string $key The cache key
+   */
+  public function load($key);
 
-    /**
-     * Returns the modification timestamp of a key.
-     *
-     * @param string $key The cache key
-     *
-     * @return int
-     */
-    public function getTimestamp($key);
+  /**
+   * Returns the modification timestamp of a key.
+   *
+   * @param string $key The cache key
+   *
+   * @return int
+   */
+  public function getTimestamp($key);
 }

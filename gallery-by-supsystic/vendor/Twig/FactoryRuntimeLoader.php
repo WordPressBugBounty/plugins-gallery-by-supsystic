@@ -16,22 +16,22 @@
  */
 class Twig_SupTwgSgg_FactoryRuntimeLoader implements Twig_SupTwgSgg_RuntimeLoaderInterface
 {
-    private $map;
+  private $map;
 
-    /**
-     * @param array $map An array where keys are class names and values factory callables
-     */
-    public function __construct($map = array())
-    {
-        $this->map = $map;
+  /**
+   * @param array $map An array where keys are class names and values factory callables
+   */
+  public function __construct($map = [])
+  {
+    $this->map = $map;
+  }
+
+  public function load($class)
+  {
+    if (isset($this->map[$class])) {
+      $runtimeFactory = $this->map[$class];
+
+      return $runtimeFactory();
     }
-
-    public function load($class)
-    {
-        if (isset($this->map[$class])) {
-            $runtimeFactory = $this->map[$class];
-
-            return $runtimeFactory();
-        }
-    }
+  }
 }

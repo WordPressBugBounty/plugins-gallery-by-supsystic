@@ -10,21 +10,15 @@
  */
 class Twig_SupTwgSgg_Node_Expression_Binary_StartsWith extends Twig_SupTwgSgg_Node_Expression_Binary
 {
-    public function compile(Twig_SupTwgSgg_Compiler $compiler)
-    {
-        $left = $compiler->getVarName();
-        $right = $compiler->getVarName();
-        $compiler
-            ->raw(sprintf('(is_string($%s = ', $left))
-            ->subcompile($this->getNode('left'))
-            ->raw(sprintf(') && is_string($%s = ', $right))
-            ->subcompile($this->getNode('right'))
-            ->raw(sprintf(') && (\'\' === $%2$s || 0 === strpos($%1$s, $%2$s)))', $left, $right))
-        ;
-    }
+  public function compile(Twig_SupTwgSgg_Compiler $compiler)
+  {
+    $left = $compiler->getVarName();
+    $right = $compiler->getVarName();
+    $compiler->raw(sprintf('(is_string($%s = ', $left))->subcompile($this->getNode('left'))->raw(sprintf(') && is_string($%s = ', $right))->subcompile($this->getNode('right'))->raw(sprintf(') && (\'\' === $%2$s || 0 === strpos($%1$s, $%2$s)))', $left, $right));
+  }
 
-    public function operator(Twig_SupTwgSgg_Compiler $compiler)
-    {
-        return $compiler->raw('');
-    }
+  public function operator(Twig_SupTwgSgg_Compiler $compiler)
+  {
+    return $compiler->raw('');
+  }
 }

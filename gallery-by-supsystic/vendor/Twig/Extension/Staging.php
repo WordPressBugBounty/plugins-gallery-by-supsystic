@@ -20,87 +20,87 @@
  */
 class Twig_SupTwgSgg_Extension_Staging extends Twig_SupTwgSgg_Extension
 {
-    protected $functions = array();
-    protected $filters = array();
-    protected $visitors = array();
-    protected $tokenParsers = array();
-    protected $globals = array();
-    protected $tests = array();
+  protected $functions = [];
+  protected $filters = [];
+  protected $visitors = [];
+  protected $tokenParsers = [];
+  protected $globals = [];
+  protected $tests = [];
 
-    public function addFunction($name, $function)
-    {
-        if (isset($this->functions[$name])) {
-        }
-
-        $this->functions[$name] = $function;
+  public function addFunction($name, $function)
+  {
+    if (isset($this->functions[$name])) {
     }
 
-    public function getFunctions()
-    {
-        return $this->functions;
+    $this->functions[$name] = $function;
+  }
+
+  public function getFunctions()
+  {
+    return $this->functions;
+  }
+
+  public function addFilter($name, $filter)
+  {
+    if (isset($this->filters[$name])) {
     }
 
-    public function addFilter($name, $filter)
-    {
-        if (isset($this->filters[$name])) {
-        }
+    $this->filters[$name] = $filter;
+  }
 
-        $this->filters[$name] = $filter;
+  public function getFilters()
+  {
+    return $this->filters;
+  }
+
+  public function addNodeVisitor(Twig_SupTwgSgg_NodeVisitorInterface $visitor)
+  {
+    $this->visitors[] = $visitor;
+  }
+
+  public function getNodeVisitors()
+  {
+    return $this->visitors;
+  }
+
+  public function addTokenParser(Twig_SupTwgSgg_TokenParserInterface $parser)
+  {
+    if (isset($this->tokenParsers[$parser->getTag()])) {
     }
 
-    public function getFilters()
-    {
-        return $this->filters;
+    $this->tokenParsers[$parser->getTag()] = $parser;
+  }
+
+  public function getTokenParsers()
+  {
+    return $this->tokenParsers;
+  }
+
+  public function addGlobal($name, $value)
+  {
+    $this->globals[$name] = $value;
+  }
+
+  public function getGlobals()
+  {
+    return $this->globals;
+  }
+
+  public function addTest($name, $test)
+  {
+    if (isset($this->tests[$name])) {
     }
 
-    public function addNodeVisitor(Twig_SupTwgSgg_NodeVisitorInterface $visitor)
-    {
-        $this->visitors[] = $visitor;
-    }
+    $this->tests[$name] = $test;
+  }
 
-    public function getNodeVisitors()
-    {
-        return $this->visitors;
-    }
+  public function getTests()
+  {
+    return $this->tests;
+  }
 
-    public function addTokenParser(Twig_SupTwgSgg_TokenParserInterface $parser)
-    {
-        if (isset($this->tokenParsers[$parser->getTag()])) {
-        }
-
-        $this->tokenParsers[$parser->getTag()] = $parser;
-    }
-
-    public function getTokenParsers()
-    {
-        return $this->tokenParsers;
-    }
-
-    public function addGlobal($name, $value)
-    {
-        $this->globals[$name] = $value;
-    }
-
-    public function getGlobals()
-    {
-        return $this->globals;
-    }
-
-    public function addTest($name, $test)
-    {
-        if (isset($this->tests[$name])) {
-        }
-
-        $this->tests[$name] = $test;
-    }
-
-    public function getTests()
-    {
-        return $this->tests;
-    }
-
-    public function getName()
-    {
-        return 'staging';
-    }
+  public function getName()
+  {
+    return 'staging';
+  }
 }

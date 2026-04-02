@@ -14,6 +14,4 @@
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-class Twig_SupTwgSgg_Node_Body extends Twig_SupTwgSgg_Node
-{
-}
+class Twig_SupTwgSgg_Node_Body extends Twig_SupTwgSgg_Node {}

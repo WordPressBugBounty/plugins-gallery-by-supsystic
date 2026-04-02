@@ -11,36 +11,36 @@
 
 class Twig_SupTwgSgg_Extension_Profiler extends Twig_SupTwgSgg_Extension
 {
-    private $actives = array();
+  private $actives = [];
 
-    public function __construct(Twig_SupTwgSgg_Profiler_Profile $profile)
-    {
-        $this->actives[] = $profile;
+  public function __construct(Twig_SupTwgSgg_Profiler_Profile $profile)
+  {
+    $this->actives[] = $profile;
+  }
+
+  public function enter(Twig_SupTwgSgg_Profiler_Profile $profile)
+  {
+    $this->actives[0]->addProfile($profile);
+    array_unshift($this->actives, $profile);
+  }
+
+  public function leave(Twig_SupTwgSgg_Profiler_Profile $profile)
+  {
+    $profile->leave();
+    array_shift($this->actives);
+
+    if (1 === count($this->actives)) {
+      $this->actives[0]->leave();
     }
+  }
 
-    public function enter(Twig_SupTwgSgg_Profiler_Profile $profile)
-    {
-        $this->actives[0]->addProfile($profile);
-        array_unshift($this->actives, $profile);
-    }
+  public function getNodeVisitors()
+  {
+    return [new Twig_SupTwgSgg_Profiler_NodeVisitor_Profiler(get_class($this))];
+  }
 
-    public function leave(Twig_SupTwgSgg_Profiler_Profile $profile)
-    {
-        $profile->leave();
-        array_shift($this->actives);
-
-        if (1 === count($this->actives)) {
-            $this->actives[0]->leave();
-        }
-    }
-
-    public function getNodeVisitors()
-    {
-        return array(new Twig_SupTwgSgg_Profiler_NodeVisitor_Profiler(get_class($this)));
-    }
-
-    public function getName()
-    {
-        return 'profiler';
-    }
+  public function getName()
+  {
+    return 'profiler';
+  }
 }

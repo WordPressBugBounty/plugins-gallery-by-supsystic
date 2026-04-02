@@ -15,6 +15,4 @@
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-abstract class Twig_SupTwgSgg_Node_Expression extends Twig_SupTwgSgg_Node
-{
-}
+abstract class Twig_SupTwgSgg_Node_Expression extends Twig_SupTwgSgg_Node {}

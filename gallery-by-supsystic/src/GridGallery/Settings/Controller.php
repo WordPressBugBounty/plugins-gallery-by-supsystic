@@ -9,70 +9,66 @@
  */
 class GridGallery_Settings_Controller extends GridGallery_Core_BaseController
 {
+  /**
+   * {@inheritdoc}
+   */
+  protected function getModelAliases()
+  {
+    return [
+      'settings' => 'GridGallery_Settings_Model_Settings',
+    ];
+  }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function getModelAliases()
-    {
-        return array(
-            'settings' => 'GridGallery_Settings_Model_Settings',
-        );
+  /**
+   * Index Action
+   * Shows the settings page
+   *
+   * @param RscSgg_Http_Request $request
+   * @return RscSgg_Http_Response
+   */
+  public function indexAction(RscSgg_Http_Request $request)
+  {
+    $module = $this->getModule('settings');
+    $module->loadAssets();
+    $templates = $module->getTemplatesAliases();
+    $settings = get_option($this->getConfig()->get('db_prefix') . 'settings');
+    try {
+      return $this->response($templates['settings.index'], ['settings' => $settings]);
+    } catch (Exception $e) {
+      return $this->response('error.twig', ['exception' => $e]);
+    }
+  }
+
+  public function requireNonces()
+  {
+    return ['saveSettingsAction'];
+  }
+
+  public function saveSettingsAction(RscSgg_Http_Request $request)
+  {
+    $optionsName = $this->getConfig()->get('db_prefix') . 'settings';
+    $currentSettings = get_option($optionsName);
+    $settings = $request->post->get('settings', []);
+
+    if (!$currentSettings) {
+      $currentSettings = [];
     }
 
-    /**
-     * Index Action
-     * Shows the settings page
-     *
-     * @param RscSgg_Http_Request $request
-     * @return RscSgg_Http_Response
-     */
-    public function indexAction(RscSgg_Http_Request $request)
-    {
-        $module = $this->getModule('settings');
-        $module->loadAssets();
-        $templates = $module->getTemplatesAliases();
-        $settings = get_option($this->getConfig()->get('db_prefix') . 'settings');
-        try {
-            return $this->response(
-                $templates['settings.index'],
-                array('settings' => $settings)
-            );
-        } catch (Exception $e) {
-            return $this->response('error.twig', array('exception' => $e));
-        }
+    if (!current_user_can('manage_options')) {
+      if (isset($currentSettings['access_roles'])) {
+        $settings['access_roles'] = $currentSettings['access_roles'];
+      }
     }
 
-    public function requireNonces() {
-        return array(
-            'saveSettingsAction',
-        );
+    if (!$this->isPro()) {
+      $settings['access_roles'] = ['administrator'];
     }
 
-    public function saveSettingsAction(RscSgg_Http_Request $request) {
-        $optionsName = $this->getConfig()->get('db_prefix') . 'settings';
-        $currentSettings = get_option($optionsName);
-        $settings = $request->post->get('settings', array());
+    $diff = @array_diff($settings, $currentSettings);
+    $intersect = @array_intersect($settings, $currentSettings);
+    $merge = array_merge($intersect, $diff);
 
-        if (!$currentSettings) {
-            $currentSettings = array();
-        }
-
-        if (!current_user_can('manage_options')) {
-            if (isset($currentSettings['access_roles'])) {
-                $settings['access_roles'] = $currentSettings['access_roles'];
-            }
-        }
-
-        if (!$this->isPro()) {
-            $settings['access_roles'] = array('administrator');
-        }
-
-        $diff = @array_diff($settings, $currentSettings);
-        $intersect = @array_intersect($settings, $currentSettings);
-        $merge = array_merge($intersect, $diff);
-
-        update_option($optionsName, $merge);
-        return $this->redirect($this->generateUrl('settings'));
-    }
+    update_option($optionsName, $merge);
+    return $this->redirect($this->generateUrl('settings'));
+  }
 }

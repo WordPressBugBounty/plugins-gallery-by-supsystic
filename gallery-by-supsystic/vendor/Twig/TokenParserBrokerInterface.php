@@ -21,24 +21,24 @@
  */
 interface Twig_SupTwgSgg_TokenParserBrokerInterface
 {
-    /**
-     * Gets a TokenParser suitable for a tag.
-     *
-     * @param string $tag A tag name
-     *
-     * @return Twig_SupTwgSgg_TokenParserInterface|null A Twig_SupTwgSgg_TokenParserInterface or null if no suitable TokenParser was found
-     */
-    public function getTokenParser($tag);
+  /**
+   * Gets a TokenParser suitable for a tag.
+   *
+   * @param string $tag A tag name
+   *
+   * @return Twig_SupTwgSgg_TokenParserInterface|null A Twig_SupTwgSgg_TokenParserInterface or null if no suitable TokenParser was found
+   */
+  public function getTokenParser($tag);
 
-    /**
-     * Calls Twig_SupTwgSgg_TokenParserInterface::setParser on all parsers the implementation knows of.
-     */
-    public function setParser(Twig_SupTwgSgg_ParserInterface $parser);
+  /**
+   * Calls Twig_SupTwgSgg_TokenParserInterface::setParser on all parsers the implementation knows of.
+   */
+  public function setParser(Twig_SupTwgSgg_ParserInterface $parser);
 
-    /**
-     * Gets the Twig_SupTwgSgg_ParserInterface.
-     *
-     * @return null|Twig_SupTwgSgg_ParserInterface A Twig_SupTwgSgg_ParserInterface instance or null
-     */
-    public function getParser();
+  /**
+   * Gets the Twig_SupTwgSgg_ParserInterface.
+   *
+   * @return null|Twig_SupTwgSgg_ParserInterface A Twig_SupTwgSgg_ParserInterface instance or null
+   */
+  public function getParser();
 }

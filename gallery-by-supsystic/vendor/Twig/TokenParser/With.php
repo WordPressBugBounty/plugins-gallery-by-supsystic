@@ -18,33 +18,33 @@
  */
 class Twig_SupTwgSgg_TokenParser_With extends Twig_SupTwgSgg_TokenParser
 {
-    public function parse(Twig_SupTwgSgg_Token $token)
-    {
-        $stream = $this->parser->getStream();
+  public function parse(Twig_SupTwgSgg_Token $token)
+  {
+    $stream = $this->parser->getStream();
 
-        $variables = null;
-        $only = false;
-        if (!$stream->test(Twig_SupTwgSgg_Token::BLOCK_END_TYPE)) {
-            $variables = $this->parser->getExpressionParser()->parseExpression();
-            $only = $stream->nextIf(Twig_SupTwgSgg_Token::NAME_TYPE, 'only');
-        }
-
-        $stream->expect(Twig_SupTwgSgg_Token::BLOCK_END_TYPE);
-
-        $body = $this->parser->subparse(array($this, 'decideWithEnd'), true);
-
-        $stream->expect(Twig_SupTwgSgg_Token::BLOCK_END_TYPE);
-
-        return new Twig_SupTwgSgg_Node_With($body, $variables, $only, $token->getLine(), $this->getTag());
+    $variables = null;
+    $only = false;
+    if (!$stream->test(Twig_SupTwgSgg_Token::BLOCK_END_TYPE)) {
+      $variables = $this->parser->getExpressionParser()->parseExpression();
+      $only = $stream->nextIf(Twig_SupTwgSgg_Token::NAME_TYPE, 'only');
     }
 
-    public function decideWithEnd(Twig_SupTwgSgg_Token $token)
-    {
-        return $token->test('endwith');
-    }
+    $stream->expect(Twig_SupTwgSgg_Token::BLOCK_END_TYPE);
 
-    public function getTag()
-    {
-        return 'with';
-    }
+    $body = $this->parser->subparse([$this, 'decideWithEnd'], true);
+
+    $stream->expect(Twig_SupTwgSgg_Token::BLOCK_END_TYPE);
+
+    return new Twig_SupTwgSgg_Node_With($body, $variables, $only, $token->getLine(), $this->getTag());
+  }
+
+  public function decideWithEnd(Twig_SupTwgSgg_Token $token)
+  {
+    return $token->test('endwith');
+  }
+
+  public function getTag()
+  {
+    return 'with';
+  }
 }

@@ -20,5 +20,5 @@
  */
 interface Twig_SupTwgSgg_FunctionCallableInterface
 {
-    public function getCallable();
+  public function getCallable();
 }

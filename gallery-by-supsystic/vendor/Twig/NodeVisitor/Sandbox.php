@@ -18,58 +18,58 @@
  */
 class Twig_SupTwgSgg_NodeVisitor_Sandbox extends Twig_SupTwgSgg_BaseNodeVisitor
 {
-    protected $inAModule = false;
-    protected $tags;
-    protected $filters;
-    protected $functions;
+  protected $inAModule = false;
+  protected $tags;
+  protected $filters;
+  protected $functions;
 
-    protected function doEnterNode(Twig_SupTwgSgg_Node $node, Twig_SupTwgSgg_Environment $env)
-    {
-        if ($node instanceof Twig_SupTwgSgg_Node_Module) {
-            $this->inAModule = true;
-            $this->tags = array();
-            $this->filters = array();
-            $this->functions = array();
+  protected function doEnterNode(Twig_SupTwgSgg_Node $node, Twig_SupTwgSgg_Environment $env)
+  {
+    if ($node instanceof Twig_SupTwgSgg_Node_Module) {
+      $this->inAModule = true;
+      $this->tags = [];
+      $this->filters = [];
+      $this->functions = [];
 
-            return $node;
-        } elseif ($this->inAModule) {
-            // look for tags
-            if ($node->getNodeTag() && !isset($this->tags[$node->getNodeTag()])) {
-                $this->tags[$node->getNodeTag()] = $node;
-            }
+      return $node;
+    } elseif ($this->inAModule) {
+      // look for tags
+      if ($node->getNodeTag() && !isset($this->tags[$node->getNodeTag()])) {
+        $this->tags[$node->getNodeTag()] = $node;
+      }
 
-            // look for filters
-            if ($node instanceof Twig_SupTwgSgg_Node_Expression_Filter && !isset($this->filters[$node->getNode('filter')->getAttribute('value')])) {
-                $this->filters[$node->getNode('filter')->getAttribute('value')] = $node;
-            }
+      // look for filters
+      if ($node instanceof Twig_SupTwgSgg_Node_Expression_Filter && !isset($this->filters[$node->getNode('filter')->getAttribute('value')])) {
+        $this->filters[$node->getNode('filter')->getAttribute('value')] = $node;
+      }
 
-            // look for functions
-            if ($node instanceof Twig_SupTwgSgg_Node_Expression_Function && !isset($this->functions[$node->getAttribute('name')])) {
-                $this->functions[$node->getAttribute('name')] = $node;
-            }
+      // look for functions
+      if ($node instanceof Twig_SupTwgSgg_Node_Expression_Function && !isset($this->functions[$node->getAttribute('name')])) {
+        $this->functions[$node->getAttribute('name')] = $node;
+      }
 
-            // wrap print to check __toString() calls
-            if ($node instanceof Twig_SupTwgSgg_Node_Print) {
-                return new Twig_SupTwgSgg_Node_SandboxedPrint($node->getNode('expr'), $node->getTemplateLine(), $node->getNodeTag());
-            }
-        }
-
-        return $node;
+      // wrap print to check __toString() calls
+      if ($node instanceof Twig_SupTwgSgg_Node_Print) {
+        return new Twig_SupTwgSgg_Node_SandboxedPrint($node->getNode('expr'), $node->getTemplateLine(), $node->getNodeTag());
+      }
     }
 
-    protected function doLeaveNode(Twig_SupTwgSgg_Node $node, Twig_SupTwgSgg_Environment $env)
-    {
-        if ($node instanceof Twig_SupTwgSgg_Node_Module) {
-            $this->inAModule = false;
+    return $node;
+  }
 
-            $node->setNode('display_start', new Twig_SupTwgSgg_Node(array(new Twig_SupTwgSgg_Node_CheckSecurity($this->filters, $this->tags, $this->functions), $node->getNode('display_start'))));
-        }
+  protected function doLeaveNode(Twig_SupTwgSgg_Node $node, Twig_SupTwgSgg_Environment $env)
+  {
+    if ($node instanceof Twig_SupTwgSgg_Node_Module) {
+      $this->inAModule = false;
 
-        return $node;
+      $node->setNode('display_start', new Twig_SupTwgSgg_Node([new Twig_SupTwgSgg_Node_CheckSecurity($this->filters, $this->tags, $this->functions), $node->getNode('display_start')]));
     }
 
-    public function getPriority()
-    {
-        return 0;
-    }
+    return $node;
+  }
+
+  public function getPriority()
+  {
+    return 0;
+  }
 }

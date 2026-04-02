@@ -14,6 +14,4 @@
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-class Twig_SupTwgSgg_Sandbox_SecurityError extends Twig_SupTwgSgg_Error
-{
-}
+class Twig_SupTwgSgg_Sandbox_SecurityError extends Twig_SupTwgSgg_Error {}

@@ -16,16 +16,16 @@
  */
 class Twig_SupTwgSgg_Sandbox_SecurityNotAllowedFilterError extends Twig_SupTwgSgg_Sandbox_SecurityError
 {
-    private $filterName;
+  private $filterName;
 
-    public function __construct($message, $functionName, $lineno = -1, $filename = null, Exception $previous = null)
-    {
-        parent::__construct($message, $lineno, $filename, $previous);
-        $this->filterName = $functionName;
-    }
+  public function __construct($message, $functionName, $lineno = -1, $filename = null, Exception $previous = null)
+  {
+    parent::__construct($message, $lineno, $filename, $previous);
+    $this->filterName = $functionName;
+  }
 
-    public function getFilterName()
-    {
-        return $this->filterName;
-    }
+  public function getFilterName()
+  {
+    return $this->filterName;
+  }
 }

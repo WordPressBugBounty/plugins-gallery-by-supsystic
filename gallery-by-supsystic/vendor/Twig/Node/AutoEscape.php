@@ -22,13 +22,13 @@
  */
 class Twig_SupTwgSgg_Node_AutoEscape extends Twig_SupTwgSgg_Node
 {
-    public function __construct($value, Twig_SupTwgSgg_NodeInterface $body, $lineno, $tag = 'autoescape')
-    {
-        parent::__construct(array('body' => $body), array('value' => $value), $lineno, $tag);
-    }
+  public function __construct($value, Twig_SupTwgSgg_NodeInterface $body, $lineno, $tag = 'autoescape')
+  {
+    parent::__construct(['body' => $body], ['value' => $value], $lineno, $tag);
+  }
 
-    public function compile(Twig_SupTwgSgg_Compiler $compiler)
-    {
-        $compiler->subcompile($this->getNode('body'));
-    }
+  public function compile(Twig_SupTwgSgg_Compiler $compiler)
+  {
+    $compiler->subcompile($this->getNode('body'));
+  }
 }

@@ -11,8 +11,8 @@
  */
 class Twig_SupTwgSgg_Node_Expression_Unary_Pos extends Twig_SupTwgSgg_Node_Expression_Unary
 {
-    public function operator(Twig_SupTwgSgg_Compiler $compiler)
-    {
-        $compiler->raw('+');
-    }
+  public function operator(Twig_SupTwgSgg_Compiler $compiler)
+  {
+    $compiler->raw('+');
+  }
 }

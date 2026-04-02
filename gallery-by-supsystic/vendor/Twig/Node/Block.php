@@ -17,23 +17,18 @@
  */
 class Twig_SupTwgSgg_Node_Block extends Twig_SupTwgSgg_Node
 {
-    public function __construct($name, Twig_SupTwgSgg_NodeInterface $body, $lineno, $tag = null)
-    {
-        parent::__construct(array('body' => $body), array('name' => $name), $lineno, $tag);
-    }
+  public function __construct($name, Twig_SupTwgSgg_NodeInterface $body, $lineno, $tag = null)
+  {
+    parent::__construct(['body' => $body], ['name' => $name], $lineno, $tag);
+  }
 
-    public function compile(Twig_SupTwgSgg_Compiler $compiler)
-    {
-        $compiler
-            ->addDebugInfo($this)
-            ->write(sprintf("public function block_%s(\$context, array \$blocks = array())\n", $this->getAttribute('name')), "{\n")
-            ->indent()
-        ;
+  public function compile(Twig_SupTwgSgg_Compiler $compiler)
+  {
+    $compiler
+      ->addDebugInfo($this)
+      ->write(sprintf("public function block_%s(\$context, array \$blocks = array())\n", $this->getAttribute('name')), "{\n")
+      ->indent();
 
-        $compiler
-            ->subcompile($this->getNode('body'))
-            ->outdent()
-            ->write("}\n\n")
-        ;
-    }
+    $compiler->subcompile($this->getNode('body'))->outdent()->write("}\n\n");
+  }
 }

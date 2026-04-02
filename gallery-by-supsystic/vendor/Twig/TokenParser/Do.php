@@ -16,17 +16,17 @@
  */
 class Twig_SupTwgSgg_TokenParser_Do extends Twig_SupTwgSgg_TokenParser
 {
-    public function parse(Twig_SupTwgSgg_Token $token)
-    {
-        $expr = $this->parser->getExpressionParser()->parseExpression();
+  public function parse(Twig_SupTwgSgg_Token $token)
+  {
+    $expr = $this->parser->getExpressionParser()->parseExpression();
 
-        $this->parser->getStream()->expect(Twig_SupTwgSgg_Token::BLOCK_END_TYPE);
+    $this->parser->getStream()->expect(Twig_SupTwgSgg_Token::BLOCK_END_TYPE);
 
-        return new Twig_SupTwgSgg_Node_Do($expr, $token->getLine(), $this->getTag());
-    }
+    return new Twig_SupTwgSgg_Node_Do($expr, $token->getLine(), $this->getTag());
+  }
 
-    public function getTag()
-    {
-        return 'do';
-    }
+  public function getTag()
+  {
+    return 'do';
+  }
 }

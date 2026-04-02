@@ -9,115 +9,103 @@
  */
 class GridGallery_Settings_Module extends RscSgg_Mvc_Module
 {
+  /**
+   * @var GridGallery_Settings_Registry
+   */
+  private $registry;
 
-    /**
-     * @var GridGallery_Settings_Registry
-     */
-    private $registry;
+  /**
+   * Returns the Settings Registry
+   *
+   * @param GridGallery_Settings_SettingsStorageInterface $storage
+   * @return GridGallery_Settings_Registry
+   */
+  public function getRegistry(GridGallery_Settings_SettingsStorageInterface $storage = null)
+  {
+    if ($this->registry === null) {
+      $this->registry = new GridGallery_Settings_Registry($this->getEnvironment()->getConfig()->get('hooks_prefix'), $storage);
+    }
 
-    /**
-     * Returns the Settings Registry
-     *
-     * @param GridGallery_Settings_SettingsStorageInterface $storage
-     * @return GridGallery_Settings_Registry
-     */
-    public function getRegistry(GridGallery_Settings_SettingsStorageInterface $storage = null)
-    {
-        if ($this->registry === null) {
-            $this->registry = new GridGallery_Settings_Registry(
-                $this->getEnvironment()->getConfig()->get('hooks_prefix'),
-                $storage
-            );
+    return $this->registry;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function onInit()
+  {
+    $this->registerMenu();
+    add_action($this->getConfig()->get('hooks_prefix') . 'after_ui_loaded', [$this, 'afterUiLoaded_']);
+  }
+
+  public function getBackendCSS()
+  {
+    return [SGG_PLUGIN_URL . '/app/assets/css/chosen.min.css', $this->getLocationUrl() . '/assets/css/settings.css'];
+  }
+
+  public function getBackendJS()
+  {
+    return [
+      SGG_PLUGIN_URL . '/app/assets/js/chosen.jquery.min.js',
+      [
+        'source' => $this->getLocationUrl() . '/assets/js/settings.index.js',
+        'dependencies' => ['chosen.jquery.min.js'],
+      ],
+    ];
+  }
+
+  /**
+   * Loads the assets required by the module
+   */
+  public function afterUiLoaded_(GridGallery_Ui_Module $ui)
+  {
+    $ui->asset->register('styles', $this->getBackendCSS());
+    $ui->asset->register('scripts', $this->getBackendJS());
+  }
+
+  public function getTemplatesAliases()
+  {
+    return [
+      'settings.index' => '@settings/index.twig',
+    ];
+  }
+
+  public function loadAssets()
+  {
+    $prefix = $this->getConfig()->get('plugin_name') . '-';
+
+    foreach ($this->getBackendCSS() as $source) {
+      $handle = basename($source);
+      wp_enqueue_style($handle);
+    }
+
+    foreach ($this->getBackendJS() as $source) {
+      if (is_array($source)) {
+        if (isset($source['handle'])) {
+          $handle = $source['handle'];
+        } else {
+          $handle = basename($source['source']);
         }
+      } else {
+        $handle = basename($source);
+      }
+      wp_enqueue_script($handle);
+    }
+  }
 
-        return $this->registry;
+  public function registerMenu()
+  {
+    $menu = $this->getMenu();
+    $plugin_menu = $this->getConfig()->get('plugin_menu');
+    $capability = $plugin_menu['capability'];
+
+    $submenu = $menu->createSubmenuItem();
+    $submenu->setCapability($capability)->setMenuSlug('supsystic-gallery&module=settings')->setMenuTitle($this->translate('Settings'))->setPageTitle($this->translate('Settings'))->setModuleName('settings');
+    // Avoid conflicts with old vendor version
+    if (method_exists($submenu, 'setSortOrder')) {
+      $submenu->setSortOrder(40);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function onInit()
-    {
-        $this->registerMenu();
-        add_action($this->getConfig()->get('hooks_prefix') . 'after_ui_loaded',
-            array($this, 'afterUiLoaded_')
-        );
-    }
-
-
-    public function getBackendCSS() {
-        return array(
-            SGG_PLUGIN_URL . '/app/assets/css/chosen.min.css',
-            $this->getLocationUrl() . '/assets/css/settings.css'
-        );
-    }
-
-    public function getBackendJS() {
-        return array(
-            SGG_PLUGIN_URL . '/app/assets/js/chosen.jquery.min.js',
-            array(
-                'source' => $this->getLocationUrl() . '/assets/js/settings.index.js',
-                'dependencies' => array('chosen.jquery.min.js')
-            )
-        );
-    }
-
-    /**
-     * Loads the assets required by the module
-     */
-    public function afterUiLoaded_(GridGallery_Ui_Module $ui)
-    {
-        $ui->asset->register('styles', $this->getBackendCSS());
-        $ui->asset->register('scripts', $this->getBackendJS());
-    }
-
-    public function getTemplatesAliases()
-    {
-        return array(
-            'settings.index' => '@settings/index.twig'
-        );
-    }
-
-    public function loadAssets()
-    {
-        $prefix = $this->getConfig()->get('plugin_name') . '-';
-
-        foreach ($this->getBackendCSS() as $source) {
-            $handle = basename($source);
-            wp_enqueue_style($handle);
-        }
-
-        foreach ($this->getBackendJS() as $source) {
-            if (is_array($source)) {
-                if (isset($source['handle'])) {
-                    $handle = $source['handle'];
-                } else {
-                    $handle = basename($source['source']);
-                }
-            } else {
-                $handle = basename($source);
-            }
-            wp_enqueue_script($handle);
-        }
-    }
-
-    public function registerMenu() {
-
-        $menu = $this->getMenu();
-        $plugin_menu = $this->getConfig()->get('plugin_menu');
-        $capability = $plugin_menu['capability'];
-
-        $submenu = $menu->createSubmenuItem();
-        $submenu->setCapability($capability)
-            ->setMenuSlug('supsystic-gallery&module=settings')
-            ->setMenuTitle($this->translate('Settings'))
-            ->setPageTitle($this->translate('Settings'))
-            ->setModuleName('settings');
-		// Avoid conflicts with old vendor version
-		if(method_exists($submenu, 'setSortOrder')) {
-			$submenu->setSortOrder(40);
-		}
-
-        $menu->addSubmenuItem('settings', $submenu);
-    }
+    $menu->addSubmenuItem('settings', $submenu);
+  }
 }

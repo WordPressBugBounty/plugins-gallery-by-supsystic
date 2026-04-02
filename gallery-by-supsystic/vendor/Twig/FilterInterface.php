@@ -20,24 +20,24 @@
  */
 interface Twig_SupTwgSgg_FilterInterface
 {
-    /**
-     * Compiles a filter.
-     *
-     * @return string The PHP code for the filter
-     */
-    public function compile();
+  /**
+   * Compiles a filter.
+   *
+   * @return string The PHP code for the filter
+   */
+  public function compile();
 
-    public function needsEnvironment();
+  public function needsEnvironment();
 
-    public function needsContext();
+  public function needsContext();
 
-    public function getSafe(Twig_SupTwgSgg_Node $filterArgs);
+  public function getSafe(Twig_SupTwgSgg_Node $filterArgs);
 
-    public function getPreservesSafety();
+  public function getPreservesSafety();
 
-    public function getPreEscape();
+  public function getPreEscape();
 
-    public function setArguments($arguments);
+  public function setArguments($arguments);
 
-    public function getArguments();
+  public function getArguments();
 }

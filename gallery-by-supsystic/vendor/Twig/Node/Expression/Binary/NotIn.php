@@ -10,19 +10,13 @@
  */
 class Twig_SupTwgSgg_Node_Expression_Binary_NotIn extends Twig_SupTwgSgg_Node_Expression_Binary
 {
-    public function compile(Twig_SupTwgSgg_Compiler $compiler)
-    {
-        $compiler
-            ->raw('!Twig_SupTwgSgg_in_filter(')
-            ->subcompile($this->getNode('left'))
-            ->raw(', ')
-            ->subcompile($this->getNode('right'))
-            ->raw(')')
-        ;
-    }
+  public function compile(Twig_SupTwgSgg_Compiler $compiler)
+  {
+    $compiler->raw('!Twig_SupTwgSgg_in_filter(')->subcompile($this->getNode('left'))->raw(', ')->subcompile($this->getNode('right'))->raw(')');
+  }
 
-    public function operator(Twig_SupTwgSgg_Compiler $compiler)
-    {
-        return $compiler->raw('not in');
-    }
+  public function operator(Twig_SupTwgSgg_Compiler $compiler)
+  {
+    return $compiler->raw('not in');
+  }
 }

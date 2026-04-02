@@ -16,18 +16,13 @@
  */
 class Twig_SupTwgSgg_Node_Do extends Twig_SupTwgSgg_Node
 {
-    public function __construct(Twig_SupTwgSgg_Node_Expression $expr, $lineno, $tag = null)
-    {
-        parent::__construct(array('expr' => $expr), array(), $lineno, $tag);
-    }
+  public function __construct(Twig_SupTwgSgg_Node_Expression $expr, $lineno, $tag = null)
+  {
+    parent::__construct(['expr' => $expr], [], $lineno, $tag);
+  }
 
-    public function compile(Twig_SupTwgSgg_Compiler $compiler)
-    {
-        $compiler
-            ->addDebugInfo($this)
-            ->write('')
-            ->subcompile($this->getNode('expr'))
-            ->raw(";\n")
-        ;
-    }
+  public function compile(Twig_SupTwgSgg_Compiler $compiler)
+  {
+    $compiler->addDebugInfo($this)->write('')->subcompile($this->getNode('expr'))->raw(";\n");
+  }
 }

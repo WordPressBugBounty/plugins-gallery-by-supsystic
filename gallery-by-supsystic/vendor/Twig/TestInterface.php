@@ -18,10 +18,10 @@
  */
 interface Twig_SupTwgSgg_TestInterface
 {
-    /**
-     * Compiles a test.
-     *
-     * @return string The PHP code for the test
-     */
-    public function compile();
+  /**
+   * Compiles a test.
+   *
+   * @return string The PHP code for the test
+   */
+  public function compile();
 }

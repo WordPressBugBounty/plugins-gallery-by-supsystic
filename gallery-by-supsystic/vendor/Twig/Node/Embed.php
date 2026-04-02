@@ -16,29 +16,19 @@
  */
 class Twig_SupTwgSgg_Node_Embed extends Twig_SupTwgSgg_Node_Include
 {
-    // we don't inject the module to avoid node visitors to traverse it twice (as it will be already visited in the main module)
-    public function __construct($name, $index, Twig_SupTwgSgg_Node_Expression $variables = null, $only = false, $ignoreMissing = false, $lineno = null, $tag = null)
-    {
-        parent::__construct(new Twig_SupTwgSgg_Node_Expression_Constant('not_used', $lineno), $variables, $only, $ignoreMissing, $lineno, $tag);
+  // we don't inject the module to avoid node visitors to traverse it twice (as it will be already visited in the main module)
+  public function __construct($name, $index, Twig_SupTwgSgg_Node_Expression $variables = null, $only = false, $ignoreMissing = false, $lineno = null, $tag = null)
+  {
+    parent::__construct(new Twig_SupTwgSgg_Node_Expression_Constant('not_used', $lineno), $variables, $only, $ignoreMissing, $lineno, $tag);
 
-        $this->setAttribute('name', $name);
-        // to be removed in 2.0, used name instead
-        $this->setAttribute('filename', $name);
-        $this->setAttribute('index', $index);
-    }
+    $this->setAttribute('name', $name);
+    // to be removed in 2.0, used name instead
+    $this->setAttribute('filename', $name);
+    $this->setAttribute('index', $index);
+  }
 
-    protected function addGetTemplate(Twig_SupTwgSgg_Compiler $compiler)
-    {
-        $compiler
-            ->write('$this->loadTemplate(')
-            ->string($this->getAttribute('name'))
-            ->raw(', ')
-            ->repr($this->getTemplateName())
-            ->raw(', ')
-            ->repr($this->getTemplateLine())
-            ->raw(', ')
-            ->string($this->getAttribute('index'))
-            ->raw(')')
-        ;
-    }
+  protected function addGetTemplate(Twig_SupTwgSgg_Compiler $compiler)
+  {
+    $compiler->write('$this->loadTemplate(')->string($this->getAttribute('name'))->raw(', ')->repr($this->getTemplateName())->raw(', ')->repr($this->getTemplateLine())->raw(', ')->string($this->getAttribute('index'))->raw(')');
+  }
 }

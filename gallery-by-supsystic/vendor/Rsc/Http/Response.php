@@ -1,42 +1,40 @@
 <?php
 
-
 class RscSgg_Http_Response
 {
+  const AJAX = 'ajax';
 
-    const AJAX = 'ajax';
+  /**
+   * @var string
+   */
+  public $content;
 
-    /**
-     * @var string
-     */
-    public $content;
+  /**
+   * Creates the new response for chaining methods
+   * @return RscSgg_Http_Response
+   */
+  public static function create()
+  {
+    return new self();
+  }
 
-    /**
-     * Creates the new response for chaining methods
-     * @return RscSgg_Http_Response
-     */
-    public static function create()
-    {
-        return new self;
-    }
+  /**
+   * Sets the content of the response
+   * @param string $content
+   * @return RscSgg_Http_Response
+   */
+  public function setContent($content)
+  {
+    $this->content = $content;
+    return $this;
+  }
 
-    /**
-     * Sets the content of the response
-     * @param string $content
-     * @return RscSgg_Http_Response
-     */
-    public function setContent($content)
-    {
-        $this->content = $content;
-        return $this;
-    }
-
-    /**
-     * Returns the content of the response
-     * @return string
-     */
-    public function getContent()
-    {
-        return $this->content;
-    }
-} 
+  /**
+   * Returns the content of the response
+   * @return string
+   */
+  public function getContent()
+  {
+    return $this->content;
+  }
+}

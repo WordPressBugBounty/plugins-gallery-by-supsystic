@@ -18,15 +18,15 @@
  */
 class Twig_SupTwgSgg_TokenParser_Flush extends Twig_SupTwgSgg_TokenParser
 {
-    public function parse(Twig_SupTwgSgg_Token $token)
-    {
-        $this->parser->getStream()->expect(Twig_SupTwgSgg_Token::BLOCK_END_TYPE);
+  public function parse(Twig_SupTwgSgg_Token $token)
+  {
+    $this->parser->getStream()->expect(Twig_SupTwgSgg_Token::BLOCK_END_TYPE);
 
-        return new Twig_SupTwgSgg_Node_Flush($token->getLine(), $this->getTag());
-    }
+    return new Twig_SupTwgSgg_Node_Flush($token->getLine(), $this->getTag());
+  }
 
-    public function getTag()
-    {
-        return 'flush';
-    }
+  public function getTag()
+  {
+    return 'flush';
+  }
 }

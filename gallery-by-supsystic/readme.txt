@@ -3,7 +3,7 @@ Contributors: supsystic.com
 Donate link: https://supsystic.com/plugins/gallery
 Tags: gallery,image-gallery,photo gallery, album-gallery,gallery-plugin
 Tested up to: 6.9
-Stable tag: 1.15.33
+Stable tag: 1.16.0
 License: GNU General Public License v2.0 or later
 
 Photo Gallery helps you create clean, responsive image galleries and album galleries without wrestling with complex settings, layouts, or custom CSS.
@@ -105,6 +105,12 @@ Need help?
 
 
 == Changelog ==
+
+= Gallery 1.15.33 / 19.01.2026 =
+ * Maintenance and compatibility update tested with WordPress 6.9 and PHP 8.4.
+ * Includes a fix for a cache-related issue and additional stability improvements.
+ * Includes security hardening and stability fixes
+
 = Gallery 1.15.32 / 21.11.2025 =
  * Add fix for mbstring
  * Add fix for Twig Core

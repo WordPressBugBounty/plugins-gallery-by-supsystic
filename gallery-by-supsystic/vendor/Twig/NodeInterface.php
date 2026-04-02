@@ -18,15 +18,15 @@
  */
 interface Twig_SupTwgSgg_NodeInterface extends Countable, IteratorAggregate
 {
-    /**
-     * Compiles the node to PHP.
-     */
-    public function compile(Twig_SupTwgSgg_Compiler $compiler);
+  /**
+   * Compiles the node to PHP.
+   */
+  public function compile(Twig_SupTwgSgg_Compiler $compiler);
 
-    /**
-     * @deprecated since 1.27 (to be removed in 2.0)
-     */
-    public function getLine();
+  /**
+   * @deprecated since 1.27 (to be removed in 2.0)
+   */
+  public function getLine();
 
-    public function getNodeTag();
+  public function getNodeTag();
 }

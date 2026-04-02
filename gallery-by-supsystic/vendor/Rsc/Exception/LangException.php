@@ -1,7 +1,3 @@
 <?php
 
-
-class RscSgg_Exception_LangException extends InvalidArgumentException
-{
-
-} 
+class RscSgg_Exception_LangException extends InvalidArgumentException {}

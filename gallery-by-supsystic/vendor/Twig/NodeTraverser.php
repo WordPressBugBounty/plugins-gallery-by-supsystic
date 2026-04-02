@@ -20,63 +20,63 @@
  */
 class Twig_SupTwgSgg_NodeTraverser
 {
-    protected $env;
-    protected $visitors = array();
+  protected $env;
+  protected $visitors = [];
 
-    /**
-     * @param Twig_SupTwgSgg_Environment            $env
-     * @param Twig_SupTwgSgg_NodeVisitorInterface[] $visitors
-     */
-    public function __construct(Twig_SupTwgSgg_Environment $env, array $visitors = array())
-    {
-        $this->env = $env;
-        foreach ($visitors as $visitor) {
-            $this->addVisitor($visitor);
-        }
+  /**
+   * @param Twig_SupTwgSgg_Environment            $env
+   * @param Twig_SupTwgSgg_NodeVisitorInterface[] $visitors
+   */
+  public function __construct(Twig_SupTwgSgg_Environment $env, array $visitors = [])
+  {
+    $this->env = $env;
+    foreach ($visitors as $visitor) {
+      $this->addVisitor($visitor);
+    }
+  }
+
+  public function addVisitor(Twig_SupTwgSgg_NodeVisitorInterface $visitor)
+  {
+    if (!isset($this->visitors[$visitor->getPriority()])) {
+      $this->visitors[$visitor->getPriority()] = [];
     }
 
-    public function addVisitor(Twig_SupTwgSgg_NodeVisitorInterface $visitor)
-    {
-        if (!isset($this->visitors[$visitor->getPriority()])) {
-            $this->visitors[$visitor->getPriority()] = array();
-        }
+    $this->visitors[$visitor->getPriority()][] = $visitor;
+  }
 
-        $this->visitors[$visitor->getPriority()][] = $visitor;
+  /**
+   * Traverses a node and calls the registered visitors.
+   *
+   * @return Twig_SupTwgSgg_NodeInterface
+   */
+  public function traverse(Twig_SupTwgSgg_NodeInterface $node)
+  {
+    ksort($this->visitors);
+    foreach ($this->visitors as $visitors) {
+      foreach ($visitors as $visitor) {
+        $node = $this->traverseForVisitor($visitor, $node);
+      }
     }
 
-    /**
-     * Traverses a node and calls the registered visitors.
-     *
-     * @return Twig_SupTwgSgg_NodeInterface
-     */
-    public function traverse(Twig_SupTwgSgg_NodeInterface $node)
-    {
-        ksort($this->visitors);
-        foreach ($this->visitors as $visitors) {
-            foreach ($visitors as $visitor) {
-                $node = $this->traverseForVisitor($visitor, $node);
-            }
-        }
+    return $node;
+  }
 
-        return $node;
+  protected function traverseForVisitor(Twig_SupTwgSgg_NodeVisitorInterface $visitor, Twig_SupTwgSgg_NodeInterface $node = null)
+  {
+    if (null === $node) {
+      return;
     }
 
-    protected function traverseForVisitor(Twig_SupTwgSgg_NodeVisitorInterface $visitor, Twig_SupTwgSgg_NodeInterface $node = null)
-    {
-        if (null === $node) {
-            return;
-        }
+    $node = $visitor->enterNode($node, $this->env);
 
-        $node = $visitor->enterNode($node, $this->env);
-
-        foreach ($node as $k => $n) {
-            if (false !== $n = $this->traverseForVisitor($visitor, $n)) {
-                $node->setNode($k, $n);
-            } else {
-                $node->removeNode($k);
-            }
-        }
-
-        return $visitor->leaveNode($node, $this->env);
+    foreach ($node as $k => $n) {
+      if (false !== ($n = $this->traverseForVisitor($visitor, $n))) {
+        $node->setNode($k, $n);
+      } else {
+        $node->removeNode($k);
+      }
     }
+
+    return $visitor->leaveNode($node, $this->env);
+  }
 }

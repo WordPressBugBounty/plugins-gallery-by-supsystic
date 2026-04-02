@@ -17,75 +17,62 @@
  */
 class Twig_SupTwgSgg_Node_Expression_BlockReference extends Twig_SupTwgSgg_Node_Expression
 {
-    /**
-     * @param Twig_SupTwgSgg_Node|null $template
-     */
-    public function __construct(Twig_SupTwgSgg_NodeInterface $name, $template = null, $lineno, $tag = null)
-    {
-        if (is_bool($template)) {
-            //@trigger_error(sprintf('The %s method "$asString" argument is deprecated since version 1.28 and will be removed in 2.0.', __METHOD__), E_USER_DEPRECATED);
+  /**
+   * @param Twig_SupTwgSgg_Node|null $template
+   */
+  public function __construct(Twig_SupTwgSgg_NodeInterface $name, $template = null, $lineno, $tag = null)
+  {
+    if (is_bool($template)) {
+      //@trigger_error(sprintf('The %s method "$asString" argument is deprecated since version 1.28 and will be removed in 2.0.', __METHOD__), E_USER_DEPRECATED);
 
-            $template = null;
-        }
-
-        $nodes = array('name' => $name);
-        if (null !== $template) {
-            $nodes['template'] = $template;
-        }
-
-        parent::__construct($nodes, array('is_defined_test' => false, 'output' => false), $lineno, $tag);
+      $template = null;
     }
 
-    public function compile(Twig_SupTwgSgg_Compiler $compiler)
-    {
-        if ($this->getAttribute('is_defined_test')) {
-            $this->compileTemplateCall($compiler, 'hasBlock');
-        } else {
-            if ($this->getAttribute('output')) {
-                $compiler->addDebugInfo($this);
-
-                $this
-                    ->compileTemplateCall($compiler, 'displayBlock')
-                    ->raw(";\n");
-            } else {
-                $this->compileTemplateCall($compiler, 'renderBlock');
-            }
-        }
+    $nodes = ['name' => $name];
+    if (null !== $template) {
+      $nodes['template'] = $template;
     }
 
-    private function compileTemplateCall(Twig_SupTwgSgg_Compiler $compiler, $method)
-    {
-        if (!$this->hasNode('template')) {
-            $compiler->write('$this');
-        } else {
-            $compiler
-                ->write('$this->loadTemplate(')
-                ->subcompile($this->getNode('template'))
-                ->raw(', ')
-                ->repr($this->getTemplateName())
-                ->raw(', ')
-                ->repr($this->getTemplateLine())
-                ->raw(')')
-            ;
-        }
+    parent::__construct($nodes, ['is_defined_test' => false, 'output' => false], $lineno, $tag);
+  }
 
-        $compiler->raw(sprintf('->%s', $method));
-        $this->compileBlockArguments($compiler);
+  public function compile(Twig_SupTwgSgg_Compiler $compiler)
+  {
+    if ($this->getAttribute('is_defined_test')) {
+      $this->compileTemplateCall($compiler, 'hasBlock');
+    } else {
+      if ($this->getAttribute('output')) {
+        $compiler->addDebugInfo($this);
 
-        return $compiler;
+        $this->compileTemplateCall($compiler, 'displayBlock')->raw(";\n");
+      } else {
+        $this->compileTemplateCall($compiler, 'renderBlock');
+      }
+    }
+  }
+
+  private function compileTemplateCall(Twig_SupTwgSgg_Compiler $compiler, $method)
+  {
+    if (!$this->hasNode('template')) {
+      $compiler->write('$this');
+    } else {
+      $compiler->write('$this->loadTemplate(')->subcompile($this->getNode('template'))->raw(', ')->repr($this->getTemplateName())->raw(', ')->repr($this->getTemplateLine())->raw(')');
     }
 
-    private function compileBlockArguments(Twig_SupTwgSgg_Compiler $compiler)
-    {
-        $compiler
-            ->raw('(')
-            ->subcompile($this->getNode('name'))
-            ->raw(', $context');
+    $compiler->raw(sprintf('->%s', $method));
+    $this->compileBlockArguments($compiler);
 
-        if (!$this->hasNode('template')) {
-            $compiler->raw(', $blocks');
-        }
+    return $compiler;
+  }
 
-        return $compiler->raw(')');
+  private function compileBlockArguments(Twig_SupTwgSgg_Compiler $compiler)
+  {
+    $compiler->raw('(')->subcompile($this->getNode('name'))->raw(', $context');
+
+    if (!$this->hasNode('template')) {
+      $compiler->raw(', $blocks');
     }
+
+    return $compiler->raw(')');
+  }
 }

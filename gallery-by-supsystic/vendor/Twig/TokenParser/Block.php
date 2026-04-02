@@ -24,48 +24,46 @@
  */
 class Twig_SupTwgSgg_TokenParser_Block extends Twig_SupTwgSgg_TokenParser
 {
-    public function parse(Twig_SupTwgSgg_Token $token)
-    {
-        $lineno = $token->getLine();
-        $stream = $this->parser->getStream();
-        $name = $stream->expect(Twig_SupTwgSgg_Token::NAME_TYPE)->getValue();
-        if ($this->parser->hasBlock($name)) {
-            throw new Twig_SupTwgSgg_Error_Syntax(sprintf("The block '%s' has already been defined line %d.", $name, $this->parser->getBlock($name)->getTemplateLine()), $stream->getCurrent()->getLine(), $stream->getSourceContext());
+  public function parse(Twig_SupTwgSgg_Token $token)
+  {
+    $lineno = $token->getLine();
+    $stream = $this->parser->getStream();
+    $name = $stream->expect(Twig_SupTwgSgg_Token::NAME_TYPE)->getValue();
+    if ($this->parser->hasBlock($name)) {
+      throw new Twig_SupTwgSgg_Error_Syntax(sprintf("The block '%s' has already been defined line %d.", $name, $this->parser->getBlock($name)->getTemplateLine()), $stream->getCurrent()->getLine(), $stream->getSourceContext());
+    }
+    $this->parser->setBlock($name, $block = new Twig_SupTwgSgg_Node_Block($name, new Twig_SupTwgSgg_Node([]), $lineno));
+    $this->parser->pushLocalScope();
+    $this->parser->pushBlockStack($name);
+
+    if ($stream->nextIf(Twig_SupTwgSgg_Token::BLOCK_END_TYPE)) {
+      $body = $this->parser->subparse([$this, 'decideBlockEnd'], true);
+      if ($token = $stream->nextIf(Twig_SupTwgSgg_Token::NAME_TYPE)) {
+        $value = $token->getValue();
+
+        if ($value != $name) {
+          throw new Twig_SupTwgSgg_Error_Syntax(sprintf('Expected endblock for block "%s" (but "%s" given).', $name, $value), $stream->getCurrent()->getLine(), $stream->getSourceContext());
         }
-        $this->parser->setBlock($name, $block = new Twig_SupTwgSgg_Node_Block($name, new Twig_SupTwgSgg_Node(array()), $lineno));
-        $this->parser->pushLocalScope();
-        $this->parser->pushBlockStack($name);
-
-        if ($stream->nextIf(Twig_SupTwgSgg_Token::BLOCK_END_TYPE)) {
-            $body = $this->parser->subparse(array($this, 'decideBlockEnd'), true);
-            if ($token = $stream->nextIf(Twig_SupTwgSgg_Token::NAME_TYPE)) {
-                $value = $token->getValue();
-
-                if ($value != $name) {
-                    throw new Twig_SupTwgSgg_Error_Syntax(sprintf('Expected endblock for block "%s" (but "%s" given).', $name, $value), $stream->getCurrent()->getLine(), $stream->getSourceContext());
-                }
-            }
-        } else {
-            $body = new Twig_SupTwgSgg_Node(array(
-                new Twig_SupTwgSgg_Node_Print($this->parser->getExpressionParser()->parseExpression(), $lineno),
-            ));
-        }
-        $stream->expect(Twig_SupTwgSgg_Token::BLOCK_END_TYPE);
-
-        $block->setNode('body', $body);
-        $this->parser->popBlockStack();
-        $this->parser->popLocalScope();
-
-        return new Twig_SupTwgSgg_Node_BlockReference($name, $lineno, $this->getTag());
+      }
+    } else {
+      $body = new Twig_SupTwgSgg_Node([new Twig_SupTwgSgg_Node_Print($this->parser->getExpressionParser()->parseExpression(), $lineno)]);
     }
+    $stream->expect(Twig_SupTwgSgg_Token::BLOCK_END_TYPE);
 
-    public function decideBlockEnd(Twig_SupTwgSgg_Token $token)
-    {
-        return $token->test('endblock');
-    }
+    $block->setNode('body', $body);
+    $this->parser->popBlockStack();
+    $this->parser->popLocalScope();
 
-    public function getTag()
-    {
-        return 'block';
-    }
+    return new Twig_SupTwgSgg_Node_BlockReference($name, $lineno, $this->getTag());
+  }
+
+  public function decideBlockEnd(Twig_SupTwgSgg_Token $token)
+  {
+    return $token->test('endblock');
+  }
+
+  public function getTag()
+  {
+    return 'block';
+  }
 }

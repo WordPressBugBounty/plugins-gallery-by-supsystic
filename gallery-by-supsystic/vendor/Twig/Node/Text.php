@@ -17,18 +17,13 @@
  */
 class Twig_SupTwgSgg_Node_Text extends Twig_SupTwgSgg_Node implements Twig_SupTwgSgg_NodeOutputInterface
 {
-    public function __construct($data, $lineno)
-    {
-        parent::__construct(array(), array('data' => $data), $lineno);
-    }
+  public function __construct($data, $lineno)
+  {
+    parent::__construct([], ['data' => $data], $lineno);
+  }
 
-    public function compile(Twig_SupTwgSgg_Compiler $compiler)
-    {
-        $compiler
-            ->addDebugInfo($this)
-            ->write('echo ')
-            ->string($this->getAttribute('data'))
-            ->raw(";\n")
-        ;
-    }
+  public function compile(Twig_SupTwgSgg_Compiler $compiler)
+  {
+    $compiler->addDebugInfo($this)->write('echo ')->string($this->getAttribute('data'))->raw(";\n");
+  }
 }

@@ -18,21 +18,17 @@
  */
 class Twig_SupTwgSgg_Cache_Null implements Twig_SupTwgSgg_CacheInterface
 {
-    public function generateKey($name, $className)
-    {
-        return '';
-    }
+  public function generateKey($name, $className)
+  {
+    return '';
+  }
 
-    public function write($key, $content)
-    {
-    }
+  public function write($key, $content) {}
 
-    public function load($key)
-    {
-    }
+  public function load($key) {}
 
-    public function getTimestamp($key)
-    {
-        return 0;
-    }
+  public function getTimestamp($key)
+  {
+    return 0;
+  }
 }

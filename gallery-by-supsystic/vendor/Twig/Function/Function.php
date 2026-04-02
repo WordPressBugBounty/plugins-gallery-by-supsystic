@@ -23,19 +23,19 @@
  */
 class Twig_SupTwgSgg_Function_Function extends Twig_SupTwgSgg_Function
 {
-    protected $function;
+  protected $function;
 
-    public function __construct($function, array $options = array())
-    {
-        $options['callable'] = $function;
+  public function __construct($function, array $options = [])
+  {
+    $options['callable'] = $function;
 
-        parent::__construct($options);
+    parent::__construct($options);
 
-        $this->function = $function;
-    }
+    $this->function = $function;
+  }
 
-    public function compile()
-    {
-        return $this->function;
-    }
+  public function compile()
+  {
+    return $this->function;
+  }
 }

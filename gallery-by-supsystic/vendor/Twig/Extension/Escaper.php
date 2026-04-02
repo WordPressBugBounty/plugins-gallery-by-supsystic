@@ -14,87 +14,85 @@
  */
 class Twig_SupTwgSgg_Extension_Escaper extends Twig_SupTwgSgg_Extension
 {
-    protected $defaultStrategy;
+  protected $defaultStrategy;
 
-    /**
-     * @param string|false|callable $defaultStrategy An escaping strategy
-     *
-     * @see setDefaultStrategy()
-     */
-    public function __construct($defaultStrategy = 'html')
-    {
-        $this->setDefaultStrategy($defaultStrategy);
+  /**
+   * @param string|false|callable $defaultStrategy An escaping strategy
+   *
+   * @see setDefaultStrategy()
+   */
+  public function __construct($defaultStrategy = 'html')
+  {
+    $this->setDefaultStrategy($defaultStrategy);
+  }
+
+  public function getTokenParsers()
+  {
+    return [new Twig_SupTwgSgg_TokenParser_AutoEscape()];
+  }
+
+  public function getNodeVisitors()
+  {
+    return [new Twig_SupTwgSgg_NodeVisitor_Escaper()];
+  }
+
+  public function getFilters()
+  {
+    return [new Twig_SupTwgSgg_SimpleFilter('raw', 'Twig_SupTwgSgg_raw_filter', ['is_safe' => ['all']])];
+  }
+
+  /**
+   * Sets the default strategy to use when not defined by the user.
+   *
+   * The strategy can be a valid PHP callback that takes the template
+   * name as an argument and returns the strategy to use.
+   *
+   * @param string|false|callable $defaultStrategy An escaping strategy
+   */
+  public function setDefaultStrategy($defaultStrategy)
+  {
+    // for BC
+    if (true === $defaultStrategy) {
+      //@trigger_error('Using "true" as the default strategy is deprecated since version 1.21. Use "html" instead.', E_USER_DEPRECATED);
+
+      $defaultStrategy = 'html';
     }
 
-    public function getTokenParsers()
-    {
-        return array(new Twig_SupTwgSgg_TokenParser_AutoEscape());
+    if ('filename' === $defaultStrategy) {
+      //@trigger_error('Using "filename" as the default strategy is deprecated since version 1.27. Use "name" instead.', E_USER_DEPRECATED);
+
+      $defaultStrategy = 'name';
     }
 
-    public function getNodeVisitors()
-    {
-        return array(new Twig_SupTwgSgg_NodeVisitor_Escaper());
+    if ('name' === $defaultStrategy) {
+      $defaultStrategy = ['Twig_SupTwgSgg_FileExtensionEscapingStrategy', 'guess'];
     }
 
-    public function getFilters()
-    {
-        return array(
-            new Twig_SupTwgSgg_SimpleFilter('raw', 'Twig_SupTwgSgg_raw_filter', array('is_safe' => array('all'))),
-        );
+    $this->defaultStrategy = $defaultStrategy;
+  }
+
+  /**
+   * Gets the default strategy to use when not defined by the user.
+   *
+   * @param string $name The template name
+   *
+   * @return string|false The default strategy to use for the template
+   */
+  public function getDefaultStrategy($name)
+  {
+    // disable string callables to avoid calling a function named html or js,
+    // or any other upcoming escaping strategy
+    if (!is_string($this->defaultStrategy) && false !== $this->defaultStrategy) {
+      return call_user_func($this->defaultStrategy, $name);
     }
 
-    /**
-     * Sets the default strategy to use when not defined by the user.
-     *
-     * The strategy can be a valid PHP callback that takes the template
-     * name as an argument and returns the strategy to use.
-     *
-     * @param string|false|callable $defaultStrategy An escaping strategy
-     */
-    public function setDefaultStrategy($defaultStrategy)
-    {
-        // for BC
-        if (true === $defaultStrategy) {
-            //@trigger_error('Using "true" as the default strategy is deprecated since version 1.21. Use "html" instead.', E_USER_DEPRECATED);
+    return $this->defaultStrategy;
+  }
 
-            $defaultStrategy = 'html';
-        }
-
-        if ('filename' === $defaultStrategy) {
-            //@trigger_error('Using "filename" as the default strategy is deprecated since version 1.27. Use "name" instead.', E_USER_DEPRECATED);
-
-            $defaultStrategy = 'name';
-        }
-
-        if ('name' === $defaultStrategy) {
-            $defaultStrategy = array('Twig_SupTwgSgg_FileExtensionEscapingStrategy', 'guess');
-        }
-
-        $this->defaultStrategy = $defaultStrategy;
-    }
-
-    /**
-     * Gets the default strategy to use when not defined by the user.
-     *
-     * @param string $name The template name
-     *
-     * @return string|false The default strategy to use for the template
-     */
-    public function getDefaultStrategy($name)
-    {
-        // disable string callables to avoid calling a function named html or js,
-        // or any other upcoming escaping strategy
-        if (!is_string($this->defaultStrategy) && false !== $this->defaultStrategy) {
-            return call_user_func($this->defaultStrategy, $name);
-        }
-
-        return $this->defaultStrategy;
-    }
-
-    public function getName()
-    {
-        return 'escaper';
-    }
+  public function getName()
+  {
+    return 'escaper';
+  }
 }
 
 /**
@@ -106,5 +104,5 @@ class Twig_SupTwgSgg_Extension_Escaper extends Twig_SupTwgSgg_Extension
  */
 function Twig_SupTwgSgg_raw_filter($string)
 {
-    return $string;
+  return $string;
 }

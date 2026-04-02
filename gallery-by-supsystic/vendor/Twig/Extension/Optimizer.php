@@ -14,20 +14,20 @@
  */
 class Twig_SupTwgSgg_Extension_Optimizer extends Twig_SupTwgSgg_Extension
 {
-    protected $optimizers;
+  protected $optimizers;
 
-    public function __construct($optimizers = -1)
-    {
-        $this->optimizers = $optimizers;
-    }
+  public function __construct($optimizers = -1)
+  {
+    $this->optimizers = $optimizers;
+  }
 
-    public function getNodeVisitors()
-    {
-        return array(new Twig_SupTwgSgg_NodeVisitor_Optimizer($this->optimizers));
-    }
+  public function getNodeVisitors()
+  {
+    return [new Twig_SupTwgSgg_NodeVisitor_Optimizer($this->optimizers)];
+  }
 
-    public function getName()
-    {
-        return 'optimizer';
-    }
+  public function getName()
+  {
+    return 'optimizer';
+  }
 }

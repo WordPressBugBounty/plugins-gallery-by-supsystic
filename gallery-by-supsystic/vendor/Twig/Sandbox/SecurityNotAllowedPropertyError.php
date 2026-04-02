@@ -16,23 +16,23 @@
  */
 class Twig_SupTwgSgg_Sandbox_SecurityNotAllowedPropertyError extends Twig_SupTwgSgg_Sandbox_SecurityError
 {
-    private $className;
-    private $propertyName;
+  private $className;
+  private $propertyName;
 
-    public function __construct($message, $className, $propertyName, $lineno = -1, $filename = null, Exception $previous = null)
-    {
-        parent::__construct($message, $lineno, $filename, $previous);
-        $this->className = $className;
-        $this->propertyName = $propertyName;
-    }
+  public function __construct($message, $className, $propertyName, $lineno = -1, $filename = null, Exception $previous = null)
+  {
+    parent::__construct($message, $lineno, $filename, $previous);
+    $this->className = $className;
+    $this->propertyName = $propertyName;
+  }
 
-    public function getClassName()
-    {
-        return $this->className;
-    }
+  public function getClassName()
+  {
+    return $this->className;
+  }
 
-    public function getPropertyName()
-    {
-        return $this->propertyName;
-    }
+  public function getPropertyName()
+  {
+    return $this->propertyName;
+  }
 }

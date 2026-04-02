@@ -18,34 +18,34 @@
  */
 class Twig_SupTwgSgg_Source
 {
-    private $code;
-    private $name;
-    private $path;
+  private $code;
+  private $name;
+  private $path;
 
-    /**
-     * @param string $code The template source code
-     * @param string $name The template logical name
-     * @param string $path The filesystem path of the template if any
-     */
-    public function __construct($code, $name, $path = '')
-    {
-        $this->code = $code;
-        $this->name = $name;
-        $this->path = $path;
-    }
+  /**
+   * @param string $code The template source code
+   * @param string $name The template logical name
+   * @param string $path The filesystem path of the template if any
+   */
+  public function __construct($code, $name, $path = '')
+  {
+    $this->code = $code;
+    $this->name = $name;
+    $this->path = $path;
+  }
 
-    public function getCode()
-    {
-        return $this->code;
-    }
+  public function getCode()
+  {
+    return $this->code;
+  }
 
-    public function getName()
-    {
-        return $this->name;
-    }
+  public function getName()
+  {
+    return $this->name;
+  }
 
-    public function getPath()
-    {
-        return $this->path;
-    }
+  public function getPath()
+  {
+    return $this->path;
+  }
 }

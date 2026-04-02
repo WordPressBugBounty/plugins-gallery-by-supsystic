@@ -1,6 +1,7 @@
 <?php
 
-interface ImageOptimizeInterface {
-	public function setConfiguration($options);
-	public function optimizeImage($options);
+interface ImageOptimizeInterface
+{
+  public function setConfiguration($options);
+  public function optimizeImage($options);
 }

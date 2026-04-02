@@ -20,24 +20,24 @@
  */
 class Twig_SupTwgSgg_Node_Expression_Filter_Default extends Twig_SupTwgSgg_Node_Expression_Filter
 {
-    public function __construct(Twig_SupTwgSgg_NodeInterface $node, Twig_SupTwgSgg_Node_Expression_Constant $filterName, Twig_SupTwgSgg_NodeInterface $arguments, $lineno, $tag = null)
-    {
-        $default = new Twig_SupTwgSgg_Node_Expression_Filter($node, new Twig_SupTwgSgg_Node_Expression_Constant('default', $node->getTemplateLine()), $arguments, $node->getTemplateLine());
+  public function __construct(Twig_SupTwgSgg_NodeInterface $node, Twig_SupTwgSgg_Node_Expression_Constant $filterName, Twig_SupTwgSgg_NodeInterface $arguments, $lineno, $tag = null)
+  {
+    $default = new Twig_SupTwgSgg_Node_Expression_Filter($node, new Twig_SupTwgSgg_Node_Expression_Constant('default', $node->getTemplateLine()), $arguments, $node->getTemplateLine());
 
-        if ('default' === $filterName->getAttribute('value') && ($node instanceof Twig_SupTwgSgg_Node_Expression_Name || $node instanceof Twig_SupTwgSgg_Node_Expression_GetAttr)) {
-            $test = new Twig_SupTwgSgg_Node_Expression_Test_Defined(clone $node, 'defined', new Twig_SupTwgSgg_Node(), $node->getTemplateLine());
-            $false = count($arguments) ? $arguments->getNode(0) : new Twig_SupTwgSgg_Node_Expression_Constant('', $node->getTemplateLine());
+    if ('default' === $filterName->getAttribute('value') && ($node instanceof Twig_SupTwgSgg_Node_Expression_Name || $node instanceof Twig_SupTwgSgg_Node_Expression_GetAttr)) {
+      $test = new Twig_SupTwgSgg_Node_Expression_Test_Defined(clone $node, 'defined', new Twig_SupTwgSgg_Node(), $node->getTemplateLine());
+      $false = count($arguments) ? $arguments->getNode(0) : new Twig_SupTwgSgg_Node_Expression_Constant('', $node->getTemplateLine());
 
-            $node = new Twig_SupTwgSgg_Node_Expression_Conditional($test, $default, $false, $node->getTemplateLine());
-        } else {
-            $node = $default;
-        }
-
-        parent::__construct($node, $filterName, $arguments, $lineno, $tag);
+      $node = new Twig_SupTwgSgg_Node_Expression_Conditional($test, $default, $false, $node->getTemplateLine());
+    } else {
+      $node = $default;
     }
 
-    public function compile(Twig_SupTwgSgg_Compiler $compiler)
-    {
-        $compiler->subcompile($this->getNode('node'));
-    }
+    parent::__construct($node, $filterName, $arguments, $lineno, $tag);
+  }
+
+  public function compile(Twig_SupTwgSgg_Compiler $compiler)
+  {
+    $compiler->subcompile($this->getNode('node'));
+  }
 }

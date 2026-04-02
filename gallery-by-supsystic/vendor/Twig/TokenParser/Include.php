@@ -23,43 +23,43 @@
  */
 class Twig_SupTwgSgg_TokenParser_Include extends Twig_SupTwgSgg_TokenParser
 {
-    public function parse(Twig_SupTwgSgg_Token $token)
-    {
-        $expr = $this->parser->getExpressionParser()->parseExpression();
+  public function parse(Twig_SupTwgSgg_Token $token)
+  {
+    $expr = $this->parser->getExpressionParser()->parseExpression();
 
-        list($variables, $only, $ignoreMissing) = $this->parseArguments();
+    [$variables, $only, $ignoreMissing] = $this->parseArguments();
 
-        return new Twig_SupTwgSgg_Node_Include($expr, $variables, $only, $ignoreMissing, $token->getLine(), $this->getTag());
+    return new Twig_SupTwgSgg_Node_Include($expr, $variables, $only, $ignoreMissing, $token->getLine(), $this->getTag());
+  }
+
+  protected function parseArguments()
+  {
+    $stream = $this->parser->getStream();
+
+    $ignoreMissing = false;
+    if ($stream->nextIf(Twig_SupTwgSgg_Token::NAME_TYPE, 'ignore')) {
+      $stream->expect(Twig_SupTwgSgg_Token::NAME_TYPE, 'missing');
+
+      $ignoreMissing = true;
     }
 
-    protected function parseArguments()
-    {
-        $stream = $this->parser->getStream();
-
-        $ignoreMissing = false;
-        if ($stream->nextIf(Twig_SupTwgSgg_Token::NAME_TYPE, 'ignore')) {
-            $stream->expect(Twig_SupTwgSgg_Token::NAME_TYPE, 'missing');
-
-            $ignoreMissing = true;
-        }
-
-        $variables = null;
-        if ($stream->nextIf(Twig_SupTwgSgg_Token::NAME_TYPE, 'with')) {
-            $variables = $this->parser->getExpressionParser()->parseExpression();
-        }
-
-        $only = false;
-        if ($stream->nextIf(Twig_SupTwgSgg_Token::NAME_TYPE, 'only')) {
-            $only = true;
-        }
-
-        $stream->expect(Twig_SupTwgSgg_Token::BLOCK_END_TYPE);
-
-        return array($variables, $only, $ignoreMissing);
+    $variables = null;
+    if ($stream->nextIf(Twig_SupTwgSgg_Token::NAME_TYPE, 'with')) {
+      $variables = $this->parser->getExpressionParser()->parseExpression();
     }
 
-    public function getTag()
-    {
-        return 'include';
+    $only = false;
+    if ($stream->nextIf(Twig_SupTwgSgg_Token::NAME_TYPE, 'only')) {
+      $only = true;
     }
+
+    $stream->expect(Twig_SupTwgSgg_Token::BLOCK_END_TYPE);
+
+    return [$variables, $only, $ignoreMissing];
+  }
+
+  public function getTag()
+  {
+    return 'include';
+  }
 }

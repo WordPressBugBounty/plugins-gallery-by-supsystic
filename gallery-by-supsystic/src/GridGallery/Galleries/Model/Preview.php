@@ -2,91 +2,90 @@
 
 class GridGallery_Galleries_Model_Preview
 {
+  /**
+   * Name of the field with the post id.
+   */
+  const POST_FIELD = 'grid_gallery_preview_post';
 
-    /**
-     * Name of the field with the post id.
-     */
-    const POST_FIELD = 'grid_gallery_preview_post';
+  /**
+   * Output type of the post.
+   */
+  const POST_OUTPUT = ARRAY_A;
 
-    /**
-     * Output type of the post.
-     */
-    const POST_OUTPUT = ARRAY_A;
+  /**
+   * Post filter
+   */
+  const POST_FILTER = 'raw';
 
-    /**
-     * Post filter
-     */
-    const POST_FILTER = 'raw';
-
-    /**
-     * Sets the content of the preview post.
-     * @param  string $content Post content.
-     * @throws RuntimeException
-     * @return int Post ID.
-     */
-    public function setPostContent($content)
-    {
-        if (null === $post = $this->getPost()) {
-            throw new RuntimeException('Unable to create preview post.');
-        }
-
-        $post['post_content'] = $content;
-        $post['post_status'] = 'draft';
-
-        if (1 >= wp_update_post($post)) {
-            throw new RuntimeException('Unable to update post content.');
-        }
-
-        return $post['ID'];
+  /**
+   * Sets the content of the preview post.
+   * @param  string $content Post content.
+   * @throws RuntimeException
+   * @return int Post ID.
+   */
+  public function setPostContent($content)
+  {
+    if (null === ($post = $this->getPost())) {
+      throw new RuntimeException('Unable to create preview post.');
     }
 
-    /**
-     * Returns an array of the post fields.
-     * @return array
-     */
-    protected function getPostFields()
-    {
-        return array(
-            'post_status' => 'draft',
-            'post_title' => 'Gallery Preview',
-        );
+    $post['post_content'] = $content;
+    $post['post_status'] = 'draft';
+
+    if (1 >= wp_update_post($post)) {
+      throw new RuntimeException('Unable to update post content.');
     }
 
-    /**
-     * Creates a new post for the preview.
-     * @return WP_Post|null
-     */
-    protected function createPost()
-    {
-        if (1 >= $postId = wp_insert_post($this->getPostFields())) {
-            return null;
-        }
+    return $post['ID'];
+  }
 
-        update_option(self::POST_FIELD, $postId);
+  /**
+   * Returns an array of the post fields.
+   * @return array
+   */
+  protected function getPostFields()
+  {
+    return [
+      'post_status' => 'draft',
+      'post_title' => 'Gallery Preview',
+    ];
+  }
 
-        return get_post($postId, self::POST_OUTPUT, self::POST_FILTER);
+  /**
+   * Creates a new post for the preview.
+   * @return WP_Post|null
+   */
+  protected function createPost()
+  {
+    if (1 >= ($postId = wp_insert_post($this->getPostFields()))) {
+      return null;
     }
 
-    /**
-     * Returns an instance of the preview post.
-     * @return WP_Post|null
-     */
-    protected function getPost()
-    {
-        $postId = get_option(self::POST_FIELD);
+    update_option(self::POST_FIELD, $postId);
 
-        if (false === $postId) {
-            return $this->createPost();
-        }
+    return get_post($postId, self::POST_OUTPUT, self::POST_FILTER);
+  }
 
-        $post = get_post((int)$postId, self::POST_OUTPUT, self::POST_FILTER);
-		$postFields = $this->getPostFields();
-        if (null === $post) {
-            return $this->createPost();
-        } elseif ($post['post_title'] !== $postFields['post_title']) {
-            return $this->createPost();
-        }
+  /**
+   * Returns an instance of the preview post.
+   * @return WP_Post|null
+   */
+  protected function getPost()
+  {
+    $postId = get_option(self::POST_FIELD);
 
-        return $post;
+    if (false === $postId) {
+      return $this->createPost();
     }
+
+    $post = get_post((int) $postId, self::POST_OUTPUT, self::POST_FILTER);
+    $postFields = $this->getPostFields();
+    if (null === $post) {
+      return $this->createPost();
+    } elseif ($post['post_title'] !== $postFields['post_title']) {
+      return $this->createPost();
+    }
+
+    return $post;
+  }
 }

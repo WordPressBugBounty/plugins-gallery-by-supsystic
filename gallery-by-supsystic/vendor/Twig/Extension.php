@@ -10,56 +10,54 @@
  */
 abstract class Twig_SupTwgSgg_Extension implements Twig_SupTwgSgg_ExtensionInterface
 {
-    /**
-     * @deprecated since 1.23 (to be removed in 2.0), implement Twig_SupTwgSgg_Extension_InitRuntimeInterface instead
-     */
-    public function initRuntime(Twig_SupTwgSgg_Environment $environment)
-    {
-    }
+  /**
+   * @deprecated since 1.23 (to be removed in 2.0), implement Twig_SupTwgSgg_Extension_InitRuntimeInterface instead
+   */
+  public function initRuntime(Twig_SupTwgSgg_Environment $environment) {}
 
-    public function getTokenParsers()
-    {
-        return array();
-    }
+  public function getTokenParsers()
+  {
+    return [];
+  }
 
-    public function getNodeVisitors()
-    {
-        return array();
-    }
+  public function getNodeVisitors()
+  {
+    return [];
+  }
 
-    public function getFilters()
-    {
-        return array();
-    }
+  public function getFilters()
+  {
+    return [];
+  }
 
-    public function getTests()
-    {
-        return array();
-    }
+  public function getTests()
+  {
+    return [];
+  }
 
-    public function getFunctions()
-    {
-        return array();
-    }
+  public function getFunctions()
+  {
+    return [];
+  }
 
-    public function getOperators()
-    {
-        return array();
-    }
+  public function getOperators()
+  {
+    return [];
+  }
 
-    /**
-     * @deprecated since 1.23 (to be removed in 2.0), implement Twig_SupTwgSgg_Extension_GlobalsInterface instead
-     */
-    public function getGlobals()
-    {
-        return array();
-    }
+  /**
+   * @deprecated since 1.23 (to be removed in 2.0), implement Twig_SupTwgSgg_Extension_GlobalsInterface instead
+   */
+  public function getGlobals()
+  {
+    return [];
+  }
 
-    /**
-     * @deprecated since 1.26 (to be removed in 2.0), not used anymore internally
-     */
-    public function getName()
-    {
-        return get_class($this);
-    }
+  /**
+   * @deprecated since 1.26 (to be removed in 2.0), not used anymore internally
+   */
+  public function getName()
+  {
+    return get_class($this);
+  }
 }

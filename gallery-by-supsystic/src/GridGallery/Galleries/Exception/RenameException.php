@@ -5,7 +5,4 @@
  *
  * @package GridGallery\Galleries\Exception
  */
-class GridGallery_Galleries_Exception_RenameException extends RuntimeException
-{
-
-} 
+class GridGallery_Galleries_Exception_RenameException extends RuntimeException {}

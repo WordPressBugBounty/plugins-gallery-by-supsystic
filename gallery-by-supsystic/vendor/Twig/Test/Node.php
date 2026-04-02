@@ -20,21 +20,19 @@
  */
 class Twig_SupTwgSgg_Test_Node extends Twig_SupTwgSgg_Test
 {
-    protected $class;
+  protected $class;
 
-    public function __construct($class, array $options = array())
-    {
-        parent::__construct($options);
+  public function __construct($class, array $options = [])
+  {
+    parent::__construct($options);
 
-        $this->class = $class;
-    }
+    $this->class = $class;
+  }
 
-    public function getClass()
-    {
-        return $this->class;
-    }
+  public function getClass()
+  {
+    return $this->class;
+  }
 
-    public function compile()
-    {
-    }
+  public function compile() {}
 }

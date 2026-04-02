@@ -9,34 +9,33 @@
  */
 class GridGallery_Ajax_Module extends RscSgg_Mvc_Module
 {
+  /**
+   * {@inheritdoc}
+   */
+  public function onInit()
+  {
+    parent::onInit();
 
-    /**
-     * {@inheritdoc}
-     */
-    public function onInit()
-    {
-        parent::onInit();
+    add_action('wp_ajax_grid-gallery', [$this, 'handle']);
+  }
 
-        add_action('wp_ajax_grid-gallery', array($this, 'handle'));
-    }
+  /**
+   * Handles the AJAX requests
+   * @return void
+   */
+  public function handle()
+  {
+    $handler = new GridGallery_Ajax_Handler($this->getEnvironment());
+    $handler->handle();
+  }
 
-    /**
-     * Handles the AJAX requests
-     * @return void
-     */
-    public function handle()
-    {
-        $handler = new GridGallery_Ajax_Handler($this->getEnvironment());
-        $handler->handle();
-    }
-
-    /**
-     * Returns the AJAX url
-     *
-     * @return string
-     */
-    public function getAjaxUrl()
-    {
-        return admin_url('admin-ajax.php');
-    }
-} 
+  /**
+   * Returns the AJAX url
+   *
+   * @return string
+   */
+  public function getAjaxUrl()
+  {
+    return admin_url('admin-ajax.php');
+  }
+}

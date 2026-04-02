@@ -1,7 +1,3 @@
 <?php
 
-
-class RscSgg_Form_Validator_InvalidMethodException extends InvalidArgumentException
-{
-
-} 
+class RscSgg_Form_Validator_InvalidMethodException extends InvalidArgumentException {}

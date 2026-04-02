@@ -23,37 +23,37 @@
  */
 class Twig_SupTwgSgg_Node_Expression_Test_Defined extends Twig_SupTwgSgg_Node_Expression_Test
 {
-    public function __construct(Twig_SupTwgSgg_NodeInterface $node, $name, Twig_SupTwgSgg_NodeInterface $arguments = null, $lineno)
-    {
-        if ($node instanceof Twig_SupTwgSgg_Node_Expression_Name) {
-            $node->setAttribute('is_defined_test', true);
-        } elseif ($node instanceof Twig_SupTwgSgg_Node_Expression_GetAttr) {
-            $node->setAttribute('is_defined_test', true);
-            $this->changeIgnoreStrictCheck($node);
-        } elseif ($node instanceof Twig_SupTwgSgg_Node_Expression_BlockReference) {
-            $node->setAttribute('is_defined_test', true);
-        } elseif ($node instanceof Twig_SupTwgSgg_Node_Expression_Function && 'constant' === $node->getAttribute('name')) {
-            $node->setAttribute('is_defined_test', true);
-        } elseif ($node instanceof Twig_SupTwgSgg_Node_Expression_Constant || $node instanceof Twig_SupTwgSgg_Node_Expression_Array) {
-            $node = new Twig_SupTwgSgg_Node_Expression_Constant(true, $node->getTemplateLine());
-        } else {
-            throw new Twig_SupTwgSgg_Error_Syntax('The "defined" test only works with simple variables.', $this->getTemplateLine());
-        }
-
-        parent::__construct($node, $name, $arguments, $lineno);
+  public function __construct(Twig_SupTwgSgg_NodeInterface $node, $name, Twig_SupTwgSgg_NodeInterface $arguments = null, $lineno)
+  {
+    if ($node instanceof Twig_SupTwgSgg_Node_Expression_Name) {
+      $node->setAttribute('is_defined_test', true);
+    } elseif ($node instanceof Twig_SupTwgSgg_Node_Expression_GetAttr) {
+      $node->setAttribute('is_defined_test', true);
+      $this->changeIgnoreStrictCheck($node);
+    } elseif ($node instanceof Twig_SupTwgSgg_Node_Expression_BlockReference) {
+      $node->setAttribute('is_defined_test', true);
+    } elseif ($node instanceof Twig_SupTwgSgg_Node_Expression_Function && 'constant' === $node->getAttribute('name')) {
+      $node->setAttribute('is_defined_test', true);
+    } elseif ($node instanceof Twig_SupTwgSgg_Node_Expression_Constant || $node instanceof Twig_SupTwgSgg_Node_Expression_Array) {
+      $node = new Twig_SupTwgSgg_Node_Expression_Constant(true, $node->getTemplateLine());
+    } else {
+      throw new Twig_SupTwgSgg_Error_Syntax('The "defined" test only works with simple variables.', $this->getTemplateLine());
     }
 
-    protected function changeIgnoreStrictCheck(Twig_SupTwgSgg_Node_Expression_GetAttr $node)
-    {
-        $node->setAttribute('ignore_strict_check', true);
+    parent::__construct($node, $name, $arguments, $lineno);
+  }
 
-        if ($node->getNode('node') instanceof Twig_SupTwgSgg_Node_Expression_GetAttr) {
-            $this->changeIgnoreStrictCheck($node->getNode('node'));
-        }
-    }
+  protected function changeIgnoreStrictCheck(Twig_SupTwgSgg_Node_Expression_GetAttr $node)
+  {
+    $node->setAttribute('ignore_strict_check', true);
 
-    public function compile(Twig_SupTwgSgg_Compiler $compiler)
-    {
-        $compiler->subcompile($this->getNode('node'));
+    if ($node->getNode('node') instanceof Twig_SupTwgSgg_Node_Expression_GetAttr) {
+      $this->changeIgnoreStrictCheck($node->getNode('node'));
     }
+  }
+
+  public function compile(Twig_SupTwgSgg_Compiler $compiler)
+  {
+    $compiler->subcompile($this->getNode('node'));
+  }
 }

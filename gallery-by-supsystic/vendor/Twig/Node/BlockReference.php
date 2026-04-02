@@ -17,16 +17,13 @@
  */
 class Twig_SupTwgSgg_Node_BlockReference extends Twig_SupTwgSgg_Node implements Twig_SupTwgSgg_NodeOutputInterface
 {
-    public function __construct($name, $lineno, $tag = null)
-    {
-        parent::__construct(array(), array('name' => $name), $lineno, $tag);
-    }
+  public function __construct($name, $lineno, $tag = null)
+  {
+    parent::__construct([], ['name' => $name], $lineno, $tag);
+  }
 
-    public function compile(Twig_SupTwgSgg_Compiler $compiler)
-    {
-        $compiler
-            ->addDebugInfo($this)
-            ->write(sprintf("\$this->displayBlock('%s', \$context, \$blocks);\n", $this->getAttribute('name')))
-        ;
-    }
+  public function compile(Twig_SupTwgSgg_Compiler $compiler)
+  {
+    $compiler->addDebugInfo($this)->write(sprintf("\$this->displayBlock('%s', \$context, \$blocks);\n", $this->getAttribute('name')));
+  }
 }

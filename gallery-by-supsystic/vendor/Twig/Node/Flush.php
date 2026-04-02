@@ -16,16 +16,13 @@
  */
 class Twig_SupTwgSgg_Node_Flush extends Twig_SupTwgSgg_Node
 {
-    public function __construct($lineno, $tag)
-    {
-        parent::__construct(array(), array(), $lineno, $tag);
-    }
+  public function __construct($lineno, $tag)
+  {
+    parent::__construct([], [], $lineno, $tag);
+  }
 
-    public function compile(Twig_SupTwgSgg_Compiler $compiler)
-    {
-        $compiler
-            ->addDebugInfo($this)
-            ->write("flush();\n")
-        ;
-    }
+  public function compile(Twig_SupTwgSgg_Compiler $compiler)
+  {
+    $compiler->addDebugInfo($this)->write("flush();\n");
+  }
 }

@@ -15,6 +15,4 @@
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-class Twig_SupTwgSgg_Error_Runtime extends Twig_SupTwgSgg_Error
-{
-}
+class Twig_SupTwgSgg_Error_Runtime extends Twig_SupTwgSgg_Error {}

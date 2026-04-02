@@ -16,16 +16,16 @@
  */
 class Twig_SupTwgSgg_Sandbox_SecurityNotAllowedTagError extends Twig_SupTwgSgg_Sandbox_SecurityError
 {
-    private $tagName;
+  private $tagName;
 
-    public function __construct($message, $tagName, $lineno = -1, $filename = null, Exception $previous = null)
-    {
-        parent::__construct($message, $lineno, $filename, $previous);
-        $this->tagName = $tagName;
-    }
+  public function __construct($message, $tagName, $lineno = -1, $filename = null, Exception $previous = null)
+  {
+    parent::__construct($message, $lineno, $filename, $previous);
+    $this->tagName = $tagName;
+  }
 
-    public function getTagName()
-    {
-        return $this->tagName;
-    }
+  public function getTagName()
+  {
+    return $this->tagName;
+  }
 }

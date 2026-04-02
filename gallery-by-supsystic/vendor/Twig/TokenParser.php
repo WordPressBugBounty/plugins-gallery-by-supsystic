@@ -16,16 +16,16 @@
  */
 abstract class Twig_SupTwgSgg_TokenParser implements Twig_SupTwgSgg_TokenParserInterface
 {
-    /**
-     * @var Twig_SupTwgSgg_Parser
-     */
-    protected $parser;
+  /**
+   * @var Twig_SupTwgSgg_Parser
+   */
+  protected $parser;
 
-    /**
-     * Sets the parser associated with this token parser.
-     */
-    public function setParser(Twig_SupTwgSgg_Parser $parser)
-    {
-        $this->parser = $parser;
-    }
+  /**
+   * Sets the parser associated with this token parser.
+   */
+  public function setParser(Twig_SupTwgSgg_Parser $parser)
+  {
+    $this->parser = $parser;
+  }
 }

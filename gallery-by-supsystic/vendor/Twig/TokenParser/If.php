@@ -27,58 +27,58 @@
  */
 class Twig_SupTwgSgg_TokenParser_If extends Twig_SupTwgSgg_TokenParser
 {
-    public function parse(Twig_SupTwgSgg_Token $token)
-    {
-        $lineno = $token->getLine();
-        $expr = $this->parser->getExpressionParser()->parseExpression();
-        $stream = $this->parser->getStream();
-        $stream->expect(Twig_SupTwgSgg_Token::BLOCK_END_TYPE);
-        $body = $this->parser->subparse(array($this, 'decideIfFork'));
-        $tests = array($expr, $body);
-        $else = null;
+  public function parse(Twig_SupTwgSgg_Token $token)
+  {
+    $lineno = $token->getLine();
+    $expr = $this->parser->getExpressionParser()->parseExpression();
+    $stream = $this->parser->getStream();
+    $stream->expect(Twig_SupTwgSgg_Token::BLOCK_END_TYPE);
+    $body = $this->parser->subparse([$this, 'decideIfFork']);
+    $tests = [$expr, $body];
+    $else = null;
 
-        $end = false;
-        while (!$end) {
-            switch ($stream->next()->getValue()) {
-                case 'else':
-                    $stream->expect(Twig_SupTwgSgg_Token::BLOCK_END_TYPE);
-                    $else = $this->parser->subparse(array($this, 'decideIfEnd'));
-                    break;
+    $end = false;
+    while (!$end) {
+      switch ($stream->next()->getValue()) {
+        case 'else':
+          $stream->expect(Twig_SupTwgSgg_Token::BLOCK_END_TYPE);
+          $else = $this->parser->subparse([$this, 'decideIfEnd']);
+          break;
 
-                case 'elseif':
-                    $expr = $this->parser->getExpressionParser()->parseExpression();
-                    $stream->expect(Twig_SupTwgSgg_Token::BLOCK_END_TYPE);
-                    $body = $this->parser->subparse(array($this, 'decideIfFork'));
-                    $tests[] = $expr;
-                    $tests[] = $body;
-                    break;
+        case 'elseif':
+          $expr = $this->parser->getExpressionParser()->parseExpression();
+          $stream->expect(Twig_SupTwgSgg_Token::BLOCK_END_TYPE);
+          $body = $this->parser->subparse([$this, 'decideIfFork']);
+          $tests[] = $expr;
+          $tests[] = $body;
+          break;
 
-                case 'endif':
-                    $end = true;
-                    break;
+        case 'endif':
+          $end = true;
+          break;
 
-                default:
-                    throw new Twig_SupTwgSgg_Error_Syntax(sprintf('Unexpected end of template. Twig was looking for the following tags "else", "elseif", or "endif" to close the "if" block started at line %d).', $lineno), $stream->getCurrent()->getLine(), $stream->getSourceContext());
-            }
-        }
-
-        $stream->expect(Twig_SupTwgSgg_Token::BLOCK_END_TYPE);
-
-        return new Twig_SupTwgSgg_Node_If(new Twig_SupTwgSgg_Node($tests), $else, $lineno, $this->getTag());
+        default:
+          throw new Twig_SupTwgSgg_Error_Syntax(sprintf('Unexpected end of template. Twig was looking for the following tags "else", "elseif", or "endif" to close the "if" block started at line %d).', $lineno), $stream->getCurrent()->getLine(), $stream->getSourceContext());
+      }
     }
 
-    public function decideIfFork(Twig_SupTwgSgg_Token $token)
-    {
-        return $token->test(array('elseif', 'else', 'endif'));
-    }
+    $stream->expect(Twig_SupTwgSgg_Token::BLOCK_END_TYPE);
 
-    public function decideIfEnd(Twig_SupTwgSgg_Token $token)
-    {
-        return $token->test(array('endif'));
-    }
+    return new Twig_SupTwgSgg_Node_If(new Twig_SupTwgSgg_Node($tests), $else, $lineno, $this->getTag());
+  }
 
-    public function getTag()
-    {
-        return 'if';
-    }
+  public function decideIfFork(Twig_SupTwgSgg_Token $token)
+  {
+    return $token->test(['elseif', 'else', 'endif']);
+  }
+
+  public function decideIfEnd(Twig_SupTwgSgg_Token $token)
+  {
+    return $token->test(['endif']);
+  }
+
+  public function getTag()
+  {
+    return 'if';
+  }
 }
