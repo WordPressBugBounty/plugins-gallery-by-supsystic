@@ -376,6 +376,34 @@
 .slimScrollDiv .grid-gallery-photos {
   position: static;
 }
+@media (max-width: 767px) {
+  .slimScrollDiv {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    width: 100% !important;
+  }
+
+  .slimScrollDiv .grid-gallery-photos {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    white-space: nowrap !important;
+    width: max-content !important;
+    max-width: none !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .slimScrollDiv .gg-link,
+  .slimScrollDiv .grid-gallery-caption {
+    display: inline-block !important;
+    float: none !important;
+  }
+
+  .slimScrollBarX,
+  .slimScrollRailX {
+    display: none !important;
+  }
+}
 .linkedImages {
   margin: 45px 0px !important;
   overflow: hidden;
