@@ -2,8 +2,8 @@
 Contributors: supsystic.com
 Donate link: https://supsystic.com/plugins/gallery
 Tags: gallery,image-gallery,photo gallery, album-gallery,gallery-plugin
-Tested up to: 6.9
-Stable tag: 1.16.1
+Tested up to: 7.0
+Stable tag: 1.16.2
 License: GNU General Public License v2.0 or later
 
 Photo Gallery helps you create clean, responsive image galleries and album galleries without wrestling with complex settings, layouts, or custom CSS.
@@ -105,6 +105,9 @@ Need help?
 
 
 == Changelog ==
+= Gallery 1.16.2 / 31.05.2026 =
+* Add support WP 7.0
+
 = Gallery 1.16.1 / 04.05.2026 =
 * Add fix for horizontal scroll in mobile mode
 
