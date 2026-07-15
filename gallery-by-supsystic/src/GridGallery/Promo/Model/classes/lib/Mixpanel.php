@@ -14,7 +14,8 @@ require_once dirname(__FILE__) . '/Producers/MixpanelEvents.php';
  * This library is built such that all messages are buffered in an in-memory "queue"
  * The queue will be automatically flushed at the end of every request. Alternatively, you can call "flush()" manually
  * at any time. Flushed messages will be passed to a Consumer's "persist" method. The library comes with a handful of
- * Consumers. The "CurlConsumer" is used by default which will send the messages to Mixpanel using forked cURL processes.
+ * Consumers. The "CurlConsumer" is used by default and sends the messages to Mixpanel using the WordPress HTTP API
+ * or PHP's cURL extension.
  * You can implement your own custom Consumer to customize how a message is sent to Mixpanel. This can be useful when
  * you want to put messages onto a distributed queue (such as ActiveMQ or Kestrel) instead of writing to Mixpanel in
  * the user thread.
@@ -80,7 +81,7 @@ require_once dirname(__FILE__) . '/Producers/MixpanelEvents.php';
  *  </tr>
  *  <tr>
  *      <td>timeout</td>
- *      <td>In the CurlConsumer (non-forked), it is used to determine how long the cURL call has to execute.
+ *      <td>In the CurlConsumer, it is used to determine how long the HTTP call has to execute.
  *      <td>30</td>
  *  </tr>
  * </table>

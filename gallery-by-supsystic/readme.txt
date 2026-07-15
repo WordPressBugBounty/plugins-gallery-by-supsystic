@@ -3,7 +3,7 @@ Contributors: supsystic.com
 Donate link: https://supsystic.com/plugins/gallery
 Tags: gallery,image-gallery,photo gallery, album-gallery,gallery-plugin
 Tested up to: 7.0
-Stable tag: 1.16.2
+Stable tag: 1.16.3
 License: GNU General Public License v2.0 or later
 
 Photo Gallery helps you create clean, responsive image galleries and album galleries without wrestling with complex settings, layouts, or custom CSS.
@@ -103,8 +103,12 @@ Need help?
 * [Video Tutorial](https://supsystic.com/documentation/gallery-video-tutorial/)
 * [Support & Contact](https://supsystic.com/contact-us/)
 
-
 == Changelog ==
+= Gallery 1.16.3 / 13.07.2026 =
+* Security improvements for Mixpanel cURL consumer and switched requests to the WordPress HTTP API with a PHP cURL fallback.
+* Security improvements for KeyCDN password storage.
+* Existing KeyCDN and TinyPNG settings remain compatible.
+
 = Gallery 1.16.2 / 31.05.2026 =
 * Add support WP 7.0
 

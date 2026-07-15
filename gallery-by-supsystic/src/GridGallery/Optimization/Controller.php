@@ -106,15 +106,18 @@ class GridGallery_Optimization_Controller extends GridGallery_Core_BaseControlle
           $settings['setting']['keycdn']['u_name'] = !empty($data['params']['u_name']) ? $data['params']['u_name'] : null;
           $settings['setting']['keycdn']['base_ftp_path'] = !empty($data['params']['base_ftp_path']) ? $data['params']['base_ftp_path'] : null;
 
-          if (!empty($data['params']['u_pass'])) {
-            $settings['setting']['keycdn']['u_pass'] = $encryptModel->encrypt($data['params']['u_pass']);
-          } else {
-            $settings['setting']['keycdn']['u_pass'] = $encryptModel->encrypt('');
-          }
+          $password = !empty($data['params']['u_pass']) ? $data['params']['u_pass'] : '';
+          $encryptedPassword = $encryptModel->encrypt($password);
 
-          $cdnModel->saveServiceSettings($settings);
-          $message = $this->translate('Service data was saved!');
-          $isSuccess = true;
+          if (false === $encryptedPassword) {
+            $message = $this->translate('Encryption is unavailable. Please check OpenSSL and AUTH_KEY settings.');
+          } else {
+            $settings['setting']['keycdn']['u_pass'] = $encryptedPassword;
+
+            $cdnModel->saveServiceSettings($settings);
+            $message = $this->translate('Service data was saved!');
+            $isSuccess = true;
+          }
         }
       }
     }
@@ -391,23 +394,28 @@ class GridGallery_Optimization_Controller extends GridGallery_Core_BaseControlle
             $encryptModel = $this->getModel('encrypt');
             $decryptedPassword = $encryptModel->decrypt($settings['u_pass']);
 
-            $ftpModel = new GridGallery_Optimization_Model_Ftp([
-              'host' => 'ftp.keycdn.com',
-              'port' => null,
-              'ftpUsername' => $settings['u_name'],
-              'ftpPassword' => $decryptedPassword,
-              'folderName' => $settings['base_ftp_path'],
-            ]);
+            if (false === $decryptedPassword) {
+              $serviceError = true;
+              $message = $this->translate('Error! Incorrect service params!');
+            } else {
+              $ftpModel = new GridGallery_Optimization_Model_Ftp([
+                'host' => 'ftp.keycdn.com',
+                'port' => null,
+                'ftpUsername' => $settings['u_name'],
+                'ftpPassword' => $decryptedPassword,
+                'folderName' => $settings['base_ftp_path'],
+              ]);
 
-            $attachmentSimpleModel = new GridGallery_Galleries_Attachment();
-            try {
-              // upload image and preview
-              $this->transferToCdnOnePhotoObj($ftpModel, $attachmentSimpleModel, $data['photoObj'], $data['isDelete']);
-              $isSuccess = true;
-            } catch (Exception $e1) {
-              $message = $e1->getMessage();
-              if ($ftpModel->authError) {
-                $serviceError = true;
+              $attachmentSimpleModel = new GridGallery_Galleries_Attachment();
+              try {
+                // upload image and preview
+                $this->transferToCdnOnePhotoObj($ftpModel, $attachmentSimpleModel, $data['photoObj'], $data['isDelete']);
+                $isSuccess = true;
+              } catch (Exception $e1) {
+                $message = $e1->getMessage();
+                if ($ftpModel->authError) {
+                  $serviceError = true;
+                }
               }
             }
           } else {

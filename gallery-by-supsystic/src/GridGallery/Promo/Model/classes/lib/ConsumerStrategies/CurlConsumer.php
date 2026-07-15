@@ -2,7 +2,7 @@
 require_once dirname(__FILE__) . '/AbstractConsumer.php';
 
 /**
- * Consumes messages and sends them to a host/endpoint using cURL
+ * Consumes messages and sends them to a host/endpoint using the WordPress HTTP API or PHP cURL
  */
 class ConsumerStrategies_CurlConsumer extends ConsumerStrategies_AbstractConsumer
 {
@@ -32,7 +32,7 @@ class ConsumerStrategies_CurlConsumer extends ConsumerStrategies_AbstractConsume
   protected $_protocol;
 
   /**
-   * @var bool|null true to fork the cURL process (using exec) or false to use PHP's cURL extension. false by default
+   * @var bool|null Legacy option retained for compatibility. Forked shell requests are disabled.
    */
   protected $_fork = null;
 
@@ -50,28 +50,16 @@ class ConsumerStrategies_CurlConsumer extends ConsumerStrategies_AbstractConsume
     $this->_connect_timeout = array_key_exists('connect_timeout', $options) ? $options['connect_timeout'] : 5;
     $this->_timeout = array_key_exists('timeout', $options) ? $options['timeout'] : 30;
     $this->_protocol = array_key_exists('use_ssl', $options) && $options['use_ssl'] == true ? 'https' : 'http';
-    $this->_fork = array_key_exists('fork', $options) ? $options['fork'] == true : false;
+    $this->_fork = false;
 
     // ensure the environment is workable for the given settings
-    if ($this->_fork == true) {
-      $exists = function_exists('exec');
-      if (!$exists) {
-        throw new Exception('The "exec" function must exist to use the cURL consumer in "fork" mode. Try setting fork = false or use another consumer.');
-      }
-      $disabled = explode(', ', ini_get('disable_functions'));
-      $enabled = !in_array('exec', $disabled);
-      if (!$enabled) {
-        throw new Exception('The "exec" function must be enabled to use the cURL consumer in "fork" mode. Try setting fork = false or use another consumer.');
-      }
-    } else {
-      if (!function_exists('curl_init')) {
-        throw new Exception('The cURL PHP extension is required to use the cURL consumer with fork = false. Try setting fork = true or use another consumer.');
-      }
+    if (!function_exists('wp_remote_post') && !function_exists('curl_init')) {
+      throw new Exception('The WordPress HTTP API or cURL PHP extension is required to use the cURL consumer.');
     }
   }
 
   /**
-   * Write to the given host/endpoint using either a forked cURL process or using PHP's cURL extension
+   * Write to the given host/endpoint using the WordPress HTTP API or PHP's cURL extension
    * @param array $batch
    * @return bool
    */
@@ -80,14 +68,55 @@ class ConsumerStrategies_CurlConsumer extends ConsumerStrategies_AbstractConsume
     if (count($batch) > 0) {
       $data = 'data=' . $this->_encode($batch);
       $url = $this->_protocol . '://' . $this->_host . $this->_endpoint;
-      if ($this->_fork) {
-        return $this->_execute_forked($url, $data);
-      } else {
-        return $this->_execute($url, $data);
-      }
+      return $this->_execute($url, $data);
     } else {
       return true;
     }
+  }
+
+  /**
+   * Write using WordPress HTTP API when available, with PHP cURL as fallback.
+   * @param $url
+   * @param $data
+   * @return bool
+   */
+  protected function _execute($url, $data)
+  {
+    if ($this->_debug()) {
+      $this->_log("Making blocking HTTP call to $url");
+    }
+
+    if (function_exists('wp_remote_post') && function_exists('is_wp_error') && function_exists('wp_remote_retrieve_body')) {
+      $response = wp_remote_post($url, [
+        'timeout' => $this->_timeout,
+        'blocking' => true,
+        'headers' => [
+          'Content-Type' => 'application/x-www-form-urlencoded',
+        ],
+        'body' => $data,
+      ]);
+
+      if (is_wp_error($response)) {
+        $this->_handleError($response->get_error_code(), $response->get_error_message());
+        return false;
+      }
+
+      $responseCode = function_exists('wp_remote_retrieve_response_code') ? wp_remote_retrieve_response_code($response) : 0;
+      $responseBody = wp_remote_retrieve_body($response);
+      if ($responseCode >= 400) {
+        $this->_handleError($responseCode, $responseBody);
+        return false;
+      }
+
+      if (trim($responseBody) == '1') {
+        return true;
+      } else {
+        $this->_handleError($responseCode, $responseBody);
+        return false;
+      }
+    }
+
+    return $this->_execute_curl($url, $data);
   }
 
   /**
@@ -96,12 +125,8 @@ class ConsumerStrategies_CurlConsumer extends ConsumerStrategies_AbstractConsume
    * @param $data
    * @return bool
    */
-  protected function _execute($url, $data)
+  protected function _execute_curl($url, $data)
   {
-    if ($this->_debug()) {
-      $this->_log("Making blocking cURL call to $url");
-    }
-
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_HEADER, 0);
@@ -126,33 +151,6 @@ class ConsumerStrategies_CurlConsumer extends ConsumerStrategies_AbstractConsume
         return false;
       }
     }
-  }
-
-  /**
-   * Write using a forked cURL process
-   * @param $url
-   * @param $data
-   * @return bool
-   */
-  protected function _execute_forked($url, $data)
-  {
-    if ($this->_debug()) {
-      $this->_log("Making forked cURL call to $url");
-    }
-
-    $exec = 'curl -X POST -H "Content-Type: application/x-www-form-urlencoded" -d ' . $data . ' "' . $url . '"';
-
-    if (!$this->_debug()) {
-      $exec .= ' >/dev/null 2>&1 &';
-    }
-
-    exec($exec, $output, $return_var);
-
-    if ($return_var != 0) {
-      $this->_handleError($return_var, $output);
-    }
-
-    return $return_var == 0;
   }
 
   /**
