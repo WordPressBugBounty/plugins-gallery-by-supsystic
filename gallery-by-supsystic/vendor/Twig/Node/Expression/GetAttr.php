@@ -11,7 +11,7 @@
  */
 class Twig_SupTwgSgg_Node_Expression_GetAttr extends Twig_SupTwgSgg_Node_Expression
 {
-  public function __construct(Twig_SupTwgSgg_Node_Expression $node, Twig_SupTwgSgg_Node_Expression $attribute, Twig_SupTwgSgg_Node_Expression $arguments = null, $type, $lineno)
+  public function __construct(Twig_SupTwgSgg_Node_Expression $node, Twig_SupTwgSgg_Node_Expression $attribute, ?Twig_SupTwgSgg_Node_Expression $arguments = null, $type = null, $lineno = 0)
   {
     $nodes = ['node' => $node, 'attribute' => $attribute];
     if (null !== $arguments) {

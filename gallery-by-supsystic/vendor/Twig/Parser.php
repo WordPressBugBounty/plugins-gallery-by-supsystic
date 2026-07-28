@@ -308,7 +308,7 @@ class Twig_SupTwgSgg_Parser implements Twig_SupTwgSgg_ParserInterface
     $this->embeddedTemplates[] = $template;
   }
 
-  public function addImportedSymbol($type, $alias, $name = null, Twig_SupTwgSgg_Node_Expression $node = null)
+  public function addImportedSymbol($type, $alias, $name = null, ?Twig_SupTwgSgg_Node_Expression $node = null)
   {
     $this->importedSymbols[0][$type][$alias] = ['name' => $name, 'node' => $node];
   }

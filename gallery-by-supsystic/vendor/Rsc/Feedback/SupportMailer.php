@@ -24,7 +24,7 @@ class RscSgg_Feedback_SupportMailer
    * @param string $message
    * @param array $parameters
    */
-  public function __construct(RscSgg_Feedback_Mailer $mailer = null, $subject = '', $message = '', array $parameters = [])
+  public function __construct(?RscSgg_Feedback_Mailer $mailer = null, $subject = '', $message = '', array $parameters = [])
   {
     $this->mailer = is_null($mailer) ? new RscSgg_Feedback_Mailer() : $mailer;
 

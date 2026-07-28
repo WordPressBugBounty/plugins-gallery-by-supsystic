@@ -145,6 +145,7 @@ class Twig_SupTwgSgg_Profiler_Profile implements IteratorAggregate, Serializable
     ];
   }
 
+  #[\ReturnTypeWillChange]
   public function getIterator()
   {
     return new ArrayIterator($this->profiles);

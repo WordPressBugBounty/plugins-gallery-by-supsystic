@@ -124,7 +124,7 @@ class Twig_SupTwgSgg_NodeVisitor_SafeAnalysis extends Twig_SupTwgSgg_BaseNodeVis
     return $node;
   }
 
-  protected function intersectSafe(array $a = null, array $b = null)
+  protected function intersectSafe(?array $a = null, ?array $b = null)
   {
     if (null === $a || null === $b) {
       return [];

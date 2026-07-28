@@ -24,7 +24,7 @@ class GridGallery_Settings_Registry
    * @param string $prefix
    * @param GridGallery_Settings_SettingsStorageInterface $storage
    */
-  public function __construct($prefix = null, GridGallery_Settings_SettingsStorageInterface $storage = null)
+  public function __construct($prefix = null, ?GridGallery_Settings_SettingsStorageInterface $storage = null)
   {
     $this->prefix = $prefix;
     $this->storage = $storage ? $storage : $this->createDefaultStorage();

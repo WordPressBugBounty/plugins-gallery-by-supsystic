@@ -69,7 +69,7 @@
 
     {% set tags %}
         {% if settings.categories is defined and settings.categories.enabled == 'true' %}
-            {{ photo.tags|join('|')|raw }}
+            {{ photo.tags|join('|') }}
         {% endif %}
     {% endset %}
 
@@ -204,9 +204,9 @@
                     {% if environment.isPro() == false or settings.icons is not defined or settings.icons.enabled == 'false' %}
                         {% if settings.thumbnail.overlay.enabled == 'true' %}
                             {% if photo.attachment.caption is not empty %}
-                                <span style="font-size:{{ settings.thumbnail.overlay.text_size }}{{ settings.thumbnail.overlay.text_size_unit|replace(['px', '%', 'em']) }};">{{ photo.attachment.caption|raw }}</span>
+                                <span style="font-size:{{ settings.thumbnail.overlay.text_size }}{{ settings.thumbnail.overlay.text_size_unit|replace(['px', '%', 'em']) }};">{{ photo.attachment.caption }}</span>
                             {% else %}
-                                <span style="font-size:{{ settings.thumbnail.overlay.text_size }}{{ settings.thumbnail.overlay.text_size_unit|replace(['px', '%', 'em']) }};">{{ photo.attachment.title|raw }}</span>
+                                <span style="font-size:{{ settings.thumbnail.overlay.text_size }}{{ settings.thumbnail.overlay.text_size_unit|replace(['px', '%', 'em']) }};">{{ photo.attachment.title }}</span>
                             {% endif %}
                         {% endif %}
                     {% endif %}
@@ -229,7 +229,7 @@
 
                 <div class="caption-with-{% if 'icons' in settings.thumbnail.overlay.effect %}{{ settings.thumbnail.overlay.effect }}{% else %}icons{% endif %}" style="{{ captionStyle }}" data-alpha="{{ settings.thumbnail.overlay.transparency|trim }}">
                     {% if photo.attachment.caption is not empty %}
-                        <span style="font-size:{{ settings.thumbnail.overlay.text_size }}{{ settings.thumbnail.overlay.text_size_unit|replace(['px', '%', 'em']) }}; font-weight: 800;">{{ photo.attachment.caption|raw }}</span>
+                        <span style="font-size:{{ settings.thumbnail.overlay.text_size }}{{ settings.thumbnail.overlay.text_size_unit|replace(['px', '%', 'em']) }}; font-weight: 800;">{{ photo.attachment.caption }}</span>
                     {% else %}
                         <span style="font-size:{{ settings.thumbnail.overlay.text_size }}{{ settings.thumbnail.overlay.text_size_unit|replace(['px', '%', 'em']) }};">{{ photo.attachment.title }}</span>
                     {% endif %}

@@ -23,7 +23,7 @@
  */
 class Twig_SupTwgSgg_Node_Expression_Test_Defined extends Twig_SupTwgSgg_Node_Expression_Test
 {
-  public function __construct(Twig_SupTwgSgg_NodeInterface $node, $name, Twig_SupTwgSgg_NodeInterface $arguments = null, $lineno)
+  public function __construct(Twig_SupTwgSgg_NodeInterface $node, $name, ?Twig_SupTwgSgg_NodeInterface $arguments = null, $lineno = 0)
   {
     if ($node instanceof Twig_SupTwgSgg_Node_Expression_Name) {
       $node->setAttribute('is_defined_test', true);

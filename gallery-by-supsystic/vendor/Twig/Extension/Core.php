@@ -1300,6 +1300,8 @@ function Twig_SupTwgSgg_upper_filter(Twig_SupTwgSgg_Environment $env, $string)
  */
 function Twig_SupTwgSgg_lower_filter(Twig_SupTwgSgg_Environment $env, $string)
 {
+  $string = (string) $string;
+
   if (function_exists('mb_get_info')) {
     if (null !== ($charset = $env->getCharset())) {
       return mb_strtolower($string, $charset);
@@ -1348,6 +1350,8 @@ if (function_exists('mb_get_info')) {
    */
   function Twig_SupTwgSgg_title_string_filter(Twig_SupTwgSgg_Environment $env, $string)
   {
+    $string = (string) $string;
+
     if (null !== ($charset = $env->getCharset())) {
       return mb_convert_case($string, MB_CASE_TITLE, $charset);
     }
@@ -1365,6 +1369,8 @@ if (function_exists('mb_get_info')) {
    */
   function Twig_SupTwgSgg_capitalize_string_filter(Twig_SupTwgSgg_Environment $env, $string)
   {
+    $string = (string) $string;
+
     if (null !== ($charset = $env->getCharset())) {
       return mb_strtoupper(mb_substr($string, 0, 1, $charset), $charset) . mb_strtolower(mb_substr($string, 1, mb_strlen($string, $charset), $charset), $charset);
     }
@@ -1404,7 +1410,7 @@ if (function_exists('mb_get_info')) {
    */
   function Twig_SupTwgSgg_title_string_filter(Twig_SupTwgSgg_Environment $env, $string)
   {
-    return ucwords(strtolower($string));
+    return ucwords(strtolower((string) $string));
   }
 
   /**
@@ -1417,7 +1423,7 @@ if (function_exists('mb_get_info')) {
    */
   function Twig_SupTwgSgg_capitalize_string_filter(Twig_SupTwgSgg_Environment $env, $string)
   {
-    return ucfirst(strtolower($string));
+    return ucfirst(strtolower((string) $string));
   }
 }
 

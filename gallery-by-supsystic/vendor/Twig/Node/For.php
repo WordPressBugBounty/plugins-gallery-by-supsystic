@@ -23,10 +23,10 @@ class Twig_SupTwgSgg_Node_For extends Twig_SupTwgSgg_Node
     Twig_SupTwgSgg_Node_Expression_AssignName $keyTarget,
     Twig_SupTwgSgg_Node_Expression_AssignName $valueTarget,
     Twig_SupTwgSgg_Node_Expression $seq,
-    Twig_SupTwgSgg_Node_Expression $ifexpr = null,
-    Twig_SupTwgSgg_NodeInterface $body,
-    Twig_SupTwgSgg_NodeInterface $else = null,
-    $lineno,
+    ?Twig_SupTwgSgg_Node_Expression $ifexpr = null,
+    ?Twig_SupTwgSgg_NodeInterface $body = null,
+    ?Twig_SupTwgSgg_NodeInterface $else = null,
+    $lineno = 0,
     $tag = null
   ) {
     $body = new Twig_SupTwgSgg_Node([$body, ($this->loop = new Twig_SupTwgSgg_Node_ForLoop($lineno, $tag))]);

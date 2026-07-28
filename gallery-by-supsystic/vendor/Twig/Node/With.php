@@ -16,7 +16,7 @@
  */
 class Twig_SupTwgSgg_Node_With extends Twig_SupTwgSgg_Node
 {
-  public function __construct(Twig_SupTwgSgg_Node $body, Twig_SupTwgSgg_Node $variables = null, $only = false, $lineno, $tag = null)
+  public function __construct(Twig_SupTwgSgg_Node $body, ?Twig_SupTwgSgg_Node $variables = null, $only = false, $lineno = 0, $tag = null)
   {
     $nodes = ['body' => $body];
     if (null !== $variables) {

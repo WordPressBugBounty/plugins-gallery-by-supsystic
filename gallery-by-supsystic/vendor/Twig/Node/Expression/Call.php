@@ -282,7 +282,7 @@ abstract class Twig_SupTwgSgg_Node_Expression_Call extends Twig_SupTwgSgg_Node_E
         // __staticCall()
         return [null, []];
       }
-      $r = new ReflectionMethod($callable);
+      $r = method_exists('ReflectionMethod', 'createFromMethodName') ? ReflectionMethod::createFromMethodName($callable) : new ReflectionMethod($callable);
       $callable = [$class, $method];
     } else {
       $r = new ReflectionFunction($callable);

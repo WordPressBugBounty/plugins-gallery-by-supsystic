@@ -681,7 +681,7 @@ class GridGallery_Galleries_Model_Galleries extends GridGallery_Core_BaseModel
    */
   public function getById($attributes)
   {
-    $galleryId = is_numeric($attributes) ? $attributes : $attributes['id'];
+    $galleryId = is_numeric($attributes) ? $attributes : (is_array($attributes) && isset($attributes['id']) ? $attributes['id'] : 0);
     $attrArray = is_array($attributes) ? $attributes : [];
     $query = $this->getQueryBuilder()->select('*')->from($this->table)->where('id', '=', (int) $galleryId);
 

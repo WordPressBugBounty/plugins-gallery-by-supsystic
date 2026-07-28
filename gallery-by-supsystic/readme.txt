@@ -3,7 +3,8 @@ Contributors: supsystic.com
 Donate link: https://supsystic.com/plugins/gallery
 Tags: gallery,image-gallery,photo gallery, album-gallery,gallery-plugin
 Tested up to: 7.0
-Stable tag: 1.16.3
+Requires PHP: 7.4
+Stable tag: 1.17.0
 License: GNU General Public License v2.0 or later
 
 Photo Gallery helps you create clean, responsive image galleries and album galleries without wrestling with complex settings, layouts, or custom CSS.
@@ -48,8 +49,13 @@ You can see examples of the available gallery types on our website:
 == Pro Features (Optional) ==
 
 * Advanced gallery and album layouts
-* Lightbox display and styling controls
-* Priority support and updates
+* Extended lightbox display and styling options
+* Built-in watermark generator
+* Image import from Tumblr, Flickr, Google Drive, and FTP
+* Built-in visual image editor
+* TinyPNG image compression integration
+* KeyCDN integration
+* Priority support and Pro updates
 
 == Screenshots ==
 
@@ -94,6 +100,10 @@ If you need enterprise-scale media management or highly specialised digital asse
 = Where can I get help? =
 You can find documentation and ask questions using the links above this FAQ section.
 
+= How can I report security bugs? =
+
+You can report security bugs through the Patchstack Vulnerability Disclosure Program. The Patchstack team help validate, triage and handle any security vulnerabilities. [Report a security vulnerability.]( https://patchstack.com/database/vdp/9e5fb455-a563-42ff-bd88-ba7e56ed6014 )
+
 == Documentation & Support ==
 
 Need help?
@@ -102,192 +112,91 @@ Need help?
 * [Full Documentation Hub](https://supsystic.com/docs/gallery/)
 * [Video Tutorial](https://supsystic.com/documentation/gallery-video-tutorial/)
 * [Support & Contact](https://supsystic.com/contact-us/)
-
 == Changelog ==
-= Gallery 1.16.3 / 13.07.2026 =
-* Security improvements for Mixpanel cURL consumer and switched requests to the WordPress HTTP API with a PHP cURL fallback.
-* Security improvements for KeyCDN password storage.
-* Existing KeyCDN and TinyPNG settings remain compatible.
 
-= Gallery 1.16.2 / 31.05.2026 =
-* Add support WP 7.0
+= 2026 =
 
-= Gallery 1.16.1 / 04.05.2026 =
-* Add fix for horizontal scroll in mobile mode
+== Gallery 1.17.0 — July 27, 2026 ==
 
-= Gallery 1.15.33 / 19.01.2026 =
- * Maintenance and compatibility update tested with WordPress 6.9 and PHP 8.4.
- * Includes a fix for a cache-related issue and additional stability improvements.
- * Includes security hardening and stability fixes
+* Added further security hardening across gallery, image, and import handling.
+* Added compatibility improvements for the latest PHP versions.
+* General stability and performance improvements.
 
-= Gallery 1.15.32 / 21.11.2025 =
- * Add fix for mbstring
- * Add fix for Twig Core
- 
-= Gallery 1.15.31 / 17.06.2025 =
- * Minor fixes and overview update
+== Gallery 1.16.3 — July 13, 2026 ==
 
-= Gallery 1.15.30 / 11.06.2025 =
- * Minor fixes
+* Improved security for the Mixpanel cURL consumer.
+* Migrated Mixpanel requests to the WordPress HTTP API with a PHP cURL fallback.
+* Improved security for KeyCDN password storage.
+* Preserved compatibility with existing KeyCDN and TinyPNG settings.
 
-= Gallery 1.15.29 / 14.05.2025 =
- * Minor fixes
+== Gallery 1.16.2 — May 31, 2026 ==
 
+* Added support for WordPress 7.0.
 
-= Gallery 1.15.28 / 06.05.2025 =
- * Minor fixes
+== Gallery 1.16.1 — May 4, 2026 ==
 
-= Gallery 1.15.27 / 16.04.2025 =
- * Fixed issue with activation server
- * Fix textdomain notice
+* Fixed horizontal scrolling issues on mobile devices.
 
-= Gallery 1.15.26 / 05.04.2025 =
- * Fix TypeError: count()
- * Minor fixes
-= Gallery 1.15.25 / 30.09.2024 =
- * Fix for crop dimension
+== Gallery 1.15.33 — January 19, 2026 ==
 
-= Gallery 1.15.24 / 13.06.2024 =
- * Updated overview-trial button
+* Added compatibility improvements for WordPress 6.9 and PHP 8.4.
+* Fixed a cache-related issue.
+* Added security hardening and general stability improvements.
 
-= Gallery 1.15.23 / 06.05.2024 =
- * Fix LoadMore button
+= 2025 =
 
-= Gallery 1.15.22 / 17.04.2024 =
- * Fix issue with select gallery from widget
- * Fixed issue with closing PHP tag displaying as text after 'Select gallery' label
- * Add fix for AC is_pro
- * Add fix for link and title for social buttons
+* Added compatibility and maintenance improvements.
+* Fixed issues related to mbstring and Twig Core.
+* Fixed activation server and text domain notice issues.
+* Fixed a count() TypeError.
+* Updated the plugin overview and applied multiple minor fixes.
+* Versions released: 1.15.26–1.15.32.
 
-= Gallery 1.15.21 / 20.03.2024 =
- * Fix Caption, Links, ALT, Description, etc.
+= 2024 =
 
-= Gallery 1.15.20 / 16.03.2024 =
- * Fix for hover
+* Improved gallery captions, links, ALT text, descriptions, hover effects, borders, and social buttons.
+* Fixed the Load More button and gallery selection inside widgets.
+* Fixed crop dimensions and several responsive display issues.
+* Added trial license support and automatic trial-to-Pro license conversion.
+* Added XSS security hardening.
+* Versions released: 1.15.16–1.15.25.
 
-= Gallery 1.15.19 / 13.03.2024 =
- * Fix for AC
+= 2023 =
 
-= Gallery 1.15.18 / 03.03.2024 =
- * Fix for borders
- * Add trial code
- * Added trial checkbox to license and autochange license from trial to pro, if pro purchased
+* Added support for WordPress 6.2 and WordPress 6.3.
+* Added the Love Link feature.
+* Fixed deprecated methods and applied general compatibility improvements.
+* Versions released: 1.15.13–1.15.15.
 
-= Gallery 1.15.17 / 19.02.2024 =
- * Fix Strip tags for captions twig
- * Add security fix for XSS
+= 2022 =
 
-= Gallery 1.15.16 / 15.02.2024 =
- * Minor fixes
+* Added support for WordPress 6.0 and WordPress 6.1.
+* Added support for PHP 8.1.
+* Improved the plugin overview interface.
+* Fixed LazyLoad, controller, link-saving, and WordPress.org review issues.
+* Updated minimum supported Gallery Pro version requirements.
+* Versions released: 1.15.5–1.15.12.
 
-= Gallery 1.15.15 / 13.12.2023 =
- * Fixes for lovelink
+= 2021 =
 
-= Gallery 1.15.14 / 29.09.2023 =
- * Add love link feature
- * Add support  WP 6.3
+* Added support for WordPress 5.7 and PHP 8.
+* Fixed Mosaic Gallery, Facebook API, and Instagram API integrations.
+* Fixed video noopener, Show More, category duplication, and OVH compatibility issues.
+* Versions released: 1.15.1–1.15.4.
 
+= 2020 =
 
-= Gallery 1.15.13 / 31.07.2023 =
- * Add support  WP 6.2
- * Minor fixes
- * Fixed deprecated method's
+* Added support for WordPress 5.4, WordPress 5.5, and PHP 7.4.
+* Improved compatibility with older PHP versions.
+* Updated the plugin gateway server.
+* Introduced a shared Twig library for Supsystic plugins.
+* Fixed Twig, social sharing, social icons, mobile captions, Mosaic Gallery, and OceanWP compatibility issues.
+* Versions released: 1.14.6–1.14.10.
 
-= Gallery 1.15.12 / 08.11.2022 =
- * Add support  WP 6.1
- * Minor fixes
+= 2019 =
 
-= Gallery 1.15.11 / 30.08.2022 =
- * required PRO min 2.9.7
-
-= Gallery 1.15.10 / 30.08.2022 =
- * Add support  WP 6.0
- * Add support PHP 8.1
-
-= Gallery 1.15.9 / 06.07.2022 =
- * Fixes for interface overview
-
-= Gallery 1.15.8 / 02.07.2022 =
- * Fixes for WP review  Team
-
-= Gallery 1.15.7 / 27.06.2022 =
- * Fixes for WP review  Team
-
-= Gallery 1.15.6 / 17.06.2022 =
- * Fixes for Controller
- * Fixes for WP
-
-= Gallery 1.15.5 / 01.06.2022 =
- * Add fixes to saving link
- * Fixes for LazyLoad
- * Add support for WordPress 6.0 ( test mode )
-
-= Gallery 1.15.4 / 06.12.2021 =
- * Add fixes for Mosaic Type Gallery
- * Add fix for Facebook API
- * Add fix for Instagram API
-
-= Gallery 1.15.3 / 22.06.2021 =
- * Minor fixes
-
-= Gallery 1.15.2 / 24.05.2021 =
- * Add support for PHP 8
- * Add fix for noopener video
- * Add fix for Show More option
- * Add fix for Categories dublication
-
-= Gallery 1.15.1 / 26.03.2021 =
- * Add support WP 5.7
- * Fixed for OVH
-
-= Gallery 1.14.10 / 15.09.2020 =
- * Add support WP 5.5
-
-= Gallery 1.14.9 / 29.07.2020 =
- * Add fix for TWIG (Update only with latest PRO)
-
-= Gallery 1.14.8 / 23.06.2020 =
- * Add fix for social share buttons
- * Add fix for social icons
- * Create universal TWIG library for supsystic plugins
- * Add fix for TWIG
-
-= Gallery 1.14.7 / 23.04.2020 =
- * Add support WP 5.4
- * Change gateway Server
- * Add support for PHP 7.4
- * Add fix for older php version 5.3.2 with empty method
- * Add fix for oceanwp-theme
-
-= Gallery 1.14.6 / 23.01.2020 =
- * Minor issues fixes
- * Remove PHPmailer code
- * Problem with caption on mobile
- * improvements for Mosaic
-
-
-= Gallery 1.14.5 / 27.11.2019 =
- * Minor issues fixes
-
-= Gallery 1.14.4 / 19.11.2019 =
- * Fix for Polaroid on mobile
- * Minor issues fixes
-
-= Gallery 1.14.3 / 06.11.2019 =
- * Add fix for mosaic
-
-= Gallery 1.14.2 / 23.10.2019 =
- * Lightbox fix for mobile
- * Fullscreen button fix
- * Lightbox themes list fix
-
-= Gallery 1.14.1 / 09.10.2019 =
- * Added fixes for responsive mod gallery type: Fixed, Vertical, Horizontal, Fixed Columns, Mosaic
- * Add fix for mosaic counter align
- * Fix for lightbox on mobile
-
-= Gallery 1.14.0 / 25.09.2019 =
- * Add fix for init easing.js
- * Fixed mosaic watermarked thumbnail
- * Add fix for CSS responsive mode
- * Fix for Horizontal Scroll
+* Improved responsive layouts for Fixed, Vertical, Horizontal, Fixed Columns, and Mosaic gallery types.
+* Fixed mobile lightbox behavior, fullscreen controls, and lightbox theme selection.
+* Fixed Mosaic alignment, watermarked thumbnails, responsive CSS, horizontal scrolling, and Polaroid mobile display issues.
+* Applied multiple minor stability and compatibility fixes.
+* Versions released: 1.14.0–1.14.5.

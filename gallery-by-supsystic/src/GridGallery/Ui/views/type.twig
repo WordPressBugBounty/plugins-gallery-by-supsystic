@@ -88,11 +88,11 @@
                      alt="" width="150" height="150"/>
 
                 <div style="position: absolute; top: 55px; left: 55px; color: #bdc3c7;">
-                    <i class="fa fa-folder-open-o" style="font-size: 5em;"></i>
+                    <i class="fa fa-folder-open" style="font-size: 5em;"></i>
                 </div>
 
                 <div class="gg-folder-photos">
-                    <i class="fa fa-picture-o"></i> <span class="gg-folder-photos-num">{{ folder.photos|length }}</span>
+                    <i class="fa fa-image"></i> <span class="gg-folder-photos-num">{{ folder.photos|length }}</span>
                 </div>
             </a>
 
@@ -157,13 +157,13 @@
             </a>
 
             <div style="position: absolute; top: 20px; left: 31px; color: #bdc3c7; z-index: 100;">
-                <i class="fa fa-folder-open-o" style="font-size: 3em;"></i>
+                <i class="fa fa-folder-open" style="font-size: 3em;"></i>
             </div>
         </td>
         <td class="title column-title">
             <strong>
                 <a href="{{ environment.generateUrl('photos', 'view', { 'folder_id': folder.id, 'view': 'list' }) }}">
-                    <span class="folder-title">{{ folder.title|title|raw }}</span>
+                    <span class="folder-title">{{ folder.title|title }}</span>
                 </a>
             </strong>
 
@@ -247,16 +247,16 @@
         </td>
         <td class="title column-textarea top-align">
             <form id="photo-editor-caption-{{ image.id }}" class="photo-editor" data-id="{{ image.id }}">
-                <textarea name="caption" rows="2" placeholder="{{ translate('Caption') }}">{{ image.attachment.caption|raw }}</textarea></br>
+                <textarea name="caption" rows="2" placeholder="{{ translate('Caption') }}">{{ image.attachment.caption }}</textarea></br>
                 {% if environment.isPro() == false %}
                     <span style="color:red" class="description">
-                        <textarea name="" disabled rows="5" placeholder="Description">{{ image.attachment.captionDescription|raw }}</textarea>
+                        <textarea name="" disabled rows="5" placeholder="Description">{{ image.attachment.captionDescription }}</textarea>
                         <a href="http://supsystic.com/plugins/photo-gallery?utm_source=plugin&utm_medium=images_caption_description&utm_campaign=gallery" target="_blank">
                             {{ nonProMsg|raw }}
                         </a>
                     </span>
                 {% else %}
-                    <textarea name="captionDescription" rows="5" placeholder="Description">{{ image.attachment.captionDescription|raw }}</textarea>
+                    <textarea name="captionDescription" rows="5" placeholder="Description">{{ image.attachment.captionDescription }}</textarea>
                 {% endif %}
                 {{ environment.getDispatcher().dispatch('after_photo_attachment_form', [['caption', 'captionDescription'], image.attachment.id]) }}
             </form>
@@ -264,7 +264,7 @@
         <td class="title column-textarea top-align">
             <form id="photo-editor-seo-{{ image.id }}" class="photo-editor" data-id="{{ image.id }}">
                 <textarea name="alt" rows="2" placeholder="{{ translate('SEO Alt') }}">{% if image.attachment.alt is not empty %}{% if image.attachment.alt == " " %}{{ ""}}{% else %}{{ image.attachment.alt }}{% endif %}{% else %}{{ image.attachment.title }}{% endif %}</textarea></br>
-                <textarea name="description" rows="5" placeholder="{{ translate('Title') }}">{{ image.attachment.description|raw }}</textarea>
+                <textarea name="description" rows="5" placeholder="{{ translate('Title') }}">{{ image.attachment.description }}</textarea>
                 {{ environment.getDispatcher().dispatch('after_photo_attachment_form', [['alt', 'description'], image.attachment.id]) }}
             </form>
         </td>
@@ -355,7 +355,7 @@
                                 </a>
                             </span>
                         {% else %}
-                            <input type="text" class="gg-tags" id="tags-{{ image.id }}" data-id="{{ image.id }}" value="{{ image.tags|join(',')|raw }}">
+                            <input type="text" class="gg-tags" id="tags-{{ image.id }}" data-id="{{ image.id }}" value="{{ image.tags|join(',') }}">
                         {% endif %}
                     </div>
                     <div class="gg-linked-option gg-option-container ggSettingsDisplNone">

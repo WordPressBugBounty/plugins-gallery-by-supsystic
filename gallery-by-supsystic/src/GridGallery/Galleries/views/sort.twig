@@ -170,7 +170,7 @@
 
 
 {% macro block_image(image) %}
-    <li class="gg-list-item" data-entity data-entity-id="{{ image.id }}" data-entity-type="photo" data-entity-tag=";{{ image.tags | join(';')|raw }};">
+    <li class="gg-list-item" data-entity data-entity-id="{{ image.id }}" data-entity-type="photo" data-entity-tag=";{{ image.tags | join(';') }};">
         {% if image.attachment.sizes.thumbnail is empty %}
     	    {% set src = image.attachment.sizes.full.url %}
         {% else %}

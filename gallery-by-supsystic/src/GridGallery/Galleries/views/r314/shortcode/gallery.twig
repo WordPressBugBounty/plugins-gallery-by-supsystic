@@ -94,7 +94,7 @@
                         <a href="#" data-tag="__all__" style="{{ navAStyle|trim }}">All</a>
                     {% endif %}
                     {% for category in settings.categories.order %}
-                        <a href="#" data-tag="{{ category|trim|replace(' ', '_') }}" style="{{ navAStyle|trim }}">{{ category|title|raw }}</a>
+                        <a href="#" data-tag="{{ category|trim|replace(' ', '_') }}" style="{{ navAStyle|trim }}">{{ category|title }}</a>
                     {% endfor %}
                 </nav>
             {% endif %}
@@ -233,7 +233,7 @@
                         <a href="#" data-tag="__all__" style="{{ navAStyle|trim }}">All</a>
                     {% endif %}
                     {% for category in settings.categories.order %}
-                        <a href="#" data-tag="{{ category|trim|replace(' ', '_') }}" style="{{ navAStyle|trim }}">{{ category|title|raw }}</a>
+                        <a href="#" data-tag="{{ category|trim|replace(' ', '_') }}" style="{{ navAStyle|trim }}">{{ category|title }}</a>
                     {% endfor %}
                 </nav>
 

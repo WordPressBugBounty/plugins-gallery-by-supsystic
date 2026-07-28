@@ -39,7 +39,7 @@
         {#<i class="fa fa-angle-right"></i>#}
         <a href="{{ environment.generateUrl('galleries') }}">{{ translate('Galleries') }}</a>
         <i class="fa fa-angle-right"></i>
-        <a href="{{ environment.generateUrl('galleries', 'view', { 'gallery_id': gallery.id }) }}">{{ gallery.title|raw }}</a>
+        <a href="{{ environment.generateUrl('galleries', 'view', { 'gallery_id': gallery.id }) }}">{{ gallery.title }}</a>
     </nav>
 
     <h2 class="form-tabs">
@@ -54,7 +54,7 @@
         </a>
 
         <a class="nav-tab change-tab" href="cats">
-            <i class="fa fa-bookmark-o"></i>
+            <i class="fa fa-bookmark"></i>
 			<span class="nav-tab-item-span">{{ translate('Categories and Pagination') }}</span>
         </a>
 
@@ -145,7 +145,7 @@
                                 {% else %}
                                     src="{{ get_attachment(gallery.photos[0].attachment.id, width, height, crop, cropQuality) }}"
                                 {% endif %}
-                                data-src="{{ 'holder.js/350x250?theme=simple&text=' ~ gallery.title|raw }}" alt="{{ gallery.title|raw }}"
+                                data-src="{{ 'holder.js/350x250?theme=simple&text=' ~ gallery.title }}" alt="{{ gallery.title }}"
                                 style="width: auto;height:auto;max-width: 290px; max-height: 290px;"
                 />
 
@@ -194,7 +194,7 @@
                                 {% else %}
                                     src="{{ get_attachment(gallery.photos[0].attachment.id, width, height, crop, cropQuality) }}"
                                 {% endif %}
-                                data-src="{{ 'holder.js/350x250?theme=simple&text=' ~ gallery.title|raw }}" alt="{{ gallery.title|raw }}"
+                                data-src="{{ 'holder.js/350x250?theme=simple&text=' ~ gallery.title }}" alt="{{ gallery.title }}"
                                 style="
                                     max-width: 290px; max-height: 290px;
                                     {% if settings.area.photo_width_unit == 0 and settings.area.photo_width is not empty %}
@@ -374,7 +374,7 @@
                         form.select('area[position]', ['Center', 'Left', 'Right'], settings.area.position, { 'style': 'width: 300px;' }), 'grid-type') }}#}
 
     					{{ form.row(translate('Gallery Name:'),
-                        form.input('text', 'title', gallery.title|raw, { 'style': { 'width': '232px;' } })
+                        form.input('text', 'title', gallery.title, { 'style': { 'width': '232px;' } })
                         , 'title') }}
 
 						{{ form.row(environment.translate('Gallery alignment'),

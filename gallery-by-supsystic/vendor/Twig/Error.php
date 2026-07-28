@@ -59,7 +59,7 @@ class Twig_SupTwgSgg_Error extends Exception
    * @param Twig_SupTwgSgg_Source|string|null $source   The source context where the error occurred
    * @param Exception               $previous The previous exception
    */
-  public function __construct($message, $lineno = -1, $source = null, Exception $previous = null)
+  public function __construct($message, $lineno = -1, $source = null, ?Exception $previous = null)
   {
     if (null === $source) {
       $name = null;
@@ -196,7 +196,7 @@ class Twig_SupTwgSgg_Error extends Exception
   /**
    * Sets the source context of the Twig template where the error occurred.
    */
-  public function setSourceContext(Twig_SupTwgSgg_Source $source = null)
+  public function setSourceContext(?Twig_SupTwgSgg_Source $source = null)
   {
     if (null === $source) {
       $this->sourceCode = $this->filename = $this->sourcePath = null;

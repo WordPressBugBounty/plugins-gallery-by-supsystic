@@ -51,7 +51,7 @@ class Twig_SupTwgSgg_Node_Expression_Array extends Twig_SupTwgSgg_Node_Expressio
     return false;
   }
 
-  public function addElement(Twig_SupTwgSgg_Node_Expression $value, Twig_SupTwgSgg_Node_Expression $key = null)
+  public function addElement(Twig_SupTwgSgg_Node_Expression $value, ?Twig_SupTwgSgg_Node_Expression $key = null)
   {
     if (null === $key) {
       $key = new Twig_SupTwgSgg_Node_Expression_Constant(++$this->index, $value->getTemplateLine());

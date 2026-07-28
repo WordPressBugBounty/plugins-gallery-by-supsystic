@@ -97,7 +97,7 @@ class Twig_SupTwgSgg_Environment
    * @param Twig_SupTwgSgg_LoaderInterface $loader
    * @param array                $options An array of options
    */
-  public function __construct(Twig_SupTwgSgg_LoaderInterface $loader = null, $options = [])
+  public function __construct(?Twig_SupTwgSgg_LoaderInterface $loader = null, $options = [])
   {
     if (null !== $loader) {
       $this->setLoader($loader);

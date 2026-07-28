@@ -24,7 +24,7 @@
  */
 class Twig_SupTwgSgg_Error_Loader extends Twig_SupTwgSgg_Error
 {
-  public function __construct($message, $lineno = -1, $source = null, Exception $previous = null)
+  public function __construct($message, $lineno = -1, $source = null, ?Exception $previous = null)
   {
     if (PHP_VERSION_ID < 50300) {
       $this->previous = $previous;

@@ -36,82 +36,12 @@ This plugin will help you bring your ideas to life quickly and easily. In no tim
             <div class="overview-contact-form overview-section" data-section="support">
                 <h3><i class="fa fa-life-ring"></i> Support</h3>
                 <div class="contact-info-section">
-                  <p><i class="fa fa-clock-o" aria-hidden="true"></i> Our official support hours are 09:00 -18:00 GMT+02:00, Monday to Friday – excluding bank holidays and other official holidays.</p>
-                  <p>The timescales listed below refer to these working hours.</p><br>
-                  <p><em>Support requests are prioritized based on the type of license:</em></p>
-                  <ul>
-                    <li><p><em>Pro Support</em> is reserved for customers with an active Pro license. We respond to new priority support requests within 12 hours.</p></li>
-                    <li><p><em>Standard Support</em> is provided to customers with an active Free license. We respond to standard support requests within 24h-48h.</p></li>
-                  </ul><br>
-                  <p><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> While we don’t guarantee that we will resolve the request in this time period, we will acknowledge it and communicate with the customer as appropriate to help resolve the issue.</p>
+                  <p>
+                  If you are experiencing any issues with the plugin, would like to request a new feature or improvement, or have any other questions, please contact our technical support team through our website:
+                  <a href="https://supsystic.com/contact-us/" target="_blank">https://supsystic.com/contact-us/</a>
+                  </p>
                 </div>
-                {% import '@core/form.twig' as form %}
-
-                {{ form.open('post', environment.generateUrl('overview', 'sendMail'), { 'id': 'form-settings', 'style': 'max-width: 100%;', '_wpnonce': _wpnonce }) }}
-
-                <table class="contact-form-table" style="width: 100%;">
-                    <thead>
-                    {{ form.row(translate('Name') ~ ' *',
-                        form.text('name', SG_USER_NAME, { 'required': '' })) }}
-
-                    {{ form.row(translate('Email') ~ ' *',
-                        form.text('email', contactForm.email, { 'required': '' })) }}
-
-                    {{ form.row(translate('Website') ~ ' *',
-                        form.text('website', contactForm.website, { 'required': '' })) }}
-
-                    {{ form.row(translate('Subject') ~ ' *',
-                        form.text('subject', '', { 'required': '' })) }}
-                    <tr>
-                        <th scope="row">
-                            <label for="select-question">{{ translate('Topic') }}</label>
-                        </th>
-                        <td>
-                            <select id="select-question" name="question">
-                                <option value="plugin_options">
-                                    {{ translate('Plugin options') }}
-                                </option>
-                                <option value="bug">
-                                    {{ translate('Report a bug') }}
-                                </option>
-                                <option value="functionallity">
-                                    {{ translate('Require a new functionallity') }}
-                                </option>
-                                <option value="security_issue">
-                                    {{ translate('Report about security issue (XSS/SQLi and others)') }}
-                                </option>
-                                <option value="other">
-                                    {{ translate('Other') }}
-                                </option>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row" style="vertical-align: top;">
-                            <label for="mail-text">{{ translate('Message') ~ ' *' }}</label>
-                        </th>
-                        <td>
-                            <textarea id="mail-text" name="message" cols="50" rows="3" placeholder="{{ translate('Hello Supsystic Team!') }}" required=""></textarea>
-                        </td>
-                    </tr>
-
-                    </thead>
-                </table>
-                <button id="send-mail" type="submit" class="button button-primary button-hero">
-                    <i class="fa fa-check-square" aria-hidden="true"></i>
-                    Send email
-                </button>
-                <div class="required-notification" style="color: red; float: left;" hidden>Fields with * are required to fill</div>
-                {{ form.close() }}
                 <div class="clear"></div>
-            </div>
-
-            <div id="contact-form-dialog" hidden>
-                <div class="on-error" style="display:none">
-                    <p>{{ translate('Some errors occurred while sending mail please send your message trough this contact form:') }}</p>
-                    <p><a href="https://supsystic.com/plugins/photo-gallery/#contact" target="_blank">https://supsystic.com/plugins/photo-gallery/#contact</a></p>
-                </div>
-                <div class="message"></div>
             </div>
 
             <div data-section="faq" class="faq-list overview-section">
@@ -128,13 +58,6 @@ This plugin will help you bring your ideas to life quickly and easily. In no tim
                 </div>
                 <div class="faq-title">
                     <i class="fa fa-info-circle"></i>
-                    Gallery doesn’t load on the front end. If the loading gallery icon just keeps playing but never loads the gallery.
-                    <div class="description" hidden>
-                        Most likely there are conflicts with your theme or other plugins. Please contact us through our <a href="//supsystic.com/contact-us/" target="_blank">internal support</a>. We will check what is wrong and will help you to solve the problem.
-                    </div>
-                </div>
-                <div class="faq-title">
-                    <i class="fa fa-info-circle"></i>
                     How to change the position of photos in gallery?
 
                     <div class="description" hidden>
@@ -147,7 +70,7 @@ This plugin will help you bring your ideas to life quickly and easily. In no tim
 
                     <div class="description" hidden>
                         This is a new option of Photo Gallery by Supsystic, which can be found on the Main tab settings. With its help you can choose funny loader icons to entertain your users while they are waiting. Also you can set the color for your icon or disable this option at all, if you don’t need it.
-						Learn more about it in <a href="//supsystic.com/main-settings/" target="_blank">Main Settings.</a>
+						Learn more about it in <a href="//supsystic.com/documentation/main-settings/" target="_blank">Main Settings.</a>
                     </div>
                 </div>
                 <div style="clear: both;"></div>
@@ -155,7 +78,7 @@ This plugin will help you bring your ideas to life quickly and easily. In no tim
                     <i class="fa fa-info-circle"></i>
                     {{ translate('Start step-by-step tutorial') }}
                 </a>
-                <a target="_blank" href="https://supsystic.com/docs/gallery/?utm_source=plugin&utm_medium=faq&utm_campaign=gallery" class="button button-primary button-hero">
+                <a target="_blank" href="//supsystic.com/docs/gallery/?utm_source=plugin&utm_medium=faq&utm_campaign=gallery" class="button button-primary button-hero">
                     <i class="fa fa-info-circle"></i>
                     Check all FAQs
                 </a>
@@ -167,12 +90,12 @@ This plugin will help you bring your ideas to life quickly and easily. In no tim
                 <div align="center">
                 <iframe type="text/html"
                         style="max-width: 640px;width: 100%;height: 360px;"
-                        src="http://www.youtube.com/embed/Tjr5j5grHlg"
+                        src="//www.youtube.com/embed/Tjr5j5grHlg"
                         frameborder="0">
                 </iframe>
                 <iframe type="text/html"
                         style="max-width: 640px;width: 100%;height: 360px;"
-                        src="http://www.youtube.com/embed/CsFLxfsckpU"
+                        src="//www.youtube.com/embed/CsFLxfsckpU"
                         frameborder="0">
                 </iframe>
                 </div>
@@ -184,7 +107,7 @@ This plugin will help you bring your ideas to life quickly and easily. In no tim
                 <div align="center">
                 <iframe type="text/html"
                         style="max-width: 640px;width: 100%;height: 360px;"
-                        src="http://www.youtube.com/embed/dKd_9g6JzfU"
+                        src="//www.youtube.com/embed/dKd_9g6JzfU"
                         frameborder="0">
                 </iframe>
                 </div>

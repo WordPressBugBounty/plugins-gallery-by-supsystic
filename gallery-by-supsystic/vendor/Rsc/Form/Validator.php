@@ -37,7 +37,7 @@ class RscSgg_Form_Validator
    * @param RscSgg_Common_Collection|array $rules
    * @param RscSgg_Common_Collection|array $filters
    */
-  public function __construct(RscSgg_Http_Request $request = null, $method = null, array $rules = [], array $filters = [])
+  public function __construct(?RscSgg_Http_Request $request = null, $method = null, array $rules = [], array $filters = [])
   {
     $this->request = $request === null ? RscSgg_Http_Request::create() : $request;
     $this->method = $method === null ? self::METHOD_POST : $this->prepareMethod($method);

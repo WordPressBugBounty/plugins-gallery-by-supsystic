@@ -20,7 +20,7 @@ class GridGallery_Settings_Module extends RscSgg_Mvc_Module
    * @param GridGallery_Settings_SettingsStorageInterface $storage
    * @return GridGallery_Settings_Registry
    */
-  public function getRegistry(GridGallery_Settings_SettingsStorageInterface $storage = null)
+  public function getRegistry(?GridGallery_Settings_SettingsStorageInterface $storage = null)
   {
     if ($this->registry === null) {
       $this->registry = new GridGallery_Settings_Registry($this->getEnvironment()->getConfig()->get('hooks_prefix'), $storage);

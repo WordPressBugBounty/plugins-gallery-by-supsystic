@@ -28,7 +28,7 @@ class RscSgg_Lang
    * @param null|string $path Path to the *.mo files
    * @param RscSgg_Cache $cache Caching class
    */
-  public function __construct($domain = null, $path = null, RscSgg_Cache $cache = null)
+  public function __construct($domain = null, $path = null, ?RscSgg_Cache $cache = null)
   {
     $this->domain = $domain;
     $this->path = $path;

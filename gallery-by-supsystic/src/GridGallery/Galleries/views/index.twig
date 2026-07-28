@@ -48,7 +48,7 @@
                             </td>
                             <td>
                                 <a href="{{ environment.generateUrl('galleries', 'settings', { 'gallery_id': gallery.id }) }}" data-toggle="tooltip" title="{{ environment.translate('Edit gallery "%s"') | format(gallery.title) }}">
-                                    {{ gallery.title|title|raw }}
+                                    {{ gallery.title|title }}
                                 </a>
                                 <i class="fa fa-fw fa-pencil"></i>
                             </td>
@@ -65,7 +65,7 @@
                                     {% endif %}
                                 {% endif %}
                                 <div style="width:155px;height:100px;overflow:hidden;">
-                                    <img src="{{ cover|default('holder.js/350x220?theme=gray&text=' ~ gallery.title|raw) }}" alt="{{ gallery.title|raw }}" width="155px" height="100px" style="height:auto"/>
+                                    <img src="{{ cover|default('holder.js/350x220?theme=gray&text=' ~ gallery.title) }}" alt="{{ gallery.title }}" width="155px" height="100px" style="height:auto"/>
                                 </div>
                             </td>
                             <td>
@@ -99,7 +99,7 @@
                                 </button>
                                 <a id="delete-gallery" data-confirm="{{ translate('Are you sure you want to delete this gallery?') }}" class="button button-primary sggActionButtons" title="Delete this gallery"
                                    href="{{ environment.generateUrl('galleries', 'delete', { 'gallery_id': gallery.id, '_wpnonce': _wpnonce }) }}">
-                                    <i class="fa fa-trash-o"></i>
+                                    <i class="fa fa-trash"></i>
                                     {{ translate('Delete gallery') }}
                                 </a>
                                 {#<li title="{{ translate('Images Optimization') }}">#}
@@ -117,7 +117,7 @@
             </div>
             <div class="supXs12">
                 <button class="button group_button" id="delete-group" disabled>
-                    <i class="fa fa-fw fa-trash-o"></i>{{ environment.translate('Delete selected') }}
+                    <i class="fa fa-fw fa-trash"></i>{{ environment.translate('Delete selected') }}
                 </button>
             </div>
         </div>

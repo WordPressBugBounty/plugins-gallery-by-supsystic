@@ -17,7 +17,7 @@
 class Twig_SupTwgSgg_Node_Embed extends Twig_SupTwgSgg_Node_Include
 {
   // we don't inject the module to avoid node visitors to traverse it twice (as it will be already visited in the main module)
-  public function __construct($name, $index, Twig_SupTwgSgg_Node_Expression $variables = null, $only = false, $ignoreMissing = false, $lineno = null, $tag = null)
+  public function __construct($name, $index, ?Twig_SupTwgSgg_Node_Expression $variables = null, $only = false, $ignoreMissing = false, $lineno = null, $tag = null)
   {
     parent::__construct(new Twig_SupTwgSgg_Node_Expression_Constant('not_used', $lineno), $variables, $only, $ignoreMissing, $lineno, $tag);
 

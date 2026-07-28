@@ -23,7 +23,7 @@ class Twig_SupTwgSgg_Node_Module extends Twig_SupTwgSgg_Node
 {
   private $source;
 
-  public function __construct(Twig_SupTwgSgg_NodeInterface $body, Twig_SupTwgSgg_Node_Expression $parent = null, Twig_SupTwgSgg_NodeInterface $blocks, Twig_SupTwgSgg_NodeInterface $macros, Twig_SupTwgSgg_NodeInterface $traits, $embeddedTemplates, $name, $source = '')
+  public function __construct(Twig_SupTwgSgg_NodeInterface $body, ?Twig_SupTwgSgg_Node_Expression $parent = null, ?Twig_SupTwgSgg_NodeInterface $blocks = null, ?Twig_SupTwgSgg_NodeInterface $macros = null, ?Twig_SupTwgSgg_NodeInterface $traits = null, $embeddedTemplates = null, $name = null, $source = '')
   {
     if (!$name instanceof Twig_SupTwgSgg_Source) {
       //@trigger_error(sprintf('Passing a string as the $name argument of %s() is deprecated since version 1.27. Pass a Twig_SupTwgSgg_Source instance instead.', __METHOD__), E_USER_DEPRECATED);

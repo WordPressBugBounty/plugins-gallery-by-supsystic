@@ -474,7 +474,7 @@
 								~ settings.thumbnail.overlay.text_size ~ settings.thumbnail.overlay.text_size_unit|replace(['px', '%', 'em'])
 								~ ";vertical-align:" ~ settings.thumbnail.overlay.position ~ ";" %}
 							{% if photo.attachment.caption is not empty %}
-								{% set ggCaptionText = photo.attachment.caption|raw %}
+								{% set ggCaptionText = photo.attachment.caption %}
 								{% set ggCaptionTextStyle = ggCaptionTextStyle ~ 'font-weight: 800;' %}
 							{% endif %}
 							{% block figcaption_after_set_exif %}

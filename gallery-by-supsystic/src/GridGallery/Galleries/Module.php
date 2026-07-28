@@ -275,7 +275,7 @@ class GridGallery_Galleries_Module extends GridGallery_Core_Module
     // Use provided array if it's not empty, otherwise fallback to default
     $map = !empty($unitMap) ? $unitMap : $defaultMap;
     // Check if the key exists in the map, return the value if found, otherwise return the key itself
-    return $map[$key] ?? $key;
+    return $map[$key ?? ''] ?? $key;
   }
 
   public function pregReplace($value, $pattern, $replacement)

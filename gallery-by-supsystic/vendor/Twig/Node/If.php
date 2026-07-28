@@ -17,7 +17,7 @@
  */
 class Twig_SupTwgSgg_Node_If extends Twig_SupTwgSgg_Node
 {
-  public function __construct(Twig_SupTwgSgg_NodeInterface $tests, Twig_SupTwgSgg_NodeInterface $else = null, $lineno, $tag = null)
+  public function __construct(Twig_SupTwgSgg_NodeInterface $tests, ?Twig_SupTwgSgg_NodeInterface $else = null, $lineno = 0, $tag = null)
   {
     $nodes = ['tests' => $tests];
     if (null !== $else) {
