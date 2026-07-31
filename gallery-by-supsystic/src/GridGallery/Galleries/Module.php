@@ -297,43 +297,6 @@ class GridGallery_Galleries_Module extends GridGallery_Core_Module
     return $url;
   }
 
-  public function _checkLoveLink()
-  {
-    $apiUrl = 'https://supsystic.com/wp-admin/admin-ajax.php';
-    $reqUrl = $apiUrl . '?action=show_love_link';
-    $data = [
-      'body' => [
-        'key' => 'kJ#f3(FjkF9fasd124t5t589u9d4389r3r3R#2asdas3(#R03r#(r#t-4t5t589u9d4389r3r3R#$%lfdj',
-        'site_url' => get_bloginfo('wpurl'),
-      ],
-    ];
-    $response = wp_remote_post($reqUrl, $data);
-    $responseData = json_decode(wp_remote_retrieve_body($response), true);
-    if (!empty($responseData['data']['show'])) {
-      update_option('supsystic_gallery_show_love_link', true);
-    } else {
-      update_option('supsystic_gallery_show_love_link', false);
-    }
-  }
-  public function checkLoveLink()
-  {
-    if (!empty(get_option('supsystic_gallery_last_check_love_link'))) {
-      $time = time();
-      $prevSendTime = (int) get_option('supsystic_gallery_last_check_love_link');
-      if ($prevSendTime && $time - $prevSendTime > 3600 * 24) {
-        update_option('supsystic_gallery_last_check_love_link', time());
-        $this->_checkLoveLink();
-      }
-    } else {
-      $this->_checkLoveLink();
-      update_option('supsystic_gallery_last_check_love_link', time());
-    }
-    if (!empty(get_option('supsystic_gallery_show_love_link'))) {
-      return true;
-    }
-    return false;
-  }
-
   /**
    * Shortcode callback.
    * @param  array $attributes An array of the shortcode parameters.
@@ -359,8 +322,7 @@ class GridGallery_Galleries_Module extends GridGallery_Core_Module
     global $wpdb;
     $optValue = get_option($wpdb->prefix . $this->getConfig()->get('db_prefix') . 'rand_sorts');
 
-    // if (get_option('supsystic_gallery_show_love_link') == $this->checkLoveLink()) {
-    //         if($optValue === false
+    // if($optValue === false
     //             || !isset($optValue['id']) || !isset($optValue['val'])
     //             || !($optValue['id'] == $id && $optValue['val'] === true)) {
 
@@ -411,25 +373,6 @@ class GridGallery_Galleries_Module extends GridGallery_Core_Module
       if ($environment->isPro() && $environment->isModule('license') && $environment->getModule('license')->isActive()) {
         $this->replacePhotoHttpHostForCdnServer($renderData, $id);
       }
-
-      $showLoveLink = '';
-      $settings = get_option('sg_settings');
-      if (empty(get_option('supsystic_gallery_love_link_title'))) {
-        $loveLinkTitles = ['WordPress Image Gallery Plugin', 'WordPress Photo Gallery Plugin', 'WordPress Gallery Plugin', 'Gallery Plugin', 'Gallery Wordpress', 'Wordpress Photo Gallery', 'Best Wordpress Gallery Plugin', 'Wordpress Gallery Plugin Free'];
-        $randomTitle = array_rand($loveLinkTitles, 1);
-        $randomTitleVal = $loveLinkTitles[$randomTitle];
-        update_option('supsystic_gallery_love_link_title', $randomTitleVal);
-      }
-      $linkTitle = get_option('supsystic_gallery_love_link_title');
-      if (!empty($settings['add_love_link'])) {
-        $showLoveLink = $this->render('@galleries/lovelink/show.twig', ['linkTitle' => $linkTitle]);
-      } else {
-        $showLoveLink = $this->render('@galleries/lovelink/showhidden.twig', ['linkTitle' => $linkTitle]);
-      }
-      if (!$this->checkLoveLink()) {
-        $showLoveLink = '';
-      }
-      $renderData = $renderData . $showLoveLink;
 
       return $renderData;
     }

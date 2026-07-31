@@ -4,7 +4,7 @@ Donate link: https://supsystic.com/plugins/gallery
 Tags: gallery,image-gallery,photo gallery, album-gallery,gallery-plugin
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.17.0
+Stable tag: 1.17.1
 License: GNU General Public License v2.0 or later
 
 Photo Gallery helps you create clean, responsive image galleries and album galleries without wrestling with complex settings, layouts, or custom CSS.
@@ -112,32 +112,37 @@ Need help?
 * [Full Documentation Hub](https://supsystic.com/docs/gallery/)
 * [Video Tutorial](https://supsystic.com/documentation/gallery-video-tutorial/)
 * [Support & Contact](https://supsystic.com/contact-us/)
+
 == Changelog ==
 
 = 2026 =
 
-== Gallery 1.17.0 — July 27, 2026 ==
+= 1.17.1 — July 31, 2026 =
+
+* Added further security hardening and unofficial version detected
+
+= 1.17.0 — July 27, 2026 =
 
 * Added further security hardening across gallery, image, and import handling.
 * Added compatibility improvements for the latest PHP versions.
 * General stability and performance improvements.
 
-== Gallery 1.16.3 — July 13, 2026 ==
+= 1.16.3 — July 13, 2026 =
 
 * Improved security for the Mixpanel cURL consumer.
 * Migrated Mixpanel requests to the WordPress HTTP API with a PHP cURL fallback.
 * Improved security for KeyCDN password storage.
 * Preserved compatibility with existing KeyCDN and TinyPNG settings.
 
-== Gallery 1.16.2 — May 31, 2026 ==
+= 1.16.2 — May 31, 2026 =
 
 * Added support for WordPress 7.0.
 
-== Gallery 1.16.1 — May 4, 2026 ==
+= 1.16.1 — May 4, 2026 =
 
 * Fixed horizontal scrolling issues on mobile devices.
 
-== Gallery 1.15.33 — January 19, 2026 ==
+= 1.15.33 — January 19, 2026 =
 
 * Added compatibility improvements for WordPress 6.9 and PHP 8.4.
 * Fixed a cache-related issue.

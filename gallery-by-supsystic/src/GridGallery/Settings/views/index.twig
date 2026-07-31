@@ -37,35 +37,6 @@
                         </select>
                     </div>
                 </div>
-                                    <div class="setting">
-                                        <div class="setting-description">
-                                            <label>{{ environment.translate('Show promo link') }}</label>
-                                            {{ h.showTooltip(environment.translate('To promote our plugin, you can show the promo link below the table, if you don\'t want to show the promo link you can also hide it. You can completely remove the link under the table by purchasing the PRO version of the plugin. Thank you for cooperation!'), 'top', true) }} </label>
-                                        </div>
-                                        <div class="setting-control">
-                                            <input type="checkbox"  name="settings[add_love_link]" {% if settings.add_love_link == 'on' %} checked {%  endif %}>
-                                        </div>
-                                    </div>
-
-
-                                    <div class="setting">
-                                        <div class="setting-description">
-                                            <label>{{ environment.translate('Remove promo link') }}</label>
-                                            {{ h.showTooltip(environment.translate('If you want to delete promo link below the table from HTML just check this box. Only for PRO users.'), 'top', true) }} </label>
-                                            {% if environment.isPro() == false %}
-                                                <a target="_blank" href="{{ build_pro_url({ 'utm_medium': 'load_by_ajax_enabled' }) }}">
-                                                    {{ environment.translate('PRO option') }}
-                                                </a>
-                                            {% endif %}
-                                        </div>
-                                        <div class="setting-control">
-                                            {% if environment.isPro() == false %}
-                                                <input type="checkbox" disabled value=""/>
-                                            {% else %}
-                                                <input type="checkbox"  name="settings[remove_love_link]" {% if settings.remove_love_link == 'on' %} checked {%  endif %}>
-                                            {% endif %}
-                                        </div>
-                                    </div>
 
                 <div class="setting">
                     <div class="setting-description">
