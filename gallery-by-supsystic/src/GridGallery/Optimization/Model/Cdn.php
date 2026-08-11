@@ -34,7 +34,7 @@ class GridGallery_Optimization_Model_Cdn extends RscSgg_Mvc_Model
 
   public function getServiceSettings()
   {
-    $imgCdnSett = @unserialize(get_option(self::getServiceOptionName(), null));
+    $imgCdnSett = @unserialize(get_option(self::getServiceOptionName(), null), ['allowed_classes' => false]);
 
     // reset invalid configuration
     if (empty($imgCdnSett['current']) || empty($imgCdnSett['setting']) || empty($imgCdnSett['setting'][$imgCdnSett['current']])) {

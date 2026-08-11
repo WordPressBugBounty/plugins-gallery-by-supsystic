@@ -150,7 +150,6 @@ class GridGallery_Galleries_Model_Galleries extends GridGallery_Core_BaseModel
           'name' => 1,
           'referrerpolicy' => 1,
           'sandbox' => 1,
-          'srcdoc' => 1,
         ],
         'br' => [],
         'a' => [
@@ -196,7 +195,6 @@ class GridGallery_Galleries_Model_Galleries extends GridGallery_Core_BaseModel
           'formtarget' => 1,
           'type' => 1,
           'value' => 1,
-          'onclick' => 1,
         ],
       ];
       $allowedDiv = [
@@ -797,7 +795,7 @@ class GridGallery_Galleries_Model_Galleries extends GridGallery_Core_BaseModel
       $data = $presets[$request->post->get('preset', 1)];
 
       $settings = new GridGallery_Galleries_Model_Settings();
-      $settings->save($id, unserialize($data));
+      $settings->save($id, unserialize($data, ['allowed_classes' => false]));
 
       return true;
     }

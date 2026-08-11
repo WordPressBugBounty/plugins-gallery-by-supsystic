@@ -4,7 +4,7 @@ Donate link: https://supsystic.com/plugins/gallery
 Tags: gallery,image-gallery,photo gallery, album-gallery,gallery-plugin
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.17.1
+Stable tag: 1.18.0
 License: GNU General Public License v2.0 or later
 
 Photo Gallery helps you create clean, responsive image galleries and album galleries without wrestling with complex settings, layouts, or custom CSS.
@@ -116,6 +116,14 @@ Need help?
 == Changelog ==
 
 = 2026 =
+
+= 1.18.0 — August 10, 2026 =
+
+* General security hardening and code improvements.
+
+= 1.17.2 — August 7, 2026 =
+
+* General stability and performance improvements.
 
 = 1.17.1 — July 31, 2026 =
 

@@ -81,7 +81,7 @@ class GridGallery_Galleries_Controller extends GridGallery_Core_BaseController
     $settingsModel = $this->getModel('settings');
 
     foreach ($galleries as $gallery) {
-      $gallery->settings = unserialize($gallery->settings);
+      $gallery->settings = unserialize($gallery->settings, ['allowed_classes' => false]);
     }
 
     $twig = $this->getEnvironment()->getTwig();
@@ -138,7 +138,7 @@ class GridGallery_Galleries_Controller extends GridGallery_Core_BaseController
       $settings = new stdClass();
 
       $settings->id = null;
-      $settings->data = unserialize($config->get('gallery_settings'));
+      $settings->data = unserialize($config->get('gallery_settings'), ['allowed_classes' => false]);
 
       $environment = $this->getPluginEnvironment();
       if ($environment->isPro() && $environment->isModule('license') && $environment->getModule('license')->isActive()) {
@@ -214,7 +214,7 @@ class GridGallery_Galleries_Controller extends GridGallery_Core_BaseController
       $settings = new stdClass();
 
       $settings->id = null;
-      $settings->data = unserialize($config->get('gallery_settings'));
+      $settings->data = unserialize($config->get('gallery_settings'), ['allowed_classes' => false]);
     }
 
     $position = $this->getModel('position');
@@ -617,7 +617,7 @@ class GridGallery_Galleries_Controller extends GridGallery_Core_BaseController
       $settings = new stdClass();
 
       $settings->id = null;
-      $settings->data = unserialize($config->get('gallery_settings'));
+      $settings->data = unserialize($config->get('gallery_settings'), ['allowed_classes' => false]);
     }
 
     $galleryModule = $this->getModule('galleries');

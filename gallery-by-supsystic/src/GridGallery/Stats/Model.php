@@ -37,15 +37,7 @@ class GridGallery_Stats_Model extends GridGallery_Core_BaseModel
    * Saves the action.
    * @param string $action The name of the action.
    */
-  public function save($action)
-  {
-    if (!$this->exists($action)) {
-      $this->insert($action);
-      return;
-    }
-
-    $this->update($action);
-  }
+  public function save($action) {}
 
   /**
    * Returns the all usage stats.
@@ -76,26 +68,7 @@ class GridGallery_Stats_Model extends GridGallery_Core_BaseModel
    */
   public function send()
   {
-    $data = $this->get();
-
-    $response = wp_remote_post($this->getApiUrl(), [
-      'body' => [
-        'site_url' => get_bloginfo('wpurl'),
-        'site_name' => get_bloginfo('name'),
-        'plugin_code' => $this->pluginCode,
-        'all_stat' => $data,
-      ],
-    ]);
-
-    if (is_wp_error($response)) {
-      if ($this->logger) {
-        $this->logger->error('Failed to send usage statistics: {error}', ['error' => $response->get_error_message()]);
-      }
-
-      return false;
-    }
-
-    return true;
+    return false;
   }
 
   /**
@@ -188,17 +161,5 @@ class GridGallery_Stats_Model extends GridGallery_Core_BaseModel
     }
 
     return false;
-  }
-
-  /**
-   * @return string
-   */
-  protected function getApiUrl()
-  {
-    if (!$this->apiUrl) {
-      $this->apiUrl = 'aHR0cDovLzU0LjY4LjE5MS4yMTcvP21vZD1vcHRpb25zJmFjdGlvbj1zYXZlVXNhZ2VTdGF0JnBsPXJjcw==';
-    }
-
-    return base64_decode($this->apiUrl);
   }
 }

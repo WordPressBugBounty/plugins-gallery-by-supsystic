@@ -100,29 +100,6 @@ class GridGallery_Core_Module extends RscSgg_Mvc_Module
     $twig->addGlobal('SGG_USER_EMAIL', $current_user->user_email);
     $twig->addGlobal('SGG_WEBSITE', get_bloginfo('url'));
     $twig->addGlobal('_wpnonce', wp_create_nonce('supsystic-gallery'));
-
-    $show = true;
-    $acRemind = get_option('sgg_ac_remind', false);
-    if (!empty($acRemind)) {
-      $currentDate = date('Y-m-d h:i:s');
-      if ($currentDate > $acRemind) {
-        $show = true;
-      } else {
-        $show = false;
-      }
-    }
-    $acSubscribe = get_option('sgg_ac_subscribe', false);
-    if (!empty($acSubscribe)) {
-      $show = false;
-    }
-    $acDisabled = get_option('sgg_ac_disabled', false);
-    if (!empty($acDisabled)) {
-      $show = false;
-    }
-
-    $twig->addGlobal('SGG_AC_SHOW', $show);
-    // delete_option('sgg_ac_remind');
-    // delete_option('sgg_ac_disabled');
   }
 
   //Clear gallery cache after update

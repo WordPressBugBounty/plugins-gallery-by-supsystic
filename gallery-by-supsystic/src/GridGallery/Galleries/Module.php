@@ -703,7 +703,7 @@ class GridGallery_Galleries_Module extends GridGallery_Core_Module
       $config = $this->getEnvironment()->getConfig();
       $config->load('@galleries/settings.php');
 
-      $settings = unserialize($config->get('gallery_settings'));
+      $settings = unserialize($config->get('gallery_settings'), ['allowed_classes' => false]);
     }
 
     return $settings;

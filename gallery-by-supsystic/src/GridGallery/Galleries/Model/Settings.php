@@ -183,7 +183,7 @@ class GridGallery_Galleries_Model_Settings extends GridGallery_Core_BaseModel
 
     if (null !== ($row = $this->db->get_row($query->build()))) {
       if (isset($row->data)) {
-        $row->data = unserialize($row->data);
+        $row->data = unserialize($row->data, ['allowed_classes' => false]);
       }
     }
 
@@ -206,7 +206,7 @@ class GridGallery_Galleries_Model_Settings extends GridGallery_Core_BaseModel
 
     if (count($settArr) > 0) {
       foreach ($settArr as $key => $elem) {
-        $settArr[$key]->data = unserialize($settArr[$key]->data);
+        $settArr[$key]->data = unserialize($settArr[$key]->data, ['allowed_classes' => false]);
       }
     }
 

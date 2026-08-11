@@ -16,11 +16,7 @@ class GridGallery_Promo_Module extends GridGallery_Core_Module
 
     //add_action($this->getConfig()->get('hooks_prefix') . 'after_ui_loaded', array($this, 'loadAdminPromoAssets'));
     add_action('admin_init', [$this, 'loadAdminPromoAssets']);
-    //add_action('admin_footer', array($this, 'checkPluginDeactivation'));
     add_action('wp_ajax_sgg-tutorial-close', [$this, 'endTutorial']);
-
-    $dispatcher = $this->getEnvironment()->getDispatcher();
-    $dispatcher->on('messages', [$this, 'renderDiscountMsg']);
   }
   public function loadAdminPromoAssets()
   {
@@ -48,27 +44,6 @@ class GridGallery_Promo_Module extends GridGallery_Core_Module
       update_option($this->getConfig()->get('db_prefix') . 'welcome_page_was_showed', 1);
     }
   }
-  // Unused for now
-  public function loadAssets(GridGallery_Ui_Module $ui)
-  {
-    if (!get_user_meta(get_current_user_id(), 'sgg-tutorial_was_showed', true)) {
-      $ui->asset->enqueue('scripts', [
-        [
-          'handle' => 'sgg-step-tutorial',
-          'source' => $this->getLocationUrl() . '/assets/js/tutorial.js',
-          'dependencies' => ['wp-pointer'],
-        ],
-      ]);
-
-      add_action('admin_enqueue_scripts', [$this, 'enqueueTutorialAssets']);
-    }
-
-    if ($this->isModule('promo', 'welcome') && !$this->getConfig()->get('welcome_page_was_showed')) {
-      $ui->asset->enqueue('styles', [$this->getConfig()->get('plugin_url') . '/app/assets/css/libraries/supsystic/suptablesui.min.css']);
-      update_option($this->getConfig()->get('db_prefix') . 'welcome_page_was_showed', 1);
-    }
-  }
-
   public function enqueueTutorialAssets()
   {
     wp_enqueue_style('wp-pointer');
@@ -238,26 +213,6 @@ class GridGallery_Promo_Module extends GridGallery_Core_Module
     update_user_meta(get_current_user_id(), 'sgg-tutorial_was_showed', true);
   }
 
-  public function checkPluginDeactivation()
-  {
-    if (function_exists('get_current_screen')) {
-      $screen = get_current_screen();
-      if ($screen && isset($screen->base) && $screen->base == 'plugins') {
-        wp_enqueue_script('sgg.admin.plugins', $this->getLocationUrl() . '/assets/js/admin.plugins.js');
-        wp_localize_script('sgg.admin.plugins', 'sggPluginsData', [
-          'plugSlug' => $this->getEnvironment()->getConfig()->get('plugin_folder_name'),
-        ]);
-        $ui = $this->getEnvironment()->getModule('ui');
-        $backendCss = $ui->getBackendCSS();
-        foreach ($backendCss as $s) {
-          $src = is_string($s) ? $s : $s['source'];
-          wp_enqueue_style(basename($src), $src);
-        }
-        // $pluginDeactivationHtml = $this->getEnvironment()->getModule('tables')->getModel('tables')->sanitize_string($this->render('@promo/pluginDeactivation.twig'));
-        // echo $pluginDeactivationHtml;
-      }
-    }
-  }
   public function render($template, $parameters = [])
   {
     $twig = $this->getEnvironment()->getTwig();
@@ -269,41 +224,5 @@ class GridGallery_Promo_Module extends GridGallery_Core_Module
       }
     }
     return preg_replace('/\s+/', ' ', trim($twig->render($template, $parameters)));
-  }
-  public function renderDiscountMsg()
-  {
-    $environment = $this->getEnvironment();
-    if ($environment->isPro() && $environment->isModule('license') && $environment->getModule('license')->isActive()) {
-      // $proPluginsList = array(
-      // 	'ultimate-maps-by-supsystic-pro', 'contact-form-by-supsystic-pro', 'digital-publications-supsystic-pro', 'coming-soon-supsystic-pro',
-      // 	'price-table-supsystic-pro', 'tables-generator-pro', 'social-share-pro', 'popup-by-supsystic-pro', 'supsystic_slider_pro',
-      // 	'supsystic-gallery-pro', 'google-maps-easy-pro', 'backup-supsystic-pro'
-      // );
-      // $activePluginsList = get_option('active_plugins', array());
-      // $activeProPluginsCount = 0;
-      // foreach($activePluginsList as $actPl) {
-      // 	foreach($proPluginsList as $proPl) {
-      // 		if(strpos($actPl, $proPl) !== false) {
-      // 			$activeProPluginsCount++;
-      // 		}
-      // 	}
-      // }
-      // if($activeProPluginsCount === 1) {
-      // 	$twig = $this->getEnvironment()->getTwig();
-      // 	$twig->display('@promo/discountMessage.twig', array(
-      // 		'bundlePageLink' => '//supsystic.com/all-plugins/',
-      // 		'buyLink' => $this->getDiscountBuyUrl(),
-      // 	));
-      // }
-    }
-  }
-  public function getDiscountBuyUrl()
-  {
-    $environment = $this->getEnvironment();
-    $pluginCode = $environment->getConfig()->get('plugin_product_code');
-    $license = $environment->getModule('license')->getHelper()->getCredentials();
-    $license['key'] = md5($license['key']);
-    $license = urlencode(base64_encode(implode('|', $license)));
-    return 'http://supsystic.com/?mod=manager&pl=lms&action=extend&plugin_code=' . $pluginCode . '&lic=' . $license;
   }
 }

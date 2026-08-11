@@ -10,7 +10,7 @@ class GridGallery_Overview_Controller extends GridGallery_Core_BaseController
 {
   public function requireNonces()
   {
-    return ['sendMailAction', 'sendSubscribeMail', 'sendSubscribeRemind', 'sendSubscribeDisable'];
+    return ['sendMailAction'];
   }
   /**
    * @param RscSgg_Http_Request $request
@@ -23,7 +23,6 @@ class GridGallery_Overview_Controller extends GridGallery_Core_BaseController
 
     return $this->response('@overview/index.twig', [
       'serverSettings' => $serverSettings,
-      'news' => $this->loadNews($config['post_url']),
       'contactForm' => [
         'name' => $current_user->user_firstname,
         'email' => $current_user->user_email,
@@ -65,71 +64,6 @@ class GridGallery_Overview_Controller extends GridGallery_Core_BaseController
   }
 
   /**
-   * @param RscSgg_Http_Request $request
-   */
-  public function sendSubscribeMailAction(RscSgg_Http_Request $request)
-  {
-    $apiUrl = 'https://supsystic.com/wp-admin/admin-ajax.php';
-    $reqUrl = $apiUrl . '?action=ac_get_plugin_installed';
-    $config = $this->getEnvironment()->getConfig();
-    $mail = $request->post['route']['data'];
-    $isPro = !empty($config->get('is_pro')) ? true : false;
-    $data = [
-      'body' => [
-        'key' => 'kJ#f3(FjkF9fasd124t5t589u9d4389r3r3R#2asdas3(#R03r#(r#t-4t5t589u9d4389r3r3R#$%lfdj',
-        'user_name' => $mail['username'],
-        'user_email' => $mail['email'],
-        'customertype' => $mail['expertise'],
-        'site_url' => get_bloginfo('wpurl'),
-        'site_name' => get_bloginfo('name'),
-        'plugin_code' => $config->get('plugin_name'),
-        'is_pro' => $isPro,
-      ],
-    ];
-    if (!empty($this->getModule('license'))) {
-      if ($isPro && $this->getModule('license')->getHelper()->_getPluginCode() == 'gallery_by_supsystic_pro') {
-        $data['body']['is_pro'] = true;
-      } else {
-        $data['body']['is_pro'] = false;
-      }
-    }
-    $response = wp_remote_post($reqUrl, $data);
-    if (is_wp_error($response)) {
-      $response = [
-        'success' => false,
-        'message' => $this->translate('Some errors.'),
-      ];
-    } else {
-      $response = [
-        'success' => true,
-        'message' => $this->translate('Thank you for subscribtions.'),
-      ];
-      update_option('sgg_ac_subscribe', true);
-    }
-    return $this->response(RscSgg_Http_Response::AJAX, $response);
-  }
-
-  /**
-   * @param RscSgg_Http_Request $request
-   */
-  public function sendSubscribeRemindAction(RscSgg_Http_Request $request)
-  {
-    update_option('sgg_ac_remind', date('Y-m-d h:i:s', time() + 86400));
-    $response = ['success' => true];
-    return $this->response(RscSgg_Http_Response::AJAX, $response);
-  }
-
-  /**
-   * @param RscSgg_Http_Request $request
-   */
-  public function sendSubscribeDisableAction(RscSgg_Http_Request $request)
-  {
-    update_option('sgg_ac_disabled', true);
-    $response = ['success' => true];
-    return $this->response(RscSgg_Http_Response::AJAX, $response);
-  }
-
-  /**
    * @return base server settings
    */
   protected function getServerSettings()
@@ -166,22 +100,5 @@ class GridGallery_Overview_Controller extends GridGallery_Core_BaseController
     }
 
     return $ts_mail_errors;
-  }
-
-  public function getApiUrl()
-  {
-    $apiUrl = 'aHR0cDovLzU0LjY4LjE5MS4yMTcvP21vZD1vcHRpb25zJmFjdGlvbj1zYXZlVXNhZ2VTdGF0JnBsPXJjcw==';
-    return base64_decode($apiUrl);
-  }
-
-  /**
-   * @param string $url url with news
-   * @return news body only
-   */
-  protected function loadNews($url)
-  {
-    $news = wp_remote_retrieve_body(wp_remote_get($url));
-
-    return $news;
   }
 }

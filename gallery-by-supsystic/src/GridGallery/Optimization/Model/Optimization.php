@@ -15,7 +15,7 @@ class GridGallery_Optimization_Model_Optimization extends GridGallery_Core_BaseM
 
   public function getServiceSettings()
   {
-    $imgOptSett = @unserialize(get_option(self::getServiceOptionName(), null));
+    $imgOptSett = @unserialize(get_option(self::getServiceOptionName(), null), ['allowed_classes' => false]);
 
     // reset invalid configuration
     if (empty($imgOptSett['current']) || empty($imgOptSett['setting']) || empty($imgOptSett['setting'][$imgOptSett['current']])) {

@@ -6,8 +6,6 @@ class GridGallery_Promo_Controller extends GridGallery_Core_BaseController
 {
   public function welcomeAction(RscSgg_Http_Request $request)
   {
-    $model = $this->getModel('promo');
-    $model->bigStatAdd('Welcome Show');
     update_option('sgg_plug_welcome_show', time()); // Remember this
     return $this->response('@promo/promo.twig', [
       'plugin_name' => $this->getConfig()->get('plugin_title_name'),
@@ -20,21 +18,5 @@ class GridGallery_Promo_Controller extends GridGallery_Core_BaseController
   {
     update_user_meta(get_current_user_id(), 'sgg-tutorial_was_showed', false);
     return $this->redirect($this->generateUrl('overview'));
-  }
-  public function saveDeactivateDataAction(RscSgg_Http_Request $request)
-  {
-    $lang = $this->getEnvironment()->getLang();
-    $model = $this->getModel('promo');
-    $model->saveDeactivateData($request->post);
-    return $this->response(RscSgg_Http_Response::AJAX, $this->getSuccessResponseData($lang->translate('Hope you will come back!')));
-  }
-  /**
-   * {@inheritdoc}
-   */
-  protected function getModelAliases()
-  {
-    return [
-      'promo' => 'GridGallery_Promo_Model_Promo',
-    ];
   }
 }
