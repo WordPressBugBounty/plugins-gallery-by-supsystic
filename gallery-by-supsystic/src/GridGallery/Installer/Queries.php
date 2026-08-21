@@ -10,6 +10,8 @@
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(255) CHARACTER SET utf8 NOT NULL,
   `settings_id` int(11) NOT NULL,
+  `created` datetime NULL,
+  `modified` datetime NULL,
   PRIMARY KEY (`id`)
 ) AUTO_INCREMENT=0 DEFAULT CHARSET=utf8',
 
@@ -128,4 +130,8 @@
   ADD COLUMN `link_full` varchar(255) CHARACTER SET utf8 NOT NULL,
   ADD COLUMN `link_thumb` varchar(255) CHARACTER SET utf8 NOT NULL,
   ADD COLUMN `link_default` varchar(255) CHARACTER SET utf8 NOT NULL',
+
+  'altercolumn:created:{prefix}gg_galleries' => 'ALTER TABLE `{prefix}gg_galleries`
+  ADD COLUMN `created` datetime NULL,
+  ADD COLUMN `modified` datetime NULL',
 ];

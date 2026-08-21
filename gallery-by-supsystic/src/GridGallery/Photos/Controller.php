@@ -391,7 +391,7 @@ class GridGallery_Photos_Controller extends GridGallery_Core_BaseController
     $caption = sanitize_text_field($request->post->get('caption'));
     $description = sanitize_textarea_field($request->post->get('description'));
     $target = sanitize_text_field($request->post->get('target', '_self'));
-    $link = esc_url_raw($request->post->get('link'));
+    $link = esc_url_raw($request->post->get('link', ''));
     $captionEffect = sanitize_text_field($request->post->get('captionEffect'));
     $cropPosition = sanitize_text_field($request->post->get('cropPosition'));
 

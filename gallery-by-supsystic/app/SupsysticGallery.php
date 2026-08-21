@@ -36,7 +36,7 @@ class SupsysticGallery
     $environment->configure([
       'optimizations' => 0,
       'environment' => $this->getPluginEnvironment(),
-      'default_module' => 'galleries',
+      'default_module' => 'overview',
       'lang_domain' => 'sgg',
       'lang_path' => plugin_basename(dirname(__FILE__)) . '/langs',
       'plugin_prefix' => 'GridGallery',

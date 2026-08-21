@@ -1,8 +1,33 @@
+{% macro iconAttributesData(settings, photo) %}
+	{# Custom Attributes (Pro) is read by frontend.js's filter/search and by
+	the popup's Custom Attributes panel from whichever element actually
+	carries data-rel="prettyPhoto..." - here, one of the small icon links
+	below, not the figure. settings.attributes only exists on Pro, so this
+	silently no-ops on Free installs. #}
+	{% if settings.attributes is defined and settings.attributes.enabled == 'true' %}
+		{% set showAttributes = (settings.attributes.showAttributes == 1 and settings.box.type == '1') %}
+		{% if settings.attributes.showFilter == 1 or showAttributes %}
+			data-attributes="{{ photo.attributes|json_encode|e }}"
+		{% endif %}
+		{% if showAttributes and settings.attributes.showButtonLink == 1 %}
+			{% if photo.attachment.buttonLinkTitle is defined and photo.attachment.buttonLinkTitle != "" %}
+				data-buttonlink-title="{{ photo.attachment.buttonLinkTitle }}"
+			{% endif %}
+			{% if photo.attachment.buttonLinkUrl is defined and photo.attachment.buttonLinkUrl != "" %}
+				data-buttonlink-url="{{ photo.attachment.buttonLinkUrl }}"
+			{% endif %}
+		{% endif %}
+		{% if settings.attributes.showSearch == 1 %}
+			data-keywords="{{ photo.attachment.imageKeywords|lower|default('') }}"
+		{% endif %}
+	{% endif %}
+{% endmacro %}
+
 {% set figureStyle %}
 	{% if settings.thumbnail.border.type != 'none' %}
         border: {{ settings.thumbnail.border.width }}px{{' '}} {{ settings.thumbnail.border.type }}{{' '}} {{ settings.thumbnail.border.color }};
     {% endif %}
-        border-radius: {{ settings.thumbnail.border.radius ~ settings.thumbnail.border.radius_unit|replace(['px', '%']) }};
+        border-radius: {{ settings.thumbnail.border.radius ~ settings.thumbnail.border.radius_unit|unitReplace(['px', '%']) }};
     {% if settings.use_shadow == 1 %}
         box-shadow: {{ settings.thumbnail.shadow.x }}px{{' '}} {{ settings.thumbnail.shadow.y }}px{{' '}} {{ settings.thumbnail.shadow.blur }}px{{' '}} {{ settings.thumbnail.shadow.color }};
     {% endif %};
@@ -16,13 +41,13 @@
 
 	{#-webkit-mask-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAA5JREFUeNpiYGBgAAgwAAAEAAGbA+oJAAAAAElFTkSuQmCC);#}
 	{% if settings.area.grid == '2' %}
-		height:{{ settings.area.photo_height ~ settings.area.photo_height_unit|replace(['px', '%']) }};
+		height:{{ settings.area.photo_height ~ settings.area.photo_height_unit|unitReplace(['px', '%']) }};
 	{% endif %}
 	{% block ggFigureWidth %}
 		{% if settings.area.grid == '2' %}
 			width:auto;
 		{% else %}
-			width:{{ settings.area.photo_width ~ settings.area.photo_width_unit|replace(['px', '%']) }};
+			width:{{ settings.area.photo_width ~ settings.area.photo_width_unit|unitReplace(['px', '%']) }};
 		{% endif %}
 	{% endblock %}
 {% endset %}
@@ -115,7 +140,7 @@
 					data-type="link"
 				{% endif %}
 			{% endblock %}
-			style="border-radius: {{ settings.thumbnail.border.radius ~ settings.thumbnail.border.radius_unit|replace(['px', '%']) }};"
+			style="border-radius: {{ settings.thumbnail.border.radius ~ settings.thumbnail.border.radius_unit|unitReplace(['px', '%']) }};"
 		{% endblock %}
 	{% endset %}
 
@@ -123,7 +148,7 @@
 
 	{% set var_figure_before %}
 		{% block figure_before %}
-			{% if settings.icons is not defined or settings.icons.enabled == 'false' %}
+			{% if settings.icons.enabled|default('false') == 'false' %}
 				<a {{ var_a_attributes }} >
 			{% endif %}
 		{% endblock %}
@@ -132,13 +157,13 @@
 	{% set galleryType %}
 		{% block galleryTypeBlock %}
 			{% if settings.thumbnail.overlay.enabled == 'false' %}
-				{% if settings.icons is defined and settings.icons.enabled == 'true'%}
+				{% if settings.icons.enabled|default('false') == 'true'%}
 					icons
 				{% else %}
 					none
 				{% endif %}
 			{% else %}
-				{% if settings.icons is defined and settings.icons.enabled == 'true' %}
+				{% if settings.icons.enabled|default('false') == 'true' %}
 					{% if settings.thumbnail.overlay.personal == 'true' and photo.attachment.captionEffect in ['icons', 'icons-scale', 'icons-sodium-left', 'icons-sodium-top', 'icons-nitrogen-top'] %}
 						{{ photo.attachment.captionEffect }}
 					{% else %}
@@ -169,7 +194,7 @@
 			data-grid-gallery-type="{{ galleryType|trim }}"
 			data-index="{{ index }}"
 			style="display:none;{{ figureStyle|trim }}"
-				{% if settings.icons.enabled == 'true' %}
+				{% if settings.icons.enabled|default('false') == 'true' %}
 					{% set galleryType %}
 						{% if 'icons' in settings.thumbnail.overlay.effect %}
 							{{ settings.thumbnail.overlay.effect }}
@@ -275,10 +300,19 @@
 
 	{% set figcaptionStyle %}
 		{% block figcaption_style %}
-			{% if settings.icons is defined and settings.icons.enabled == 'true' %}
+			{% if settings.icons.enabled|default('false') == 'true' %}
 				font-family:{{ settings.thumbnail.overlay.font_family }};
 				{% if settings.icons.overlay_enabled == 'true' %}
-					background-color:{{ settings.icons.overlay_color|default('#3498db') }};
+					{% if photo.attachment.caption is not empty or settings.thumbnail.overlay.tooltip == 'false' %}
+						background-color:{{ settings.icons.overlay_color|default('#3498db') }};
+					{% else %}
+						{# This photo has no caption text, so the .caption-with-icons
+						overlay below never renders and this figcaption background
+						stays visible on its own - use the Captions background color
+						here instead of the icon panel's own color, since that's the
+						field the user actually sees and configures for this case. #}
+						background-color:{{ settings.thumbnail.overlay.background|default('#ededed') }};
+					{% endif %}
 					height : 100%;
 					{#z-index: 999;#}
 				{% else %}
@@ -286,9 +320,9 @@
 					background-color: transparent;
 				{% endif %}
 			{% else %}
-				color:{{ settings.thumbnail.overlay.foreground }};
-				background-color:{{ settings.thumbnail.overlay.background }};
-				font-size:{{ settings.thumbnail.overlay.text_size }}{{ settings.thumbnail.overlay.text_size_unit|replace(['px', '%', 'em']) }};
+				color:{{ settings.thumbnail.overlay.foreground|default('#333333') }};
+				background-color:{{ settings.thumbnail.overlay.background|default('#ededed') }};
+				font-size:{{ settings.thumbnail.overlay.text_size }}{{ settings.thumbnail.overlay.text_size_unit|unitReplace(['px', '%', 'em']) }};
 				text-align:{{ settings.thumbnail.overlay.text_align }};
 				font-family:{{ settings.thumbnail.overlay.font_family }};
 				{% if settings.thumbnail.overlay.effect == 'none' or settings.thumbnail.overlay.enabled == 'false' %}
@@ -302,7 +336,7 @@
 	{% set var_figcaption_attributes %}
 		class="{% block figcaption_class %}{% endblock %}"
 		{% block figcaption_attributes %}
-			{% if settings.icons is defined and settings.icons.enabled == 'true' %}
+			{% if settings.icons.enabled|default('false') == 'true' %}
 				data-alpha="{{ settings.icons.overlay_transparency|default(5)|trim }}"
 			{% else %}
 				data-alpha="{{ settings.thumbnail.overlay.transparency|trim }}"
@@ -316,7 +350,7 @@
 	{% set var_figcaption_wrap %}
 		{% block figcaption_wrap %}
 			{# Icons #}
-			{% if settings.icons is defined and settings.icons.enabled == 'true' %}
+			{% if settings.icons.enabled|default('false') == 'true' %}
 				<div
 						class="hi-icon-wrap {{' '}} {{ settings.icons.effect[0:length-1] }} {{' '}} {{ settings.icons.effect }}"
 						data-margin="{{ settings.icons.margin|default(5) }}"
@@ -375,7 +409,7 @@
 								title="{{ aTitle|trim }}"
 							{% endif %}
 
-							class="hi-icon {{' '}} gg-video {{ videoIcon }}
+							class="hi-icon {{' '}} gg-video {{' '}} {{ videoIcon }}
 											{% if settings.box.type == '2' %} pbox{% endif %}
 										"
 							style="{{ iconStyle|trim }}"
@@ -388,6 +422,7 @@
 									rel="video"
 									{#  #}
 								{% endif %}
+								{{ _self.iconAttributesData(settings, photo) }}
 						>
 							{#Watch the video {{ photo.attachment.caption }}#}
 						</a>
@@ -398,7 +433,7 @@
 							{% if settings.disableImageTitle != 1 %}
 								title="{{ aTitle|trim }}"
 							{% endif %}
-							data-id="gg-{{ gallery.id }}-{{ photo.id }}" href="{% if settings.openByLink == 'on' %} {{ prepareImgUrl }} {% else %} {{ photo.attachment.external_link }} {% endif %} " target="{{ photo.attachment.target|default('_self') }}" class="hi-icon icon-link {{' '}} {% if settings.box.type == '2' and settings.openByLink == 'on' %}pbox{% endif %}" style="{{ iconStyle|trim }}"></a>
+							data-id="gg-{{ gallery.id }}-{{ photo.id }}" href="{% if settings.openByLink == 'on' %} {{ prepareImgUrl }} {% else %} {{ photo.attachment.external_link }} {% endif %} " target="{{ photo.attachment.target|default('_self') }}" class="hi-icon icon-link {{' '}} {% if settings.box.type == '2' and settings.openByLink == 'on' %}pbox{% endif %}" style="{{ iconStyle|trim }}" {{ _self.iconAttributesData(settings, photo) }}></a>
 					{% endif %}
 
 					{% set isShowPopupIcon = 0 %}
@@ -423,16 +458,18 @@
 							data-id="gg-{{ gallery.id }}-{{ photo.id }}" href="{{ prepareImgUrl }}" class="hi-icon icon-fullscreen gg-colorbox {{' '}} {% if settings.box.type == '2' and link is not defined %} pbox{% endif %}" style="{{ iconStyle|trim }}"
 								{% if settings.box.type == '1' %}
 							data-rel="prettyPhoto[pp_gal]"
-								{% endif %}>Open in pop-up window</a>
+								{% endif %}
+								{{ _self.iconAttributesData(settings, photo) }}
+							>Open in pop-up window</a>
 					{% endif %}
 				</div>
 			{% endif %}
 
-			{% if settings.icons is not defined or settings.icons.enabled == 'false' %}
+			{% if settings.icons.enabled|default('false') == 'false' %}
 				{% if settings.thumbnail.overlay.enabled == 'true' %}
 					{% block ggImageCaptionEntry %}
 						{% if photo.attachment.caption is not empty %}
-							<div class="gg-image-caption fitvidsignore {% if settings.rtl == true %}ggRtlClass{% endif %}" {% if settings.rtl == true %}dir="rtl"{% endif %} style="font-size:{{ settings.thumbnail.overlay.text_size }}{{ settings.thumbnail.overlay.text_size_unit|replace(['px', '%', 'em']) }};">
+							<div class="gg-image-caption fitvidsignore {% if settings.rtl == true %}ggRtlClass{% endif %}" {% if settings.rtl == true %}dir="rtl"{% endif %} style="font-size:{{ settings.thumbnail.overlay.text_size }}{{ settings.thumbnail.overlay.text_size_unit|unitReplace(['px', '%', 'em']) }};">
 								<object type="none/none">
 									{{ photo.attachment.caption|striptags }}
 								</object>
@@ -446,12 +483,12 @@
 
 	{% set var_figcaption_after %}
 		{% block figcaption_after %}
-			{% if settings.icons is defined and settings.icons.enabled == 'true' and settings.thumbnail.overlay.enabled == 'true' %}
+			{% if settings.icons.enabled|default('false') == 'true' and settings.thumbnail.overlay.enabled == 'true' %}
 
 				{% set captionStyle %}
-					color:{{ settings.thumbnail.overlay.foreground }};
-					background-color:{{ settings.thumbnail.overlay.background }};
-					font-size:{{ settings.thumbnail.overlay.text_size }}{{ settings.thumbnail.overlay.text_size_unit|replace(['px', '%', 'em']) }};
+					color:{{ settings.thumbnail.overlay.foreground|default('#333333') }};
+					background-color:{{ settings.thumbnail.overlay.background|default('#ededed') }};
+					font-size:{{ settings.thumbnail.overlay.text_size }}{{ settings.thumbnail.overlay.text_size_unit|unitReplace(['px', '%', 'em']) }};
 					font-family:{{ settings.thumbnail.overlay.font_family }};
 					{% if settings.thumbnail.overlay.text_align != 3 %}
 						text-align:{{ settings.thumbnail.overlay.text_align|replace(['left', 'right', 'center']) }};
@@ -471,7 +508,7 @@
 						<div style="display: table; height:100%; width:100%;">
 							{% set ggCaptionText = photo.attachment.title %}
 							{% set ggCaptionTextStyle = "padding: 10px;display:table-cell;font-size:"
-								~ settings.thumbnail.overlay.text_size ~ settings.thumbnail.overlay.text_size_unit|replace(['px', '%', 'em'])
+								~ settings.thumbnail.overlay.text_size ~ settings.thumbnail.overlay.text_size_unit|unitReplace(['px', '%', 'em'])
 								~ ";vertical-align:" ~ settings.thumbnail.overlay.position ~ ";" %}
 							{% if photo.attachment.caption is not empty %}
 								{% set ggCaptionText = photo.attachment.caption %}
@@ -489,7 +526,7 @@
 
 	{% set var_figure_after %}
 		{% block figure_after %}
-			{% if settings.icons is not defined or settings.icons.enabled == 'false' %}
+			{% if settings.icons.enabled|default('false') == 'false' %}
 				</a>
 			{% endif %}
 		{% endblock %}
@@ -505,8 +542,8 @@
 				{% endif %}"
 				 style="
 				 {% if settings.area.grid == '0' or settings.area.grid == '3' %}
-						 width:{{ settings.area.photo_width ~ settings.area.photo_width_unit|replace(['px', '%']) }};
-						 height:{{ settings.area.photo_height ~ settings.area.photo_height_unit|replace(['px', '%']) }};
+						 width:{{ settings.area.photo_width ~ settings.area.photo_width_unit|unitReplace(['px', '%']) }};
+						 height:{{ settings.area.photo_height ~ settings.area.photo_height_unit|unitReplace(['px', '%']) }};
 						 overflow:hidden;
 				 {% endif %}">
 
@@ -519,7 +556,7 @@
 					<div
 							class="grid-gallery-figcaption-wrap"
 							style="
-							{% if settings.icons is not defined or settings.icons.enabled == 'false' %}
+							{% if settings.icons.enabled|default('false') == 'false' %}
 									vertical-align:{{ settings.thumbnail.overlay.position }};
 							{% endif %}">
 						{{ var_figcaption_wrap }}

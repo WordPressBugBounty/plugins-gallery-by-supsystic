@@ -731,6 +731,124 @@ class GridGallery_Galleries_Model_Galleries extends GridGallery_Core_BaseModel
   }
 
   /**
+   * Returns a page of galleries with thumbnails, sorted/paginated server-side.
+   *
+   * @param int $page 1-based page number
+   * @param int $perPage Rows per page
+   * @param string $sortColumn One of: id, title, created, modified, images, type
+   * @param string $sortDir ASC or DESC
+   * @return array{rows: array, total: int}
+   */
+  public function getPaginatedList($page = 1, $perPage = 20, $sortColumn = 'id', $sortDir = 'DESC', $search = '')
+  {
+    $sortableColumns = [
+      'id' => '{prefix}gg_galleries.id',
+      'title' => '{prefix}gg_galleries.title',
+      'created' => '{prefix}gg_galleries.created',
+      'modified' => '{prefix}gg_galleries.modified',
+      'images' => 'total',
+    ];
+
+    $page = max(1, (int) $page);
+    $perPage = min(100, max(1, (int) $perPage));
+    $sortDir = strtoupper($sortDir) === 'ASC' ? 'ASC' : 'DESC';
+    $search = trim((string) $search);
+
+    // Gallery type lives inside the serialized settings blob, not a real
+    // SQL column, so it can't be sorted with ORDER BY: fetch everything,
+    // sort in PHP, then slice the requested page.
+    if ($sortColumn === 'type') {
+      return $this->getPaginatedListSortedByType($page, $perPage, $sortDir, $search);
+    }
+
+    $offset = ($page - 1) * $perPage;
+    $sortColumn = array_key_exists($sortColumn, $sortableColumns) ? $sortColumn : 'id';
+    $orderExpr = $sortableColumns[$sortColumn];
+
+    $whereClause = '';
+    $prepareArgs = [];
+    if ($search !== '') {
+      $whereClause = 'WHERE {prefix}gg_galleries.title LIKE %s';
+      $prepareArgs[] = '%' . $this->db->esc_like($search) . '%';
+    }
+
+    $query = [
+      'SELECT {prefix}gg_galleries.*, {prefix}gg_photos.attachment_id, r.total, {prefix}gg_settings_sets.data as settings, {prefix}gg_photos.link_default',
+      'FROM {prefix}gg_galleries',
+      'LEFT JOIN',
+      '(SELECT count(resource_id) as total, resource_id, gallery_id',
+      'FROM {prefix}gg_galleries_resources GROUP BY gallery_id) as r',
+      'ON {prefix}gg_galleries.id = r.gallery_id',
+      'LEFT JOIN {prefix}gg_photos ON r.resource_id = {prefix}gg_photos.id',
+      'LEFT JOIN {prefix}gg_settings_sets ON {prefix}gg_galleries.id = {prefix}gg_settings_sets.gallery_id',
+      $whereClause,
+      "ORDER BY {$orderExpr} {$sortDir}",
+      'LIMIT %d OFFSET %d',
+    ];
+    $query = implode(' ', $query);
+    $query = str_replace('{prefix}', $this->db->prefix, $query);
+    $prepareArgs[] = $perPage;
+    $prepareArgs[] = $offset;
+    $query = $this->db->prepare($query, $prepareArgs);
+
+    $rows = $this->db->get_results($query);
+
+    $totalQuery = 'SELECT COUNT(*) FROM ' . $this->table;
+    if ($search !== '') {
+      $totalQuery = $this->db->prepare($totalQuery . ' WHERE title LIKE %s', '%' . $this->db->esc_like($search) . '%');
+    }
+    $total = (int) $this->db->get_var($totalQuery);
+
+    return ['rows' => $rows, 'total' => $total];
+  }
+
+  /**
+   * Same JOIN as getPaginatedList() but unpaginated, sorted in PHP by the
+   * unserialized gallery-type value, then sliced to the requested page.
+   */
+  private function getPaginatedListSortedByType($page, $perPage, $sortDir, $search = '')
+  {
+    $whereClause = '';
+    if ($search !== '') {
+      $whereClause = $this->db->prepare('WHERE {prefix}gg_galleries.title LIKE %s', '%' . $this->db->esc_like($search) . '%');
+    }
+
+    $query = [
+      'SELECT {prefix}gg_galleries.*, {prefix}gg_photos.attachment_id, r.total, {prefix}gg_settings_sets.data as settings, {prefix}gg_photos.link_default',
+      'FROM {prefix}gg_galleries',
+      'LEFT JOIN',
+      '(SELECT count(resource_id) as total, resource_id, gallery_id',
+      'FROM {prefix}gg_galleries_resources GROUP BY gallery_id) as r',
+      'ON {prefix}gg_galleries.id = r.gallery_id',
+      'LEFT JOIN {prefix}gg_photos ON r.resource_id = {prefix}gg_photos.id',
+      'LEFT JOIN {prefix}gg_settings_sets ON {prefix}gg_galleries.id = {prefix}gg_settings_sets.gallery_id',
+      $whereClause,
+    ];
+    $query = implode(' ', $query);
+    $query = str_replace('{prefix}', $this->db->prefix, $query);
+
+    $rows = $this->db->get_results($query);
+    $total = count($rows);
+
+    usort($rows, function ($a, $b) {
+      $settingsA = unserialize($a->settings, ['allowed_classes' => false]);
+      $settingsB = unserialize($b->settings, ['allowed_classes' => false]);
+      $gridA = isset($settingsA['area']['grid']) ? (int) $settingsA['area']['grid'] : 0;
+      $gridB = isset($settingsB['area']['grid']) ? (int) $settingsB['area']['grid'] : 0;
+
+      return $gridA <=> $gridB;
+    });
+
+    if ($sortDir === 'DESC') {
+      $rows = array_reverse($rows);
+    }
+
+    $offset = ($page - 1) * $perPage;
+
+    return ['rows' => array_slice($rows, $offset, $perPage), 'total' => $total];
+  }
+
+  /**
    * Returns the array of the NOT extended galleries
    *
    * @return null|array
@@ -749,7 +867,8 @@ class GridGallery_Galleries_Model_Galleries extends GridGallery_Core_BaseModel
    */
   public function add($title)
   {
-    $query = $this->getQueryBuilder()->insertInto($this->table)->fields('title')->values($title);
+    $now = current_time('mysql');
+    $query = $this->getQueryBuilder()->insertInto($this->table)->fields('title', 'created', 'modified')->values($title, $now, $now);
 
     if (!$this->db->query($query->build())) {
       return false;
@@ -814,8 +933,8 @@ class GridGallery_Galleries_Model_Galleries extends GridGallery_Core_BaseModel
   {
     $query = $this->getQueryBuilder()
       ->update($this->table)
-      ->fields('title')
-      ->values(htmlspecialchars($title, ENT_QUOTES, get_bloginfo('charset')))
+      ->fields('title', 'modified')
+      ->values(htmlspecialchars($title, ENT_QUOTES, get_bloginfo('charset')), current_time('mysql'))
       ->where('id', '=', (int) $galleryId);
 
     if (!$this->db->query($query->build())) {

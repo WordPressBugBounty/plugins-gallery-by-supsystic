@@ -9,7 +9,7 @@
  */
 class GridGallery_Galleries_Controller extends GridGallery_Core_BaseController
 {
-  const STD_VIEW = 'list'; // list or block
+  const DEFAULT_PHOTOS_PER_PAGE = 100;
 
   public function requireNonces()
   {
@@ -32,6 +32,8 @@ class GridGallery_Galleries_Controller extends GridGallery_Core_BaseController
       'sendUsageStat',
       'ajaxResizeImageAction',
       'saveSortByAction',
+      'saveCategoryOrderAction',
+      'saveUiStateAction',
       'importSettingsAction',
       'cloneAction',
       'createDefaultGallerySettingsAction',
@@ -77,22 +79,86 @@ class GridGallery_Galleries_Controller extends GridGallery_Core_BaseController
             return $this->redirect($redirectUrl);
         }*/
 
-    $galleries = $this->getModel('galleries')->getListWithThumbnails();
-    $settingsModel = $this->getModel('settings');
+    $page = 1;
+    $perPage = 20;
+    $sort = 'id';
+    $dir = 'desc';
 
-    foreach ($galleries as $gallery) {
-      $gallery->settings = unserialize($gallery->settings, ['allowed_classes' => false]);
-    }
+    $result = $this->getModel('galleries')->getPaginatedList($page, $perPage, $sort, $dir);
+    $galleries = $this->enrichGalleryRows($result['rows']);
 
     $twig = $this->getEnvironment()->getTwig();
     $twig->addFunction(new Twig_SupTwgSgg_SimpleFunction('get_image_src', 'wp_get_attachment_image_src'));
 
-    $settingsModel->PostThumb($galleries);
-
     return $this->response('@galleries/index.twig', [
       'galleries' => $galleries,
-      'attachment_size' => 'gg_gallery_thumbnail',
+      'recordsTotal' => $result['total'],
+      'page' => $page,
+      'perPage' => $perPage,
+      'sort' => $sort,
+      'dir' => $dir,
     ]);
+  }
+
+  /**
+   * Server-side-processing data endpoint for the galleries list table:
+   * returns a rendered rows partial + pagination metadata as JSON.
+   */
+  public function galleriesDataAction(RscSgg_Http_Request $request)
+  {
+    $page = (int) $request->post->get('page', 1);
+    $perPage = (int) $request->post->get('perPage', 20);
+    $sort = (string) $request->post->get('sort', 'id');
+    $dir = (string) $request->post->get('dir', 'desc');
+    $search = (string) $request->post->get('search', '');
+
+    $result = $this->getModel('galleries')->getPaginatedList($page, $perPage, $sort, $dir, $search);
+    $galleries = $this->enrichGalleryRows($result['rows']);
+
+    $twig = $this->getEnvironment()->getTwig();
+    $twig->addFunction(new Twig_SupTwgSgg_SimpleFunction('get_image_src', 'wp_get_attachment_image_src'));
+    $html = $twig->render('@galleries/includes/list_rows.twig', ['galleries' => $galleries]);
+
+    return $this->response(RscSgg_Http_Response::AJAX, [
+      'html' => $html,
+      'recordsTotal' => $result['total'],
+      'page' => $page,
+      'perPage' => $perPage,
+      'sort' => $sort,
+      'dir' => $dir,
+      'search' => $search,
+    ]);
+  }
+
+  /**
+   * Unserializes each gallery row's settings blob and attaches display-ready
+   * fields (gallery type label, formatted created/modified dates) used by
+   * both the first-paint index view and the AJAX SSP endpoint.
+   */
+  private function enrichGalleryRows($galleries)
+  {
+    $typeLabels = [
+      '0' => 'Fixed',
+      '1' => 'Vertical',
+      '2' => 'Horizontal',
+      '3' => 'Fixed Columns',
+      '4' => 'Mosaic',
+    ];
+    $dateFormat = get_option('date_format') . ' ' . get_option('time_format');
+
+    foreach ($galleries as $gallery) {
+      $gallery->settings = unserialize($gallery->settings, ['allowed_classes' => false]);
+
+      $grid = isset($gallery->settings['area']['grid']) ? (string) $gallery->settings['area']['grid'] : '0';
+      $gallery->typeLabel = isset($typeLabels[$grid]) ? $typeLabels[$grid] : $typeLabels['0'];
+
+      $gallery->createdFormatted = $gallery->created ? mysql2date($dateFormat, $gallery->created) : '—';
+      $gallery->modifiedFormatted = $gallery->modified ? mysql2date($dateFormat, $gallery->modified) : '—';
+    }
+
+    $this->getModel('settings')->PostThumb($galleries);
+
+    return $galleries;
   }
 
   /**
@@ -117,6 +183,123 @@ class GridGallery_Galleries_Controller extends GridGallery_Core_BaseController
       'base_url' => get_bloginfo('wpurl'),
       'post_id' => $postId,
       'gallery_id' => $galleryId,
+    ]);
+  }
+
+  /**
+   * Renders a single photo card (caption/icons/hover effect only) for the
+   * small live-updating thumbnail at the top of the Settings page
+   * (.gg-detailed-info-preview), reflecting the settings form's CURRENT
+   * (possibly unsaved) field values rather than what's stored in the DB -
+   * settings.js posts the whole #form-settings serialization here on every
+   * relevant field change, the same way saveSettingsAction reads it, just
+   * without ever calling settings->save().
+   */
+  public function previewCaptionAction(RscSgg_Http_Request $request)
+  {
+    // Reached through SupsysticGallery.Ajax.Post (admin-ajax.php), unlike
+    // previewAction above (a direct admin page link) - everything including
+    // gallery_id arrives in the POST body here, not the query string.
+    $galleryId = $request->post->get('gallery_id');
+    $gallery = $this->getModel('galleries')->getById((int) $galleryId);
+
+    if (!$gallery || empty($gallery->photos)) {
+      return $this->response(RscSgg_Http_Response::AJAX, [
+        'html' => $this->getEnvironment()->getTwig()->render('@galleries/shortcode/preview_caption.twig', [
+          'gallery' => $gallery,
+          'settings' => [],
+        ]),
+      ]);
+    }
+
+    $data = $request->post->all();
+
+    // Same decode saveSettingsAction does for these two fields - the form
+    // posts them JSON-encoded either way, this just never reaches ->save().
+    if (isset($data['attributes']['order'])) {
+      $data['attributes']['order'] = json_decode($data['attributes']['order']);
+      $data['attributes']['enable'] = json_decode($data['attributes']['enable']);
+      unset($data['attributes']['rename']);
+    }
+    if (isset($data['ui']['collapsedSections'])) {
+      $decoded = json_decode($data['ui']['collapsedSections'], true);
+      $data['ui']['collapsedSections'] = is_array($decoded) ? $decoded : [];
+    }
+
+    // The real gallery's own configured photo size would make this preview
+    // as big as the actual thumbnails - .gg-detailed-info-preview is a
+    // fixed 165x165 box, so force a size that fits it regardless of what's
+    // actually configured/being edited.
+    // This standalone snippet never runs the real gallery's Wookmark/lazy-load
+    // JS (nothing else on the page reveals a lazy placeholder or swaps it for
+    // the real image), so force lazy load off here regardless of the actual
+    // gallery setting - otherwise the preview would be stuck showing loading.gif.
+    $data['lazyload']['enabled'] = '0';
+
+    $data['area']['photo_width'] = 155;
+    $data['area']['photo_width_unit'] = 0;
+    $data['area']['photo_height'] = 155;
+    $data['area']['photo_height_unit'] = 0;
+
+    // Use a copy of the first photo so a blank Title/Description (the common
+    // case for a freshly-uploaded photo) still demonstrates the configured
+    // caption styling instead of rendering empty - never touches the DB, and
+    // any real caption text the photo already has takes priority as-is.
+    // Note: helpers.twig's legacy (non-Caption-Builder) icons-mode caption
+    // panel is gated on "caption is not empty" (not "title"), and photo.title
+    // is only ever used as ITS fallback for when caption is non-empty but
+    // came from EXIF - so caption, not title, is the field that actually
+    // needs a placeholder for that panel to render at all.
+    $previewPhoto = clone $gallery->photos[0];
+    $previewPhoto->attachment = (array) $previewPhoto->attachment;
+    if (empty($previewPhoto->attachment['caption'])) {
+      $previewPhoto->attachment['caption'] = $this->translate('Sample Photo Title');
+    }
+    if (empty($previewPhoto->attachment['captionDescription'])) {
+      $previewPhoto->attachment['captionDescription'] = $this->translate('Sample photo description text goes here.');
+    }
+    $previewGallery = clone $gallery;
+    $previewGallery->photos = [$previewPhoto];
+
+    // Per-image Social Sharing icons are DOM-injected by frontend.js on the
+    // real gallery (initImageSocialSharing clones a hidden per-icon template
+    // into every figure) rather than rendered per-photo by Twig - there's no
+    // live Gallery JS instance driving this static preview box, so build the
+    // same icon list server-side instead and let preview_caption.twig render
+    // it directly (see gallery.twig's own use of getSocialShareList/getSocialIcons).
+    $socialIcons = false;
+    if (
+      method_exists($this->getModel('galleries'), 'getSocialShareList') &&
+      !empty($data['socialSharing']['enabled']) &&
+      !empty($data['socialSharing']['imageSharing']['enabled']) &&
+      !empty($data['socialSharing']['gallerySharing']['socialIcons'])
+    ) {
+      $socialIcons = $this->getModel('galleries')->getSocialShareList($data['socialSharing']['gallerySharing']['socialIcons']);
+      // The real per-image icon strip is sized for a full-width gallery thumbnail;
+      // this preview box is a fixed 155x155, so however many platforms are
+      // actually configured, only show the first 3 here or they overlap/overflow.
+      $socialIcons = array_slice($socialIcons, 0, 3);
+    }
+
+    // Watermarking is real GD image processing keyed by a hash of the source
+    // file + every watermark setting (GridGalleryPro_Galleries_Attachment) -
+    // there's no CSS-only stand-in for it anywhere in this codebase. Force
+    // toCreateWatermark so a not-yet-saved combination of settings actually
+    // gets generated instead of silently falling back to the plain image
+    // (that flag is normally only set by the explicit "Update watermark"
+    // button). preview_caption.twig calls set_attachment_settings() with
+    // this, mirroring settings.twig's own {% block preview %}.
+    if (isset($data['watermark'])) {
+      $data['watermark']['galleryId'] = $gallery->id;
+      $data['watermark']['toCreateWatermark'] = true;
+    }
+
+    return $this->response(RscSgg_Http_Response::AJAX, [
+      'html' => $this->getEnvironment()->getTwig()->render('@galleries/shortcode/preview_caption.twig', [
+        'gallery' => $previewGallery,
+        'settings' => $data,
+        'socialIcons' => $socialIcons,
+      ]),
     ]);
   }
 
@@ -148,94 +331,65 @@ class GridGallery_Galleries_Controller extends GridGallery_Core_BaseController
       }
     }
 
-    $position = $this->getModel('position');
+    $perPage = self::DEFAULT_PHOTOS_PER_PAGE;
+    $result = $this->getGalleryPhotosPage($gallery, $settings->data, 1, $perPage);
+    $gallery->photos = $result['photos'];
 
-    if (is_object($gallery) && (property_exists($gallery, 'photos') && is_array($gallery->photos))) {
-      foreach ($gallery->photos as $index => $row) {
-        $gallery->photos[$index] = $position->setPosition($row, 'gallery', $gallery->id);
-      }
-
-      //ASC && DESC sort
-      if (isset($settings->data['sort'])) {
-        $gallery->photos = $position->sort($gallery->photos, $settings->data['sort']);
-      } else {
-        $gallery->photos = $position->sort($gallery->photos);
-      }
-
-      $paginationModel = $this->getModel('pagination');
-      $paginationModel->initParams([
-        'totalCount' => count($gallery->photos),
-      ]);
-      $paginationSettings = $paginationModel->getAllLinks(110);
-
-      // pagination
-      if (count($gallery->photos)) {
-        $imgPerPage = $paginationModel->getPerPageParam();
-        $currentPage = $paginationModel->getPage();
-        if ($currentPage > 0) {
-          $currentPage--;
-        }
-        if ($imgPerPage == 'all') {
-          $imgPerPage = null;
-        }
-        $fromImg = $currentPage * $imgPerPage;
-        $gallery->photos = array_slice($gallery->photos, $fromImg, $imgPerPage, true);
-        $this->getEnvironment()
-          ->getDispatcher()
-          ->dispatch('before_gallery_photos_edit', [$gallery->photos]);
-      }
-    }
     $galleries = $this->getModel('galleries')->getList();
     return [
       'gallery' => $gallery,
-      'viewType' => $request->query->get('view', self::STD_VIEW),
+      'recordsTotal' => $result['total'],
+      'page' => 1,
+      'perPage' => $perPage,
+      'sort' => isset($settings->data['sort']['sortby']) ? $settings->data['sort']['sortby'] : 'position',
+      'dir' => isset($settings->data['sort']['sortto']) ? $settings->data['sort']['sortto'] : 'asc',
       'ajaxUrl' => admin_url('admin-ajax.php'),
       'settings' => $settings->data,
       'galleries' => $galleries,
-      'paginationSettings' => isset($paginationSettings) ? $paginationSettings : null,
     ];
   }
 
-  protected function getSortActionParams($request)
+  /**
+   * Fetches a gallery's photos with position + sort applied, optionally
+   * sliced to one page ($page is 1-based). Shared by getViewActionParams
+   * (first paint) and photosDataAction (AJAX re-fetch) so both stay
+   * consistent with a single implementation of the existing sort/paginate
+   * logic that used to live only inline in getViewActionParams.
+   *
+   * @return array{photos: array, total: int}
+   */
+  private function getGalleryPhotosPage($gallery, $settingsData, $page = null, $perPage = null)
   {
-    if (!($galleryId = $request->query->get('gallery_id'))) {
-      $this->redirect($this->generateUrl('galleries', 'index'));
-    }
-
-    if (!($gallery = $this->getModel('galleries')->getById((int) $galleryId))) {
-      $this->redirect($this->generateUrl('galleries', 'index'));
-    }
-
-    $settings = $this->getModel('settings')->get($galleryId);
-    if (!is_object($settings) || null === $settings->data) {
-      $config = $this->getEnvironment()->getConfig();
-      $config->load('@galleries/settings.php');
-
-      $settings = new stdClass();
-
-      $settings->id = null;
-      $settings->data = unserialize($config->get('gallery_settings'), ['allowed_classes' => false]);
+    if (!is_object($gallery) || !property_exists($gallery, 'photos') || !is_array($gallery->photos)) {
+      return ['photos' => [], 'total' => 0];
     }
 
     $position = $this->getModel('position');
+    $photos = $gallery->photos;
 
-    if (is_object($gallery) && (property_exists($gallery, 'photos') && is_array($gallery->photos))) {
-      foreach ($gallery->photos as $index => $row) {
-        $gallery->photos[$index] = $position->setPosition($row, 'gallery', $gallery->id);
-      }
-
-      //ASC && DESC sort
-      if (isset($settings->data['sort'])) {
-        $gallery->photos = $position->sort($gallery->photos, $settings->data['sort']);
-      } else {
-        $gallery->photos = $position->sort($gallery->photos);
-      }
+    foreach ($photos as $index => $row) {
+      $photos[$index] = $position->setPosition($row, 'gallery', $gallery->id);
     }
-    return [
-      'gallery' => $gallery,
-      'ajaxUrl' => admin_url('admin-ajax.php'),
-      'settings' => $settings->data,
-    ];
+
+    if (isset($settingsData['sort'])) {
+      $photos = $position->sort($photos, $settingsData['sort']);
+    } else {
+      $photos = $position->sort($photos);
+    }
+
+    $total = count($photos);
+
+    if ($total && $page !== null && $perPage !== null) {
+      $currentPage = max(0, (int) $page - 1);
+      $imgPerPage = $perPage === 'all' ? null : (int) $perPage;
+      $fromImg = $currentPage * $imgPerPage;
+      $photos = array_slice($photos, $fromImg, $imgPerPage, true);
+      $this->getEnvironment()
+        ->getDispatcher()
+        ->dispatch('before_gallery_photos_edit', [$photos]);
+    }
+
+    return ['photos' => $photos, 'total' => $total];
   }
 
   /**
@@ -253,17 +407,65 @@ class GridGallery_Galleries_Controller extends GridGallery_Core_BaseController
   }
 
   /**
-   * SortMode Action
-   * Renders single gallery page
+   * Server-side-processing data endpoint for the Images List tile grid:
+   * returns a rendered tiles partial + pagination metadata as JSON. Mirrors
+   * galleriesDataAction's shape.
+   */
+  public function photosDataAction(RscSgg_Http_Request $request)
+  {
+    $galleryId = (int) $request->post->get('gallery_id');
+    $page = (int) $request->post->get('page', 1);
+    $perPage = (int) $request->post->get('perPage', self::DEFAULT_PHOTOS_PER_PAGE);
+    $sort = $request->post->get('sort');
+    $dir = $request->post->get('dir');
+
+    if (!($gallery = $this->getModel('galleries')->getById($galleryId))) {
+      return $this->response(RscSgg_Http_Response::AJAX, ['html' => '', 'recordsTotal' => 0]);
+    }
+
+    $settings = $this->getModel('settings')->get($galleryId);
+    if (!is_object($settings) || null === $settings->data) {
+      $config = $this->getEnvironment()->getConfig();
+      $config->load('@galleries/settings.php');
+
+      $settings = new stdClass();
+      $settings->id = null;
+      $settings->data = unserialize($config->get('gallery_settings'), ['allowed_classes' => false]);
+    }
+
+    if ($sort) {
+      $settings->data = $this->saveSortChoice($galleryId, $sort, $dir === 'desc' ? 'desc' : 'asc');
+    }
+
+    $result = $this->getGalleryPhotosPage($gallery, $settings->data, $page, $perPage);
+
+    $twig = $this->getEnvironment()->getTwig();
+    $html = $twig->render('@ui/includes/tile_grid.twig', [
+      'photos' => $result['photos'],
+      'gallery' => $gallery,
+      'settings' => $settings->data,
+    ]);
+
+    return $this->response(RscSgg_Http_Response::AJAX, [
+      'html' => $html,
+      'recordsTotal' => $result['total'],
+      'page' => $page,
+      'perPage' => $perPage,
+      'sort' => isset($settings->data['sort']['sortby']) ? $settings->data['sort']['sortby'] : 'position',
+      'dir' => isset($settings->data['sort']['sortto']) ? $settings->data['sort']['sortto'] : 'asc',
+    ]);
+  }
+
+  /**
+   * The dedicated Sort grid page has been folded into the Images List tile
+   * grid (drag-and-drop reorder works there directly) - redirect old links.
    *
    * @param RscSgg_Http_Request $request
    * @return RscSgg_Http_Response
    */
   public function sortAction(RscSgg_Http_Request $request)
   {
-    $params = $this->getSortActionParams($request);
-
-    return $this->response('@galleries/sort.twig', $params);
+    return $this->redirect($this->generateUrl('galleries', 'view', ['gallery_id' => $request->query->get('gallery_id')]));
   }
 
   /**
@@ -703,6 +905,28 @@ class GridGallery_Galleries_Controller extends GridGallery_Core_BaseController
     /** @var GridGallery_Galleries_Model_Settings $settings */
     $galleryId = $request->query->get('gallery_id');
     $settings = $this->getModel('settings');
+
+    // Insurance against a direct POST bypassing the settings form's own
+    // confirm dialog (settings.js): saveSettingsAction fully replaces the
+    // stored settings blob with just what's submitted, and Pro fields
+    // render `disabled` while unlicensed so the browser never sends them -
+    // saving here would silently erase any Pro option this gallery already
+    // has configured. Checked against the settings as they are RIGHT NOW,
+    // before this request touches them.
+    if ($this->isLicenseInactive()) {
+      $existing = $settings->get($galleryId);
+      $existingData = $existing && isset($existing->data) ? $existing->data : null;
+
+      if ($this->gallerySettingsHaveProConfigured($existingData) && (string) $request->post->get('gg_confirm_pro_wipe') !== '1') {
+        return $this->redirect(
+          $this->generateUrl('galleries', 'settings', [
+            'gallery_id' => $galleryId,
+            'gg_pro_wipe_blocked' => 1,
+          ]),
+        );
+      }
+    }
+
     $stats = $this->getEnvironment()->getModule('stats');
     $config = $this->getEnvironment()->getConfig();
 
@@ -726,6 +950,11 @@ class GridGallery_Galleries_Controller extends GridGallery_Core_BaseController
       }
     }
 
+    if (isset($allSettings['ui']['collapsedSections'])) {
+      $decodedCollapsedSections = json_decode($allSettings['ui']['collapsedSections'], true);
+      $allSettings['ui']['collapsedSections'] = is_array($decodedCollapsedSections) ? $decodedCollapsedSections : [];
+    }
+
     $settings->settingsDiff($stats, $galleryId, $allSettings);
     $data = $settings->getCatsFromPreset($allSettings, $config);
     $data = $settings->getPagesFromPreset($data, $config);
@@ -742,6 +971,78 @@ class GridGallery_Galleries_Controller extends GridGallery_Core_BaseController
         'gallery_id' => $request->query->get('gallery_id'),
       ]),
     );
+  }
+
+  /**
+   * Mirrors the license.isActive() check settings.twig uses for the same
+   * purpose (galleryFeatureStatuses / the pro-wipe warning) - deliberately
+   * NOT environment->isModule('license'), which actually means "is the
+   * license admin page the current request" rather than "is the license
+   * module registered", and getModule() returns null (not a fatal) when
+   * the module isn't registered at all in a Free-only install.
+   *
+   * @return bool
+   */
+  private function isLicenseInactive()
+  {
+    $environment = $this->getEnvironment();
+
+    if (!$environment->isPro()) {
+      return true;
+    }
+
+    $licenseModule = $environment->getModule('license');
+
+    return !$licenseModule || !$licenseModule->isActive();
+  }
+
+  /**
+   * Mirrors settings.twig's hasProConfiguredSettings: true if any option
+   * that is CURRENTLY Pro-only, and was NEVER seeded by one of the built-in
+   * gallery-creation templates (configs/presets.php - applied to every
+   * gallery on creation, see Galleries::add()), has a value already saved
+   * for this gallery - a sign it was configured during an earlier active-
+   * license session and would be silently erased by a plain settings save
+   * while unlicensed. Checks presence/value on the raw stored data, not the
+   * currently-rendered form, so it still reflects reality even before this
+   * request's own save happens.
+   *
+   * Captions (thumbnail.overlay.enabled), Categories, Icons, Pagination and
+   * Posts are deliberately NOT checked here even though their fields are
+   * Pro-gated in the CURRENT settings.twig: every one of the 9 built-in
+   * presets bakes in a fully-populated sub-array for these (colors,
+   * borders, positions, and for Captions/Categories/Icons/Pagination/Posts
+   * specifically an "enabled"-ish value that is 'true'/1 in at least one
+   * shipped preset) - they were free-available back when those presets were
+   * authored. A brand new, never-licensed gallery can inherit any of these
+   * as "enabled" purely from its creation preset, so their stored value
+   * can't be trusted to mean "a Pro session configured this."
+   *
+   * @param mixed $data
+   * @return bool
+   */
+  private function gallerySettingsHaveProConfigured($data)
+  {
+    if (!is_array($data)) {
+      return false;
+    }
+
+    $checks = [
+      isset($data['showMore']['enabled']) && $data['showMore']['enabled'] === 'true',
+      !empty($data['watermark']['enabled']),
+      !empty($data['socialSharing']['enabled']),
+      isset($data['lazyload']['enabled']) && $data['lazyload']['enabled'] === '1',
+      isset($data['exif']['enabled']) && (int) $data['exif']['enabled'] === 1,
+      isset($data['attributes']['enabled']) && $data['attributes']['enabled'] === 'true',
+    ];
+
+    foreach ($checks as $check) {
+      if ($check) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   /**
@@ -1143,10 +1444,21 @@ class GridGallery_Galleries_Controller extends GridGallery_Core_BaseController
   public function saveSortByAction(RscSgg_Http_Request $request)
   {
     $galleryId = $request->post->get('gallery_id');
+    $this->saveSortChoice($galleryId, $request->post->get('sortby'), $request->post->get('sortto'));
 
+    return $this->response(RscSgg_Http_Response::AJAX, $this->getSuccessResponseData('Save sorted'));
+  }
+
+  /**
+   * Persists the gallery's Sort By/To choice. Shared by saveSortByAction
+   * (dedicated AJAX call) and photosDataAction (which also accepts sort/dir
+   * so the tile grid can change sort and re-fetch in one round-trip).
+   */
+  private function saveSortChoice($galleryId, $sortby, $sortto)
+  {
     $sort_fields['sort'] = [
-      'sortby' => $request->post->get('sortby'),
-      'sortto' => $request->post->get('sortto'),
+      'sortby' => $sortby,
+      'sortto' => $sortto,
     ];
 
     global $wpdb;
@@ -1156,25 +1468,64 @@ class GridGallery_Galleries_Controller extends GridGallery_Core_BaseController
     ]);
 
     $settings = $this->getModel('settings')->get($galleryId);
-    $mydata = $settings->data;
-    $mydata = array_merge($mydata, $sort_fields);
-
-    // for pagination
-    /*if($sort_fields['sort']['sortby'] == 'postion') {
-			$resourceModel = $this->getModel('resources');
-			$photoRows = $resourceModel->getPhotoIdsByGalleryId($galleryId);
-			$positionModel = $this->getModel('position');
-			$sortType = 1;
-			if($sort_fields['sort']['sortto'] != 'asc') {
-				$sortType = 0;
-			}
-			$positionModel->cleanAndCreate($galleryId, $photoRows, $sortType);
-		}*/
+    $mydata = array_merge($settings->data, $sort_fields);
 
     $this->getModel('settings')->save($galleryId, $mydata);
     $this->getModule('galleries')->cleanCache($galleryId);
 
-    return $this->response(RscSgg_Http_Response::AJAX, $this->getSuccessResponseData('Save sorted'));
+    return $mydata;
+  }
+
+  /**
+   * Persists the display order of the Pro category bins (Images List page,
+   * "Show Categories" view) - dragging a category block calls this the same
+   * way dragging an image calls updatePosition, so the ordering the user
+   * sees is what actually gets saved instead of reverting on reload.
+   */
+  public function saveCategoryOrderAction(RscSgg_Http_Request $request)
+  {
+    $galleryId = $request->post->get('gallery_id');
+    $order = $request->post->get('order');
+
+    if (!is_array($order)) {
+      $order = [];
+    }
+    $order = array_values(array_map('sanitize_text_field', $order));
+
+    $settings = $this->getModel('settings')->get($galleryId);
+    $mydata = array_merge($settings->data, ['categoryOrder' => $order]);
+
+    $this->getModel('settings')->save($galleryId, $mydata);
+    $this->getModule('galleries')->cleanCache($galleryId);
+
+    return $this->response(RscSgg_Http_Response::AJAX, $this->getSuccessResponseData('Category order saved'));
+  }
+
+  public function saveUiStateAction(RscSgg_Http_Request $request)
+  {
+    $galleryId = $request->post->get('gallery_id');
+    // Not sanitize_key() - it lowercases, and these ids are case-sensitive
+    // DOM ids (e.g. "useShadowRow") shared with the hidden ui[collapsedSections]
+    // form field, which preserves case; lowercasing here would silently
+    // split one section's state across two different array keys.
+    $key = preg_replace('/[^A-Za-z0-9_-]/', '', (string) $request->post->get('key'));
+    $collapsed = (bool) (int) $request->post->get('collapsed');
+
+    $settings = $this->getModel('settings')->get($galleryId);
+    $data = $settings->data;
+    if (!isset($data['ui']['collapsedSections']) || !is_array($data['ui']['collapsedSections'])) {
+      $data['ui']['collapsedSections'] = [];
+    }
+
+    if ($collapsed) {
+      $data['ui']['collapsedSections'][$key] = true;
+    } else {
+      unset($data['ui']['collapsedSections'][$key]);
+    }
+
+    $this->getModel('settings')->save($galleryId, $data);
+
+    return $this->response(RscSgg_Http_Response::AJAX, $this->getSuccessResponseData('UI state saved'));
   }
 
   public function getGalleriesListAction(RscSgg_Http_Request $request)

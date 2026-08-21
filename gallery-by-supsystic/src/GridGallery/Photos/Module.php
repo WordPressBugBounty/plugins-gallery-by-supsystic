@@ -60,13 +60,19 @@ class GridGallery_Photos_Module extends RscSgg_Mvc_Module
 
   public function getBackendJS()
   {
+    $uploader = '/assets/js/grid-gallery.photos.uploader.js';
+    $uploaderFile = $this->getLocation() . $uploader;
+
     return [
       [
         'source' => $this->getLocationUrl() . '/assets/js/photos.js',
         'dependencies' => ['jquery', 'jquery-ui-draggable', 'jquery-ui-droppable'],
       ],
       $this->getLocationUrl() . '/assets/js/URI.min.js',
-      $this->getLocationUrl() . '/assets/js/grid-gallery.photos.uploader.js',
+      [
+        'source' => $this->getLocationUrl() . $uploader,
+        'version' => file_exists($uploaderFile) ? filemtime($uploaderFile) : $this->getConfig()->get('plugin_version'),
+      ],
       //$this->getLocationUrl() . '/assets/js/grid-gallery.photos.folders.js'
     ];
   }

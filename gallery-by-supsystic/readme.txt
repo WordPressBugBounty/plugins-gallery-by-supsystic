@@ -1,10 +1,10 @@
 ﻿=== Photo Gallery - Responsive Image Galleries by Supsystic ===
 Contributors: supsystic.com
 Donate link: https://supsystic.com/plugins/gallery
-Tags: gallery,image-gallery,photo gallery, album-gallery,gallery-plugin
+Tags: gallery, image-gallery, photo gallery, album-gallery, gallery-plugin
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.18.1
+Stable tag: 1.19.0
 License: GNU General Public License v2.0 or later
 
 Photo Gallery helps you create clean, responsive image galleries and album galleries without wrestling with complex settings, layouts, or custom CSS.
@@ -116,6 +116,16 @@ Need help?
 == Changelog ==
 
 = 2026 =
+
+= 1.19.0 — August 17, 2026 =
+
+* General redesign for UI/UX, with clearer feature indicators, safer settings saving.
+* General stability and performance improvements.
+* Added further security hardening.
+
+= 1.18.2 — August 12, 2026 =
+
+* Added SQLite support.
 
 = 1.18.1 — August 11, 2026 =
 

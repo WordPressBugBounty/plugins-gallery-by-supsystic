@@ -15,8 +15,6 @@ class GridGallery_Galleries_Module extends GridGallery_Core_Module
   public function onInit()
   {
     parent::onInit();
-    $dispatcher = $this->getEnvironment()->getDispatcher();
-    $dispatcher->on('after_overview_loaded', [$this, 'registerMenu']);
     $this->registerShortcode();
 
     $resources = new GridGallery_Galleries_Model_Resources();
@@ -42,6 +40,15 @@ class GridGallery_Galleries_Module extends GridGallery_Core_Module
       [$this, 'unitReplace'], // The function that will handle the replacement logic
     );
 
+    // Same shape as unitReplace|default() - a stored numeric setting (icons[size]
+    // etc.) can end up non-numeric (empty string past its "empty" check, stray
+    // text, or an array from a malformed submit) and Twig's own default() only
+    // catches genuinely empty values, not "present but not a number". Anywhere
+    // that value later hits an arithmetic operator (e.g. `* 2` for icon
+    // width/height), a non-numeric string throws a fatal TypeError and an array
+    // throws "Array to string conversion" - both seen in production logs.
+    $numDefaultFilter = new Twig_SupTwgSgg_SimpleFilter('numDefault', [$this, 'numDefault']);
+
     $httpFilter = new Twig_SupTwgSgg_SimpleFilter('force_http', [$this, 'forceHttpUrl']);
     $htmlspecialchars_decode = new Twig_SupTwgSgg_SimpleFilter('htmlspecialchars_decode', 'htmlspecialchars_decode');
 
@@ -54,6 +61,7 @@ class GridGallery_Galleries_Module extends GridGallery_Core_Module
     $twig->enableAutoReload();
     $twig->addFilter($pregReplaceFilter);
     $twig->addFilter($unitReplaceFilter);
+    $twig->addFilter($numDefaultFilter);
     $twig->addFilter($httpFilter);
     $twig->addFilter($htmlspecialchars_decode);
     $twig->addFunction($function);
@@ -164,7 +172,10 @@ class GridGallery_Galleries_Module extends GridGallery_Core_Module
 
     $environment = $this->getEnvironment();
     if ($environment->isAction('index')) {
-      $cssList[] = $this->getLocationUrl() . '/assets/css/jquery.dataTables.min.css';
+      $cssList[] = $this->getLocationUrl() . '/assets/css/grid-gallery.galleries.list.css';
+    }
+    if ($environment->isAction('view')) {
+      $cssList[] = $this->getLocationUrl() . '/assets/css/grid-gallery.galleries.tiles.css';
     }
 
     return $cssList;
@@ -191,7 +202,7 @@ class GridGallery_Galleries_Module extends GridGallery_Core_Module
       'dependencies' => ['chosen.jquery.min.js'],
     ];
 
-    if ($environment->isAction('view') || $environment->isAction('sort')) {
+    if ($environment->isAction('view')) {
       $jsList[] = $this->getLocationUrl() . '/assets/js/grid-gallery.galleries.view.js';
     }
     if ($environment->isAction('preview')) {
@@ -202,7 +213,6 @@ class GridGallery_Galleries_Module extends GridGallery_Core_Module
     $jsList[] = SGG_PLUGIN_URL . '/app/assets/js/chosen.jquery.min.js';
 
     if ($environment->isAction('index')) {
-      $jsList[] = $this->getLocationUrl() . '/assets/js/lib/jquery.dataTables.min.js';
       $jsList[] = $this->getLocationUrl() . '/assets/js/gallery.index.js';
     }
 
@@ -278,6 +288,15 @@ class GridGallery_Galleries_Module extends GridGallery_Core_Module
     return $map[$key ?? ''] ?? $key;
   }
 
+  public function numDefault($value, $default)
+  {
+    // Only steps in for the case that was actually crashing (present but
+    // non-numeric/array). A normal numeric value is returned completely
+    // untouched - same string, same type - exactly like default() already
+    // did, so nothing changes for every gallery that never hit this bug.
+    return is_numeric($value) ? $value : $default;
+  }
+
   public function pregReplace($value, $pattern, $replacement)
   {
     return preg_replace($pattern, $replacement, $value);
@@ -348,14 +367,27 @@ class GridGallery_Galleries_Module extends GridGallery_Core_Module
       extract($init);
 
       $settingsData = is_object($settings) ? $settings->data : $settings;
-      if ($environment->isPro() && $environment->isModule('license') && $environment->getModule('license')->isActive()) {
+      // Deliberately NOT $environment->isModule('license'), which checks
+      // "is the license admin page the current request" - always false on
+      // a real (non-admin) page load regardless of actual license status,
+      // which would force this else branch unconditionally for everyone.
+      // getModule() safely returns null (not a fatal) when the license
+      // module isn't registered at all, e.g. a Free-only install.
+      $licenseModule = $environment->getModule('license');
+      if ($environment->isPro() && $licenseModule && $licenseModule->isActive()) {
       } else {
-        $settingsData['icons']['enabled'] = false;
-        $settingsData['thumbnail']['overlay']['enabled'] = false;
-        $settingsData['thumbnail']['border']['type'] = 'none';
+        $settingsData['icons']['enabled'] = 'false';
+        $settingsData['thumbnail']['overlay']['enabled'] = 'false';
         $settingsData['lazyload']['enabled'] = '0';
-        $settingsData['use_shadow'] = '0';
         $settingsData['slideshow'] = false;
+        // Popup stays visible/editable in the Free settings UI (labeled
+        // PRO - see settings.twig), but must not actually function on the
+        // live frontend without an active license: box.type is what
+        // helpers.twig's aClass checks to decide whether a photo gets the
+        // gg-colorbox/gg-video/pbox class, so an empty string that matches
+        // none of its '0'/'1'/'2' branches turns the popup off cleanly.
+        $settingsData['box']['enabled'] = 'false';
+        $settingsData['box']['type'] = '';
       }
 
       $gallery->random_val = rand(1, 99999);
@@ -370,7 +402,7 @@ class GridGallery_Galleries_Module extends GridGallery_Core_Module
       //     file_put_contents($cachePath, $renderData);
       // }
       // if CDN enable, replace HTTP_HOST
-      if ($environment->isPro() && $environment->isModule('license') && $environment->getModule('license')->isActive()) {
+      if ($environment->isPro() && $licenseModule && $licenseModule->isActive()) {
         $this->replacePhotoHttpHostForCdnServer($renderData, $id);
       }
 
@@ -731,35 +763,6 @@ class GridGallery_Galleries_Module extends GridGallery_Core_Module
 
     // for the backward capability =< 0.2.2
     add_shortcode('grid-gallery', $handler);
-  }
-
-  /**
-   * Adds the submenu item "New gallery".
-   */
-  public function registerMenu()
-  {
-    $menu = $this->getMenu();
-    $plugin_menu = $this->getConfig()->get('plugin_menu');
-    $capability = $plugin_menu['capability'];
-
-    $submenuNewGallery = $menu->createSubmenuItem();
-    $submenuGalleries = $menu->createSubmenuItem();
-
-    $submenuNewGallery->setCapability($capability)->setMenuSlug('supsystic-gallery&module=galleries&action=showPresets')->setMenuTitle($this->translate('New gallery'))->setPageTitle($this->translate('New gallery'))->setModuleName('galleries');
-    // Avoid conflicts with old vendor version
-    if (method_exists($submenuNewGallery, 'setSortOrder')) {
-      $submenuNewGallery->setSortOrder(20);
-    }
-
-    $menu->addSubmenuItem('newGallery', $submenuNewGallery);
-
-    $submenuGalleries->setCapability($capability)->setMenuSlug('supsystic-gallery&module=galleries')->setMenuTitle($this->translate('Galleries'))->setPageTitle($this->translate('Galleries'))->setModuleName('galleries');
-    // Avoid conflicts with old vendor version
-    if (method_exists($submenuGalleries, 'setSortOrder')) {
-      $submenuGalleries->setSortOrder(30);
-    }
-
-    $menu->addSubmenuItem('galleries', $submenuGalleries);
   }
 
   public function isTranslationPluginExists()

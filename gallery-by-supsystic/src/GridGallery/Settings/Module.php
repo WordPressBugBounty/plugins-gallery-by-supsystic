@@ -34,7 +34,6 @@ class GridGallery_Settings_Module extends RscSgg_Mvc_Module
    */
   public function onInit()
   {
-    $this->registerMenu();
     add_action($this->getConfig()->get('hooks_prefix') . 'after_ui_loaded', [$this, 'afterUiLoaded_']);
   }
 
@@ -93,19 +92,4 @@ class GridGallery_Settings_Module extends RscSgg_Mvc_Module
     }
   }
 
-  public function registerMenu()
-  {
-    $menu = $this->getMenu();
-    $plugin_menu = $this->getConfig()->get('plugin_menu');
-    $capability = $plugin_menu['capability'];
-
-    $submenu = $menu->createSubmenuItem();
-    $submenu->setCapability($capability)->setMenuSlug('supsystic-gallery&module=settings')->setMenuTitle($this->translate('Settings'))->setPageTitle($this->translate('Settings'))->setModuleName('settings');
-    // Avoid conflicts with old vendor version
-    if (method_exists($submenu, 'setSortOrder')) {
-      $submenu->setSortOrder(40);
-    }
-
-    $menu->addSubmenuItem('settings', $submenu);
-  }
 }

@@ -1,0 +1,234 @@
+#gg-galleries {
+  margin-top: 10px;
+}
+
+.gg-table-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.gg-table-toolbar #delete-group {
+  margin-top: 0;
+}
+
+.gg-table-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.gg-galleries-search input {
+  width: 220px;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid #dcdcde;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.gg-galleries-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border: 1px solid #eaeaea;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.gg-galleries-table thead th {
+  background: #263546;
+  color: #fff;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  padding: 12px 10px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.gg-galleries-table tbody td {
+  padding: 10px;
+  border-bottom: 1px solid #f0f0f0;
+  vertical-align: middle;
+  font-size: 13px;
+}
+
+.gg-galleries-table tbody tr:hover {
+  background: #f7fdfd;
+}
+
+.gg-galleries-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.gg-col-check,
+.gg-col-id {
+  width: 40px;
+  text-align: center;
+}
+
+.gg-col-count {
+  text-align: center;
+}
+
+.gg-sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.gg-sortable:hover {
+  background: #1d2a38;
+}
+
+.gg-sort-icon {
+  opacity: 0.5;
+  margin-left: 3px;
+  font-size: 11px;
+}
+
+.gg-sort-active .gg-sort-icon {
+  opacity: 1;
+  color: #4ae8ea;
+}
+
+.gg-thumb-wrap {
+  width: 150px;
+  height: 150px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f7f7f7;
+  border-radius: 4px;
+}
+
+.gg-thumb-wrap img {
+  max-width: 100%;
+  max-height: 100%;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.gg-thumb-empty img {
+  width: 50%;
+  height: 50%;
+  filter: grayscale(1);
+  opacity: 0.5;
+}
+
+.gg-col-title a {
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.gg-col-title a:hover {
+  text-decoration: underline;
+}
+
+.gg-type-badge {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 3px;
+  background: #eef2f5;
+  color: #5b6b7c;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+
+.gg-col-code {
+  min-width: 220px;
+}
+
+.gg-col-code .ggCopyTextCode {
+  display: block;
+  width: 100%;
+  margin-bottom: 4px;
+  font-size: 11px;
+  box-sizing: border-box;
+}
+
+.gg-col-code .ggCopyTextCode:last-child {
+  margin-bottom: 0;
+}
+
+.gg-col-actions {
+  min-width: 160px;
+}
+
+.gg-pagination {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.gg-pagination-info {
+  font-size: 12px;
+  color: #7f8c8d;
+}
+
+.gg-pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.gg-page-btn {
+  border: 1px solid #e1e1e1;
+  background: #fff;
+  color: #333;
+  width: 30px;
+  height: 30px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.gg-page-btn:hover:not(:disabled) {
+  border-color: #4ae8ea;
+  color: #2bc4c6;
+}
+
+.gg-page-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.gg-page-numbers {
+  display: inline-flex;
+  gap: 3px;
+  margin: 0 4px;
+}
+
+.gg-page-number {
+  border: 1px solid #e1e1e1;
+  background: #fff;
+  color: #333;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 6px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.gg-page-number:hover {
+  border-color: #4ae8ea;
+}
+
+.gg-page-active {
+  background: #2bc4c6;
+  border-color: #2bc4c6;
+  color: #fff;
+}
+
+#gg-per-page {
+  height: 30px;
+  margin-left: 8px;
+}

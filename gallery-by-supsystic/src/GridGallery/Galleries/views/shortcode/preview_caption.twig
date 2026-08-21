@@ -1,0 +1,199 @@
+{#
+Renders exactly one photo card (caption/icons/hover effect/border/shadow/
+watermark/social sharing - no popup, no lazy load, no lightbox wiring) for
+the small AJAX-refreshed thumbnail at the top of the gallery Settings page
+(.gg-detailed-info-preview). Reuses the same helpers.twig include the real
+gallery loop uses per photo (shortcode/gallery.twig's {% block photos %}),
+so this shows precisely what the frontend will render - not an approximation.
+#}
+{% import '@galleries/shortcode/style.twig' as style %}
+{% import '@galleries/shortcode/gallery.twig' as galleryMacros %}
+{% if gallery.photos is not empty %}
+	{% if environment.isPro() and settings.watermark is defined %}
+		{# Real GD image processing (GridGalleryPro_Galleries_Attachment), not a
+		CSS trick - populates the same shared Twig-function-bound instance
+		settings.twig's own {% block preview %} uses for the static thumbnail,
+		just from the live posted (possibly unsaved) values instead of the saved
+		ones. Every get_attachment() call inside helpers.twig below then
+		automatically returns a watermarked URL. #}
+		{{ set_attachment_settings('watermark', settings.watermark) }}
+	{% endif %}
+	<div id="grid-gallery-{{ gallery.id }}-preview"
+		class="grid-gallery grid-gallery-fixed gg-detailed-info-preview-inner"
+		data-icons="{{ settings.icons.enabled }}"
+		data-caption-buider="{% if settings.captionBuilder is defined and settings.captionBuilder.enabled == 1 %}1{% else %}0{% endif %}"
+		data-caption-builder-icons="{% if settings.captionBuilder is defined and settings.captionBuilder.icons.enable == 1 %}1{% else %}0{% endif %}"
+		{% if settings.thumbnail.overlay.effect == 'polaroid' %}
+			data-polaroid-frame-width="{{ settings.thumbnail.overlay.polaroidFrameWidth | default(20) }}"
+			{% if settings.captionBuilder.enabled == '1' %}
+				data-polaroid-caption-height="{{ settings.captionBuilder.title.height | default(50) }}"
+			{% endif %}
+		{% endif %}>
+			<style>
+				{# The real gallery grid starts every figure at display:none and reveals
+				it via Wookmark's masonry JS once layout is computed. This standalone
+				single-photo snippet never runs that JS, so force it visible here. #}
+				#grid-gallery-{{ gallery.id }}-preview figure.grid-gallery-caption { display: inline-block !important; }
+
+				{# The two rules below are normally emitted once per gallery instance,
+				outside the per-photo loop (shortcode/gallery.twig's own <style>
+				block, scoped by gallery.id+random_val) - duplicated here, scoped to
+				this preview's own id, since this template only ever includes the
+				per-photo helpers.twig fragment and never that wrapper markup. #}
+				{% set useBackgroundForShowOnHover = 0 %}
+				{% if settings.captionBuilder.enabled == 0 and settings.thumbnail.overlay.enabled == 'true' %}
+					{% set useBackgroundForShowOnHover = 1 %}
+				{% elseif settings.captionBuilder.enabled == 1 and settings.captionBuilder.background.enable == 1 %}
+					{% set useBackgroundForShowOnHover = 1 %}
+				{% endif %}
+				{% if useBackgroundForShowOnHover == 1 %}
+					{% if settings.thumbnail.overlay.backgroundForShowOnHover is defined and settings.thumbnail.overlay.backgroundForShowOnHover != '' %}
+						#grid-gallery-{{ gallery.id }}-preview .grid-gallery-caption[data-grid-gallery-type="show-on-hover"] figcaption {
+							background-color: {{ settings.thumbnail.overlay.backgroundForShowOnHover }} !important;
+						}
+					{% endif %}
+					{% if settings.thumbnail.overlay.background is defined and settings.thumbnail.overlay.background != '' %}
+						#grid-gallery-{{ gallery.id }}-preview .grid-gallery-caption[data-grid-gallery-type="show-on-hover"]:hover figcaption,
+						#grid-gallery-{{ gallery.id }}-preview .grid-gallery-caption[data-grid-gallery-type="show-on-hover"].hovered figcaption,
+						#grid-gallery-{{ gallery.id }}-preview .grid-gallery-caption[data-grid-gallery-type="show-on-hover"]:active figcaption {
+							background-color: {{ hex_to_rgba(settings.thumbnail.overlay.background, (10 - settings.thumbnail.overlay.transparency)/10) }} !important;
+						}
+					{% endif %}
+				{% endif %}
+				{% if settings.thumbnail.overlay.imageOnHoverEnable == '1' and settings.thumbnail.overlay.backgroundForShowOnHover is defined and settings.thumbnail.overlay.backgroundForShowOnHover != '' %}
+					#grid-gallery-{{ gallery.id }}-preview .grid-gallery-caption .crop img {
+						background-color: {{ settings.thumbnail.overlay.backgroundForShowOnHover }} !important;
+					}
+				{% endif %}
+				{% if environment.isPro() == false %}
+					{# Free's overlay effect CSS (grid-gallery.galleries.effects.css) reveals
+					the caption panel and hover icons via :hover/.hovered on the figure,
+					driven by whichever thumbnail.overlay.effect the gallery happens to be
+					on - dozens of effect-specific rules, none of which this small static
+					preview needs to demonstrate. Force both to stay hidden here regardless
+					of effect type, so the box just shows the photo untouched. #}
+					#grid-gallery-{{ gallery.id }}-preview .grid-gallery-caption:hover figcaption,
+					#grid-gallery-{{ gallery.id }}-preview .grid-gallery-caption.hovered figcaption,
+					#grid-gallery-{{ gallery.id }}-preview .grid-gallery-caption:active figcaption,
+					#grid-gallery-{{ gallery.id }}-preview .grid-gallery-caption:hover .caption-with-icons,
+					#grid-gallery-{{ gallery.id }}-preview .grid-gallery-caption:hover .hi-icon-wrap,
+					#grid-gallery-{{ gallery.id }}-preview .grid-gallery-caption.hovered .hi-icon-wrap,
+					#grid-gallery-{{ gallery.id }}-preview .grid-gallery-caption:hover a.hi-icon,
+					#grid-gallery-{{ gallery.id }}-preview .grid-gallery-caption.hovered a.hi-icon {
+						opacity: 0 !important;
+					}
+				{% endif %}
+			</style>
+			{% if settings.icons is defined and settings.icons.enabled == 'true' %}
+				<style>
+					#grid-gallery-{{ gallery.id }}-preview .{{ settings.icons.effect }} .hi-icon { color: {{ settings.icons.color }} !important; background: {{ settings.icons.background }} !important; }
+					#grid-gallery-{{ gallery.id }}-preview .{{ settings.icons.effect }} .hi-icon:hover { color: {{ settings.icons.hover_color }} !important; background: {{ settings.icons.background_hover }} !important; }
+					#grid-gallery-{{ gallery.id }}-preview .hi-icon { width: {{ settings.icons.size|numDefault(0) * 2 }}px !important; height: {{ settings.icons.size|numDefault(0) * 2 }}px !important; }
+					#grid-gallery-{{ gallery.id }}-preview .hi-icon:before { font-size: {{ settings.icons.size|numDefault(16) }}px !important; line-height: {{ settings.icons.size|numDefault(0) * 2 }}px !important; }
+				</style>
+			{% endif %}
+			{#
+			saveNewPlugin/useFreePluginView gate every Caption-Builder-vs-legacy
+			branch throughout helpers.twig, but are never computed there - the
+			real frontend only ever gets them from gallery.twig's own top-of-file
+			{% embed %} setup (lines ~3-26), which this template intentionally
+			never includes (it would pull in the whole gallery wrapper, wookmark
+			markup, pagination, etc. for what's meant to be a single bare photo).
+			Replicated verbatim here so a photo actually renders in Caption
+			Builder mode when it's enabled instead of always falling back to the
+			legacy caption panel. #}
+			{% set useFreePluginView = 'false' %}
+			{% set saveNewPlugin = 0 %}
+			{% if settings.captionBuilder is defined %}
+				{% if settings.captionBuilder.icons.enable == '1' and settings.captionBuilder.icons.enableOldCompatibility == 1 %}
+					{% set useFreePluginView = 'true' %}
+				{% endif %}
+				{% if settings.captionBuilder.background.enable == 1
+					or settings.captionBuilder.title.enable == 1
+					or settings.captionBuilder.description.enable == 1
+					or settings.captionBuilder.icons.enable == '1'
+				%}
+					{% set saveNewPlugin = 1 %}
+					{% if settings.captionBuilder.enabled is empty %}
+						{% set settings = settings | merge({
+							'captionBuilder': (settings.captionBuilder | merge({'enabled' : 1}))
+						}) %}
+					{% endif %}
+				{% endif %}
+			{% endif %}
+			{#
+			@galleries always resolves to THIS (Free) plugin's own views dir -
+			Pro's helpers.twig is not an override reachable through that same
+			namespace, it's a separate file (@galleries_pro/shortcode/helpers.twig)
+			that {% embed %}s this one as its base and overrides specific blocks
+			(including every Caption-Builder-aware block above). A plain
+			'@galleries/shortcode/helpers.twig' include here would silently render
+			only the legacy/Free markup even with Pro active and Caption Builder
+			on - so pick the file explicitly instead of relying on namespace
+			resolution to find the override. #}
+			<div class="grid-gallery-photos">
+				{% include (environment.isPro() ? '@galleries_pro/shortcode/helpers.twig' : '@galleries/shortcode/helpers.twig') with {'gallery': gallery, 'photo': gallery.photos[0], 'settings': settings, 'index': 0, 'saveNewPlugin': saveNewPlugin, 'useFreePluginView': useFreePluginView} only %}
+			</div>
+			{% if environment.isPro() and settings.socialSharing is defined and settings.socialSharing.enabled and settings.socialSharing.imageSharing.enabled and socialIcons %}
+				{# .supSocialIcon*/.supSocialIconsWrapper* only exist in
+				grid-gallery.galleries.frontend.css, a frontend-only stylesheet
+				never enqueued on wp-admin pages - loading that whole file here
+				broke unrelated admin styling, so just the rules these icons
+				actually need are reproduced below, scoped to this preview. #}
+				<style>
+					#grid-gallery-{{ gallery.id }}-preview .supSocialIconsWrapper { display: flex; position: relative; text-align: center; flex-direction: row; flex-wrap: nowrap; align-content: center; justify-content: center; align-items: center; margin: 10px 0px; }
+					#grid-gallery-{{ gallery.id }}-preview .supSocialIcon { display: flex; position: relative; margin: 4px; content: ' '; width: 30px; height: 30px; flex-direction: row; flex-wrap: nowrap; align-content: center; justify-content: center; align-items: center; text-decoration: none !important; font-family: 'Font Awesome 6 Brands'; }
+					#grid-gallery-{{ gallery.id }}-preview .supSocialIconWhite { background: white; color: black; }
+					#grid-gallery-{{ gallery.id }}-preview .supSocialIconBlack { background: black; color: white; }
+					#grid-gallery-{{ gallery.id }}-preview .supSocialIconSquare { border-radius: 0px; }
+					#grid-gallery-{{ gallery.id }}-preview .supSocialIconRound { border-radius: 50%; }
+					#grid-gallery-{{ gallery.id }}-preview .supSocialIconRounded { border-radius: 10%; }
+					#grid-gallery-{{ gallery.id }}-preview .supSocialIconfacebook::before { content: '\f39e'; }
+					#grid-gallery-{{ gallery.id }}-preview .supSocialIconxtwitter::before { content: '\e61b'; }
+					#grid-gallery-{{ gallery.id }}-preview .supSocialIconvk::before { content: '\f189'; }
+					#grid-gallery-{{ gallery.id }}-preview .supSocialIconreddit::before { content: '\f281'; }
+					#grid-gallery-{{ gallery.id }}-preview .supSocialIconpinterest::before { content: '\f231'; }
+					#grid-gallery-{{ gallery.id }}-preview .supSocialIcontelegram::before { content: '\f3fe'; }
+					#grid-gallery-{{ gallery.id }}-preview .supSocialIconviber::before { content: '\f409'; }
+					#grid-gallery-{{ gallery.id }}-preview .supSocialIconodnoklassniki::before { content: '\f263'; }
+					#grid-gallery-{{ gallery.id }}-preview .supSocialIconprint::before { font-family: 'Font Awesome 6 Free'; content: '\f02f'; font-weight: 900; }
+					#grid-gallery-{{ gallery.id }}-preview .supSocialIconlinkedin::before { content: '\f0e1'; }
+					#grid-gallery-{{ gallery.id }}-preview .supSocialIconbookmark::before { font-family: 'Font Awesome 6 Free'; content: '\f02e'; font-weight: 900; }
+					#grid-gallery-{{ gallery.id }}-preview .supSocialIconmail::before { font-family: 'Font Awesome 6 Free'; content: '\f0e0'; font-weight: 900; }
+					#grid-gallery-{{ gallery.id }}-preview .supSocialIconevernote::before { content: '\f839'; }
+					#grid-gallery-{{ gallery.id }}-preview .supSocialIcontumblr::before { content: '\f173'; }
+					#grid-gallery-{{ gallery.id }}-preview .supSocialIconwhatsapp::before { content: '\f232'; }
+					#grid-gallery-{{ gallery.id }}-preview .supSocialIconsWrapperAbsolute { position: absolute; margin: 0px; padding: 0px; z-index: 99; }
+					#grid-gallery-{{ gallery.id }}-preview .supSocialIconsWrapperTop.supSocialIconsWrapperHLeft { display: flex; width: 100%; top: 0px; justify-content: flex-start; }
+					#grid-gallery-{{ gallery.id }}-preview .supSocialIconsWrapperTop.supSocialIconsWrapperHCenter { display: flex; width: 100%; top: 0px; justify-content: center; }
+					#grid-gallery-{{ gallery.id }}-preview .supSocialIconsWrapperTop.supSocialIconsWrapperHRight { display: flex; width: 100%; top: 0px; justify-content: flex-end; }
+					#grid-gallery-{{ gallery.id }}-preview .supSocialIconsWrapperBottom.supSocialIconsWrapperHLeft { display: flex; width: 100%; bottom: 0px; justify-content: flex-start; }
+					#grid-gallery-{{ gallery.id }}-preview .supSocialIconsWrapperBottom.supSocialIconsWrapperHCenter { display: flex; width: 100%; bottom: 0px; justify-content: center; }
+					#grid-gallery-{{ gallery.id }}-preview .supSocialIconsWrapperBottom.supSocialIconsWrapperHRight { display: flex; width: 100%; bottom: 0px; justify-content: flex-end; }
+					#grid-gallery-{{ gallery.id }}-preview .supSocialIconsWrapperLeft.supSocialIconsWrapperVTop { display: flex; flex-direction: column; justify-content: flex-start; height: 100%; left: 0px; top: 0px; }
+					#grid-gallery-{{ gallery.id }}-preview .supSocialIconsWrapperLeft.supSocialIconsWrapperVMiddle { display: flex; flex-direction: column; justify-content: center; height: 100%; left: 0px; top: 0px; }
+					#grid-gallery-{{ gallery.id }}-preview .supSocialIconsWrapperLeft.supSocialIconsWrapperVBottom { display: flex; flex-direction: column; justify-content: flex-end; height: 100%; left: 0px; top: 0px; }
+					#grid-gallery-{{ gallery.id }}-preview .supSocialIconsWrapperRight.supSocialIconsWrapperVTop { display: flex; flex-direction: column; justify-content: flex-start; height: 100%; right: 0px; top: 0px; }
+					#grid-gallery-{{ gallery.id }}-preview .supSocialIconsWrapperRight.supSocialIconsWrapperVMiddle { display: flex; flex-direction: column; justify-content: center; height: 100%; right: 0px; top: 0px; }
+					#grid-gallery-{{ gallery.id }}-preview .supSocialIconsWrapperRight.supSocialIconsWrapperVBottom { display: flex; flex-direction: column; justify-content: flex-end; height: 100%; right: 0px; top: 0px; }
+				</style>
+				{# On the real frontend these are cloned into every figure by JS
+				(Gallery.prototype.initImageSocialSharing) rather than rendered by
+				Twig - there's no live Gallery JS instance here, so this hidden copy
+				gets appended into the figure by initCaptionPreview()'s own JS
+				instead, matching where the real clone step puts it (a direct child
+				of <figure>, for the absolute-positioned wrapper classes to anchor to). #}
+				<div class="gg-preview-social-icons-tpl" style="display:none;">
+					{{ galleryMacros.getSocialIcons(socialIcons, settings, settings.socialSharing.imageSharing.buttonsPosition, settings.socialSharing.imageSharing.buttonsAlignHorizontal, settings.socialSharing.imageSharing.buttonsAlignVertical) }}
+				</div>
+			{% endif %}
+	</div>
+{% else %}
+	{# helpers.twig's real "import-to-gallery" links open the media uploader
+	via a click handler that expects data-gallery-id (see settings.twig's own
+	"Add Images" button) - this one never had it, so the href="#" just did
+	nothing. Plain text instead of a dead link. #}
+	<div class="gg-no-images-placeholder">
+		{{ translate("There're no images in the gallery.") }}
+	</div>
+{% endif %}

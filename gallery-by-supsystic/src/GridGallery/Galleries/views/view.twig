@@ -1,9 +1,7 @@
 {% extends 'grid-gallery.twig' %}
 
 {% block header %}
-    <nav id="supsystic-breadcrumbs" class="supsystic-breadcrumbs" style="float: left; padding: 20px;">
-        {#<a href="{{ environment.generateUrl('galleries') }}">{{ translate('Gallery by Supsystic') }}</a>#}
-        {#<i class="fa fa-angle-right"></i>#}
+    <nav id="supsystic-breadcrumbs" class="supsystic-breadcrumbs">
         <a href="{{ environment.generateUrl('galleries') }}">{{ translate('Galleries') }}</a>
         <i class="fa fa-angle-right"></i>
         <a href="{{ environment.generateUrl('galleries', 'settings', { 'gallery_id': gallery.id }) }}">{{ gallery.title }}</a>
@@ -11,10 +9,10 @@
         <a href="{{ environment.generateUrl('galleries', 'view', { 'gallery_id': gallery.id }) }}">{{ translate('Images List') }}</a>
     </nav>
 
-    <section class="sgg-all-img-info-sect" id="single-gallery-head-toolbar" style="margin-left: 75px;">
+    <section class="supsystic-bar sgg-all-img-info-sect" id="single-gallery-toolbar" style="padding-bottom:0;">
     	<div class="gg-settings-row">
-	    	<div class="gg-settings-block">
-		    	<ul class="supsystic-bar-controls" style="padding-left: 20px;">
+    		<div class="gg-settings-block">
+		    	<ul class="supsystic-bar-controls">
 		            <li title="{{ translate('Upload new images') }}">
 		                <button class="button button-primary gallery import-to-gallery">
 		                    <i class="fa fa-fw fa-upload"></i>
@@ -22,24 +20,12 @@
 		                </button>
 		            </li>
 		            <li>
-		                <a href="{{ environment.generateUrl('galleries', 'sort', { 'gallery_id': gallery.id }) }}"
-		                   class="button">
-		                    <i class="fa fa-fw fa-sort"></i>
-							{{ translate('Grid View') }}
-		                </a>
-		            </li>
-		        </ul>
-        	</div>
-    		<div class="gg-settings-block">
-		    	<ul class="supsystic-bar-controls">
-		    		<li>
 		            	<a href="{{ environment.generateUrl('galleries', 'settings', { 'gallery_id': gallery.id }) }}"
 		                	class="button">
 		                    <i class="fa fa-fw fa-cogs"></i>
 							{{ translate('Settings') }}
 		                </a>
 		            </li>
-
 		            <li>
 		                <a target="_blank"
 		                   href="{{ environment.generateUrl('galleries', 'preview', { 'gallery_id': gallery.id }) }}"
@@ -48,14 +34,9 @@
 		                    {{ translate('Preview') }}
 		                </a>
 		            </li>
+		            <li class="separator">|</li>
 		        </ul>
-        	</div>
-        </div>
-    </section>
-    <section class="supsystic-bar sgg-all-img-info-sect" id="single-gallery-toolbar" style="padding-bottom:0;">
-    	<div class="gg-settings-row">
-    		<div class="gg-settings-block">
-		    	<ul class="supsystic-bar-controls gg-checked-options">
+		    	<ul class="supsystic-bar-controls gg-checked-options gg-flat-view-only">
 		            <li id="checkedDoLi" data-delete-confirm="{{ translate('Are you sure you want to delete photo from this gallery?') }}">
 						<select name="checkedDo" style="height: 34px;">
 							<option value="rotate-clock">{{ translate('Rotate Clockwise') }}</option>
@@ -129,12 +110,12 @@
                         } %}
 						<select id="gg-crop-positions" style="height: 34px;">
                             {% for value, title in cropPositionList %}
-                                <option value="{{ value }}" {% if image.attachment.cropPosition|default('center-center') == value %} selected="selected" {% endif %}>{{ title }}</option>
+                                <option value="{{ value }}">{{ title }}</option>
                             {% endfor %}
                         </select>
 					</li>
 					<li>
-						<button class="button button-primary" data-button="checkedbtn" {% if gallery.photos is empty %}disabled{% endif %}>
+						<button class="button button-primary" data-button="checkedbtn" {% if recordsTotal < 1 %}disabled{% endif %}>
 							<i class="fa fa-fw fa-check"></i>
 							{{ translate('Apply') }}
 						</button>
@@ -144,42 +125,74 @@
 
 	        <div class="gg-settings-block">
 		        <ul class="supsystic-bar-controls">
-					<li>
+					<li class="gg-flat-view-only">
 						<input id="find-by-caption" type="text" style="height:34px; width: 150px;" placeholder="{{ translate('Search') }}">
 					</li>
-					<li class="separator">|</li>
+					<li class="separator gg-flat-view-only">|</li>
 				</ul>
 
 		        <ul class="supsystic-bar-controls">
-		            <li title="{{ translate('Sort By: ') }}">
+		            <li class="gg-flat-view-only" title="{{ translate('Sort By: ') }}">
 						{{  translate('Sort By: ') }}
 		                <select name="sortby" style="height: 34px;">
-		                    <option value="postion" {% if settings.sort.sortby == 'position' %}selected{% endif %}>Position</option>
-		                    <option value="adate" {% if settings.sort.sortby == 'adate' %}selected{% endif %}>Add date</option>
-		                    <option value="date" {% if settings.sort.sortby == 'date' %}selected{% endif %}>Create date</option>
-		                    <option value="size" {% if settings.sort.sortby == 'size' %}selected{% endif %}>Size</option>
-		                    <option value="name" {% if settings.sort.sortby == 'name' %}selected{% endif %}>Name</option>
-		                    <option value="filename" {% if settings.sort.sortby == 'filename' %}selected{% endif %}>File name</option>
-							{% if(environment.isPro() == true) %}<option value="tags" {% if settings.sort.sortby == 'tags' %}selected{% endif %}>Tags</option>{% endif %}
-		                    <option value="randomly" {% if settings.sort.sortby == 'randomly' %}selected{% endif %}>Randomly</option>
+		                    <option value="position" {% if sort == 'position' %}selected{% endif %}>Position</option>
+		                    <option value="adate" {% if sort == 'adate' %}selected{% endif %}>Add date</option>
+		                    <option value="date" {% if sort == 'date' %}selected{% endif %}>Create date</option>
+		                    <option value="size" {% if sort == 'size' %}selected{% endif %}>Size</option>
+		                    <option value="name" {% if sort == 'name' %}selected{% endif %}>Name</option>
+		                    <option value="filename" {% if sort == 'filename' %}selected{% endif %}>File name</option>
+							{% if(environment.isPro() == true) %}<option value="tags" {% if sort == 'tags' %}selected{% endif %}>Tags</option>{% endif %}
+		                    <option value="randomly" {% if sort == 'randomly' %}selected{% endif %}>Randomly</option>
 		                </select>
 		            </li>
-					<li id="sortToLi" title="{{ translate('Sort To: ') }}" style="{% if settings.sort.sortby == 'randomly' %} display:none; {% endif %} }}">
+					<li id="sortToLi" class="gg-flat-view-only" title="{{ translate('Sort To: ') }}" style="{% if sort == 'randomly' %} display:none; {% endif %}">
 						<button class="button button-invisible" data-button="sortbtn">
-							<i class="fa fa-fw fa-arrow-{% if settings.sort.sortto == 'asc' %}up{% else %}down{% endif %}"></i>
+							<i class="fa fa-fw fa-arrow-{% if dir == 'asc' %}up{% else %}down{% endif %}"></i>
 						</button>
 					</li>
-		        </ul>
+					<li class="separator gg-flat-view-only">|</li>
+					{% if environment.isPro() == true %}
+						<li>
+							<button class="button" data-button="show-categories">
+								<i class="fa fa-fw fa-tags"></i>
+								{{ translate('Show Categories') }}
+							</button>
+							<button class="button ggSettingsDisplNone" data-button="hide-categories">
+								<i class="fa fa-fw fa-eye-slash"></i>
+								{{ translate('Hide Categories') }}
+							</button>
+						</li>
+						<li class="separator">|</li>
+					{% endif %}
+					<li class="gg-flat-view-only" title="{{ translate('Tile size') }}">
+						<div class="gg-tile-size-control" data-value="m">
+							<button type="button" class="gg-tile-size-btn" data-tile-size="s">S</button>
+							<button type="button" class="gg-tile-size-btn" data-tile-size="m">M</button>
+							<button type="button" class="gg-tile-size-btn" data-tile-size="l">L</button>
+							<button type="button" class="gg-tile-size-btn" data-tile-size="xl">XL</button>
+						</div>
+					</li>
+				</ul>
 
 		        <ul class="supsystic-bar-controls">
-					<li>
-						{% if gallery.photos | length > 0 %}
-							{% import '@galleries/helpers/pagination_view.twig' as pagination_view %}
-							{{ pagination_view.paginationRender(paginationSettings) }}
-						{% endif %}
-					</li>
-					<li>
-						{{ gallery.photos | length }} {{ translate('media') }}
+					<li class="gg-pagination">
+						<div class="gg-pagination-info" id="gg-pagination-info"></div>
+						<div class="gg-pagination-controls">
+							<button type="button" class="gg-page-btn" data-page-action="prev" title="{{ translate('Previous') }}">
+								<i class="fa fa-angle-left"></i>
+							</button>
+							<span class="gg-page-numbers" id="gg-page-numbers"></span>
+							<button type="button" class="gg-page-btn" data-page-action="next" title="{{ translate('Next') }}">
+								<i class="fa fa-angle-right"></i>
+							</button>
+							<select id="gg-per-page">
+								<option value="20" {% if perPage == 20 %}selected{% endif %}>20</option>
+								<option value="50" {% if perPage == 50 %}selected{% endif %}>50</option>
+								<option value="100" {% if perPage == 100 %}selected{% endif %}>100</option>
+								<option value="200" {% if perPage == 200 %}selected{% endif %}>200</option>
+								<option value="all" {% if perPage == 'all' %}selected{% endif %}>{{ translate('All') }}</option>
+							</select>
+						</div>
 					</li>
 				</ul>
 			</div>
@@ -196,7 +209,7 @@
     {% if gallery is not defined or gallery is null %}
         <p>{{ translate('The gallery is does not exists') }}</p>
     {% else %}
-        {% if gallery.photos is empty %}
+        {% if recordsTotal < 1 %}
             <h2 style="text-align: center; color: #bfbfbf; margin: 50px 0 25px 0;">
                 <span style="margin-bottom: 20px; display: block;">
                     {{ translate('Currently this gallery has no images') }}
@@ -204,21 +217,137 @@
                 {{ importTypes.show('1000', gallery.id) }}
             </h2>
         {% else %}
-            {% import '@ui/type.twig' as view %}
-            {% set entity = { images: gallery.photos } %}
-            {% set sliderSettings = settings %}
+            {# Read by Pro's Toast UI image editor (photos.js) to know which gallery an edited image belongs to. #}
+            <form id="gallery-editor-hidden" style="display: none;">
+                <input name="gallery_id" value="{{ gallery.id }}" type="hidden"/>
+            </form>
 
-            {% if viewType == 'block' %}
-                {{ view.block_view(entity) }}
-            {% endif %}
+            <div id="gg-tile-grid" data-gallery-id="{{ gallery.id }}" data-page="{{ page }}" data-per-page="{{ perPage }}"
+                 data-sort="{{ sort }}" data-dir="{{ dir }}" data-records-total="{{ recordsTotal }}">
+                {% include '@ui/includes/tile_grid.twig' with {'photos': gallery.photos} %}
+            </div>
 
-            {% if viewType == 'list' %}
-                {{ view.list_view(entity, sliderSettings, gallery.id) }}
+            {% if environment.isPro() == true %}
+                <div id="gg-tile-categories" class="ggSettingsDisplNone" data-category-order="{{ settings.categoryOrder|default([])|json_encode|e }}">
+                    {% for category in gallery.tags %}
+                        <div class="gg-category ggImgVertMoveCol">
+                            <div class="gg-category-caption">
+                                <i class="fa fa-arrows-v ggImgVerticalMove" title="{{ translate('Drag to reorder categories') }}" aria-hidden="true"></i>
+                                <a href="#gg-rename" class="gg-rename-category">{{ category }}</a>:{{ ' ' }}<label data-count>0</label>{{ ' ' ~ translate('media') }}
+                            </div>
+                            <ul class="gg-tile-grid-list gg-tile-category-bin" data-category="{{ category }}"></ul>
+                        </div>
+                    {% endfor %}
+                    <div class="gg-category gg-category-uncategorized">
+                        <div class="gg-category-caption">
+                            <label>{{ translate('No category') }}:</label>{{ ' ' }}<label data-count>0</label>{{ ' ' ~ translate('media') }}
+                        </div>
+                        <ul class="gg-tile-grid-list gg-tile-category-bin" data-category=""></ul>
+                    </div>
+                </div>
+                <div id="ggRenameCategory" title="{{ translate('Rename Category') }}" style="display:none;">
+                    <label>{{ translate('New Name') }}: </label>
+                    <input id="newCategoryName" type="text" value="">
+                </div>
             {% endif %}
         {% endif %}
     {% endif %}
 
     {{ importTypes.view_dialogs(gallery.id) }}
+
+    {# ---- Per-image option popups: one shared instance per option, populated from the clicked tile's data-entity-info when opened. ---- #}
+
+    <div id="ggImageCaptionDialog" class="supsystic-plugin gg-option-dialog" title="{{ translate('Caption') }}" style="display:none;">
+        <textarea class="gg-dialog-field" name="caption" rows="3" placeholder="{{ translate('Caption') }}"></textarea>
+        {% if environment.isPro() == false %}
+            <div class="gg-dialog-pro-hint">
+                <textarea disabled rows="5" placeholder="{{ translate('Description') }}"></textarea>
+                <button type="button" class="gg-pro-read-more" data-gg-pro-title="{{ translate('Description')|striptags }}"
+                        data-gg-pro-desc="{{ '<p>' ~ translate('Add a longer description shown alongside the caption.') ~ '</p><p><a class="button button-primary" target="_blank" href="' ~ getProUrl('?utm_source=plugin&utm_medium=images_caption_description&utm_campaign=gallery') ~ '">' ~ translate('Get PRO') ~ '</a></p>' }}">
+                    {{ translate('Available in PRO') }}
+                </button>
+            </div>
+        {% else %}
+            <textarea class="gg-dialog-field" name="captionDescription" rows="5" placeholder="{{ translate('Description') }}"></textarea>
+        {% endif %}
+        <div class="gg-dialog-actions">
+            <button type="button" class="button button-primary gg-dialog-save">{{ translate('Save') }}</button>
+        </div>
+    </div>
+
+    <div id="ggImageSeoDialog" class="supsystic-plugin gg-option-dialog" title="{{ translate('SEO Alt / Title') }}" style="display:none;">
+        <textarea class="gg-dialog-field" name="alt" rows="2" placeholder="{{ translate('SEO Alt') }}"></textarea>
+        <textarea class="gg-dialog-field" name="description" rows="5" placeholder="{{ translate('Title') }}"></textarea>
+        <div class="gg-dialog-actions">
+            <button type="button" class="button button-primary gg-dialog-save">{{ translate('Save') }}</button>
+        </div>
+    </div>
+
+    <div id="ggImageTransferDialog" class="supsystic-plugin gg-option-dialog" title="" style="display:none;">
+        <select class="gg-dialog-field" id="ggTransferGallerySelect" style="width:100%;">
+            {% for obj in galleries %}
+                {% if obj.id != gallery.id %}
+                    <option value="{{ obj.id }}">{{ obj.title }}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
+        <div class="gg-dialog-actions">
+            <button type="button" class="button button-primary gg-dialog-save">{{ translate('Apply') }}</button>
+        </div>
+    </div>
+
+    <div id="ggImageLinkDialog" class="supsystic-plugin gg-option-dialog" title="{{ translate('Link') }}" style="display:none;">
+        <input type="text" class="gg-dialog-field" name="link" style="width: 100%;" placeholder="{{ translate('http://example.com/') }}"/>
+        <label><input type="checkbox" class="gg-dialog-field" name="target" value="_blank"/> {{ translate('Open in new window') }}</label>
+        <label><input type="checkbox" class="gg-dialog-field" name="rel[]" value="nofollow"/> {{ translate('Add nofollow attribute') }}</label>
+        <label><input type="checkbox" class="gg-dialog-field" name="rel[]" value="noopener"/> {{ translate('Add noopener attribute') }}</label>
+        <label><input type="checkbox" class="gg-dialog-field" name="rel[]" value="noreferrer"/> {{ translate('Add noreferrer attribute') }}</label>
+        <div class="gg-dialog-actions">
+            <button type="button" class="button button-primary gg-dialog-save">{{ translate('Save') }}</button>
+        </div>
+    </div>
+
+    <div id="ggImageRotateDialog" class="supsystic-plugin gg-option-dialog" title="{{ translate('Rotate') }}" style="display:none;">
+        <select class="gg-dialog-field" id="ggRotateSelect" style="width:100%;">
+            <option value="clockwise">{{ translate('Rotate Clockwise') }}</option>
+            <option value="counter">{{ translate('Rotate Counter-Clockwise') }}</option>
+        </select>
+        <div class="gg-dialog-actions">
+            <button type="button" class="button button-primary gg-dialog-save">{{ translate('Apply') }}</button>
+        </div>
+    </div>
+
+    <div id="ggImageCropDialog" class="supsystic-plugin gg-option-dialog" title="{{ translate('Crop') }}" style="display:none;">
+        {% set cropPositionList = {
+            "left-top":"Top Left", "center-top":"Top Center", "right-top":"Top Right",
+            "left-center":"Center Left", "center-center":"Center Center", "right-center":"Center Right",
+            "left-bottom":"Bottom Left", "center-bottom":"Bottom Center", "right-bottom":"Bottom Right"
+        } %}
+        <select class="gg-dialog-field" id="ggCropPositionSelect" style="width:100%;">
+            {% for value, title in cropPositionList %}
+                <option value="{{ value }}">{{ title }}</option>
+            {% endfor %}
+        </select>
+        <div class="gg-dialog-actions">
+            <button type="button" class="button button-primary gg-dialog-save">{{ translate('Save') }}</button>
+        </div>
+    </div>
+
+    {% if environment.isPro() == true %}
+        <div id="ggImageVideoDialog" class="supsystic-plugin gg-option-dialog" title="{{ translate('Video') }}" style="display:none;">
+            <input type="text" class="gg-dialog-field" name="video" style="width: 100%;" placeholder="{{ translate('Video URL') }}"/>
+            <div class="gg-dialog-actions">
+                <button type="button" class="button button-primary gg-dialog-save">{{ translate('Save') }}</button>
+            </div>
+        </div>
+
+        <div id="ggImageCategoriesDialog" class="supsystic-plugin gg-option-dialog" title="{{ translate('Categories') }}" style="display:none;">
+            <input type="text" id="ggCategoriesInput" style="width:100%;" placeholder="{{ translate('Categories, separated by commas') }}"/>
+            <div class="gg-dialog-actions">
+                <button type="button" class="button button-primary gg-dialog-close">{{ translate('Done') }}</button>
+            </div>
+        </div>
+    {% endif %}
 
     <div id="linkedImagesDialog" title="{{ translate('Linked Images') }}" style="display:none;">
         <div class="linked-images-action-buttons">
@@ -279,7 +408,7 @@
                 'icons-nitrogen-top': 'Nitrogen Top'
             } %}
             {% set figcaptionStyle %}
-                border-radius: {{ settings.thumbnail.border.radius ~ settings.thumbnail.border.radius_unit|replace(['px', '%']) }};
+                border-radius: {{ settings.thumbnail.border.radius ~ settings.thumbnail.border.radius_unit|unitReplace(['px', '%']) }};
                 {% if environment.isPro() and settings.icons is defined and settings.icons.enabled == 'true' %}
                     {% if settings.icons.overlay_enabled == 'true' %}
                         background-color:{{ settings.icons.overlay_color|default('#3498db') }};
@@ -287,12 +416,11 @@
                 {% else %}
                     color:{{ settings.thumbnail.overlay.foreground }};
                     background-color:{{ settings.thumbnail.overlay.background }};
-                    font-size:{{ settings.thumbnail.overlay.text_size }}{{ settings.thumbnail.overlay.text_size_unit|replace(['px', '%', 'em']) }};
+                    font-size:{{ settings.thumbnail.overlay.text_size }}{{ settings.thumbnail.overlay.text_size_unit|unitReplace(['px', '%', 'em']) }};
                     {% if settings.thumbnail.overlay.text_align != 3 %}
                         text-align:{{ settings.thumbnail.overlay.text_align|replace(['left', 'right', 'center']) }};
                     {% endif %}
                     {% if settings.thumbnail.overlay.effect == 'none' or settings.thumbnail.overlay.enabled == 'false' %}
-                        {#opacity:1;#}
                         bottom:0;
                     {% endif %}
                 {% endif %}
@@ -325,7 +453,7 @@
 										<figcaption style="{{ figcaptionStyle|trim }}">
 											<div class="grid-gallery-figcaption-wrap" style="width:100%;height:100%;top:0;">
 												<div style="display:table;width:100%;height:100%;">
-													<span {% if settings.rtl == true %}dir="rtl" class="ggRtlClass"{% endif %} style="display:table-cell;font-size:{{ settings.thumbnail.overlay.text_size }}{{ settings.thumbnail.overlay.text_size_unit|replace(['px', '%', 'em']) }};padding:10px;vertical-align:{{ settings.thumbnail.overlay.position }};">Caption</span>
+													<span {% if settings.rtl == true %}dir="rtl" class="ggRtlClass"{% endif %} style="display:table-cell;font-size:{{ settings.thumbnail.overlay.text_size }}{{ settings.thumbnail.overlay.text_size_unit|unitReplace(['px', '%', 'em']) }};padding:10px;vertical-align:{{ settings.thumbnail.overlay.position }};">Caption</span>
 												</div>
 											</div>
 										</figcaption>
@@ -392,8 +520,7 @@
 										</figcaption>
 										<div class="caption-with-{{ type }}">
 											<div style="display: table; height:100%; width:100%;">
-												<span style="padding: 10px;display:table-cell;font-size:{{ settings.thumbnail.overlay.text_size }}
-												vertical-align:{{ settings.thumbnail.overlay.position }};">
+												<span style="padding: 10px;display:table-cell;font-size:{{ settings.thumbnail.overlay.text_size }}{{ settings.thumbnail.overlay.text_size_unit|unitReplace(['px', '%', 'em']) }};vertical-align:{{ settings.thumbnail.overlay.position }};">
 													Caption
 												</span>
 											</div>
@@ -419,12 +546,12 @@
                 background: {{ settings.icons.background_hover }} !important;
             }
             .hi-icon {
-                width: {{ settings.icons.size * 2 }}px !important;
-                height: {{ settings.icons.size * 2 }}px !important;
+                width: {{ settings.icons.size|numDefault(0) * 2 }}px !important;
+                height: {{ settings.icons.size|numDefault(0) * 2 }}px !important;
             }
             .hi-icon:before {
-                font-size: {{ settings.icons.size|default(16) }}px !important;
-                line-height: {{ settings.icons.size * 2 }}px !important;
+                font-size: {{ settings.icons.size|numDefault(16) }}px !important;
+                line-height: {{ settings.icons.size|numDefault(0) * 2 }}px !important;
             }
         </style>
 		{% block settingsOtherPro %}

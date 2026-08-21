@@ -6,8 +6,8 @@
 			<style>
 				 #grid-gallery-{{ gallery.id }}-{{ gallery.random_val }} .{{ settings.icons.effect }} .hi-icon { color: {{ settings.icons.color }} !important; background: {{ settings.icons.background }} !important; }
 				 #grid-gallery-{{ gallery.id }}-{{ gallery.random_val }} .{{ settings.icons.effect }} .hi-icon:hover { color: {{ settings.icons.hover_color }} !important; background: {{ settings.icons.background_hover }} !important; }
-				 #grid-gallery-{{ gallery.id }}-{{ gallery.random_val }} .hi-icon { width: {{ settings.icons.size * 2 }}px !important; height: {{ settings.icons.size * 2 }}px !important; }
-				 #grid-gallery-{{ gallery.id }}-{{ gallery.random_val }} .hi-icon:before { font-size: {{ settings.icons.size|default(16) }}px !important; line-height: {{ settings.icons.size * 2 }}px !important; }
+				 #grid-gallery-{{ gallery.id }}-{{ gallery.random_val }} .hi-icon { width: {{ settings.icons.size|numDefault(0) * 2 }}px !important; height: {{ settings.icons.size|numDefault(0) * 2 }}px !important; }
+				 #grid-gallery-{{ gallery.id }}-{{ gallery.random_val }} .hi-icon:before { font-size: {{ settings.icons.size|numDefault(16) }}px !important; line-height: {{ settings.icons.size|numDefault(0) * 2 }}px !important; }
 			</style>
 		{% endif %}
 	{% endblock %}
@@ -89,7 +89,7 @@
 			data-fullscreen="{{ settings.fullscreen ? 'true' : 'false' }}"
 			data-hide-tooltip="{{ settings.thumbnail.tooltip }}"
 			data-caption-font-family="{{ settings.thumbnail.overlay.font_family }}"
-			data-caption-text-size="{{ settings.thumbnail.overlay.text_size }}{{ settings.thumbnail.overlay.text_size_unit|replace(['px', '%', 'em']) }}"
+			data-caption-text-size="{{ settings.thumbnail.overlay.text_size }}{{ settings.thumbnail.overlay.text_size_unit|unitReplace(['px', '%', 'em']) }}"
 			data-is-mobile="{{ isMobile|default('0') }}"
 			data-caption-mobile="{{ settings.thumbnail.isMobile|default('false') }}" {# Always show in mobile #}
 			data-hide-long-tltp-title="{{ settings.hideLongTooltipTitles == 'on' ? '1' : '0' }}"
@@ -103,6 +103,7 @@
 				data-polaroid-animation="{{ settings.thumbnail.overlay.polaroidAnimation  | default('true') }}"
 				data-polaroid-scattering="{{ settings.thumbnail.overlay.polaroidScattering | default('true') }}"
 				data-polaroid-frame-width="{{ settings.thumbnail.overlay.polaroidFrameWidth | default(20) }}"
+				data-polaroid-always-show-caption="{{ settings.thumbnail.overlay.polaroidAlwaysShowCaption | default('false') }}"
 				{% if settings.captionBuilder.enabled == '1' %}
 					data-polaroid-caption-height="{{ settings.captionBuilder.title.height | default(50) }}"
 				{% endif %}
@@ -192,7 +193,7 @@
                 {% endif %}
                 "
 			style="
-				width:{{ settings.area.width ~ settings.area.width_unit|replace(['px', '%']) }};
+				width:{{ settings.area.width ~ settings.area.width_unit|unitReplace(['px', '%']) }};
 				height:{{ settings.area.height | default('auto') }}
 					{% if settings.area.height != 'auto' and settings.area.height != null %}px {% endif %};
 				{% if settings.area.position == '1' or settings.area.position == 'left'  %}

@@ -16,7 +16,7 @@ class GridGallery_Promo_Controller extends GridGallery_Core_BaseController
 
   public function showTutorialAction()
   {
-    update_user_meta(get_current_user_id(), 'sgg-tutorial_was_showed', false);
-    return $this->redirect($this->generateUrl('overview'));
+    update_user_meta(get_current_user_id(), 'sgg-detailed-tour-active', true);
+    return $this->redirect($this->generateUrl('galleries', 'showPresets', ['sgg_tutorial_reset' => 1]));
   }
 }

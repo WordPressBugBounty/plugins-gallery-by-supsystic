@@ -10,8 +10,6 @@ class GridGallery_Overview_Module extends RscSgg_Mvc_Module
     $environment = $this->getEnvironment();
     $config = $environment->getConfig();
 
-    $this->registerMenu();
-
     // Client ID
     $config->add('post_id', 637);
     $config->add('post_url', 'http://supsystic.com/news/main.html');
@@ -31,21 +29,5 @@ class GridGallery_Overview_Module extends RscSgg_Mvc_Module
       $ui->asset->enqueue('styles', [$this->getLocationUrl() . '/assets/css/overview-styles.css']);
       $ui->asset->enqueue('scripts', [$this->getLocationUrl() . '/assets/js/overview-settings.js']);
     }
-  }
-
-  public function registerMenu()
-  {
-    $menu = $this->getMenu();
-    $plugin_menu = $this->getConfig()->get('plugin_menu');
-    $capability = $plugin_menu['capability'];
-    $submenu = $menu->createSubmenuItem();
-
-    $submenu->setCapability($capability)->setMenuSlug('supsystic-gallery&module=overview')->setMenuTitle($this->translate('Overview'))->setPageTitle($this->translate('Overview'))->setModuleName('overview');
-    // Avoid conflicts with old vendor version
-    if (method_exists($submenu, 'setSortOrder')) {
-      $submenu->setSortOrder(10);
-    }
-
-    $menu->addSubmenuItem('ovewrview', $submenu);
   }
 }

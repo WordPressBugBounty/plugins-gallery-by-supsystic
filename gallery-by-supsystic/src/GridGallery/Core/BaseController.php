@@ -15,9 +15,11 @@ class GridGallery_Core_BaseController extends RscSgg_Mvc_Controller
   public function __construct(RscSgg_Environment $environment, RscSgg_Http_Request $request)
   {
     parent::__construct($environment, $request);
-    if ($environment->isPluginPage() && !$environment->isModule('license') && !$environment->isModule('promo', 'welcome') && !$environment->getConfig()->get('welcome_page_was_showed')) {
-      return $this->redirect($this->generateUrl('promo', 'welcome'));
-    }
+    // The static "Welcome" landing page (promo/welcome) used to be the very
+    // first thing a fresh install redirected every admin page to. Replaced
+    // by the welcome-tour modal (Promo\Module::tourSlides()), which shows
+    // on the Overview page itself instead of gating every page behind a
+    // separate screen first.
   }
 
   public function response($template, array $data = [])

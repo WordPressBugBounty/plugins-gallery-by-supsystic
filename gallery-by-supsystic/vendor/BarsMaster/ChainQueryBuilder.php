@@ -201,6 +201,28 @@ class BarsMaster_ChainQueryBuilder
     return $val;
   }
 
+  /**
+   * Normalizes a field name for use in an INSERT column list or UPDATE SET
+   * clause, where a `table.field`-qualified name is never valid: strips any
+   * table qualifier and backtick-quotes the bare identifier (idempotently),
+   * so reserved-word column names (e.g. `index`) stay valid too.
+   * @param string $field
+   * @return string
+   */
+  private function _quoteColumnName($field)
+  {
+    $pos = strrpos($field, '.');
+    if (false !== $pos) {
+      $field = substr($field, $pos + 1);
+    }
+
+    if (isset($field[0]) && '`' === $field[0]) {
+      return $field;
+    }
+
+    return '`' . $field . '`';
+  }
+
   public function insertInto($table)
   {
     $this->_setOperation('insert');
@@ -340,7 +362,7 @@ class BarsMaster_ChainQueryBuilder
     $statement[] = 'SET';
     $set = [];
     foreach ($this->_fields as $k => $f) {
-      $set[] = $f . ' = ' . $this->_sanitizeValue($this->_values[$k]);
+      $set[] = $this->_quoteColumnName($f) . ' = ' . $this->_sanitizeValue($this->_values[$k]);
     }
     $statement[] = implode(', ', $set);
   }
@@ -365,7 +387,8 @@ class BarsMaster_ChainQueryBuilder
 
   private function _buildINSERTFields(&$statement)
   {
-    $statement[] = '(' . implode(', ', $this->_fields) . ')';
+    $fields = array_map([$this, '_quoteColumnName'], $this->_fields);
+    $statement[] = '(' . implode(', ', $fields) . ')';
   }
 
   private function _buildINSERTValues(&$statement)

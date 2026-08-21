@@ -377,6 +377,24 @@ Version: 3.1.6
 
       _checkPosition($(pp_images).length); // Hide the next/previous links if on first or last images.
 
+      // pp_attributesWidth is set once at open time from settings.attributesWidth
+      // and everything below (image sizing, container width, centering
+      // margins) reads that fixed value - so when hideAttributesPanelIfEmpty
+      // hides the panel for an item with no Custom Attributes, the image
+      // never reclaims that reserved space. Recompute it per item, before
+      // any of those calculations run for this position.
+      if (settings.isShowAttributes) {
+        if (settings.hideAttributesPanelIfEmpty) {
+          var ppCurrentItemAttrs;
+          try {
+            ppCurrentItemAttrs = JSON.parse($('[href="' + pp_images[set_position] + '"]').attr('data-attributes'));
+          } catch (err) {}
+          pp_attributesWidth = $.isArray(ppCurrentItemAttrs) && ppCurrentItemAttrs.length > 0 ? parseFloat(settings.attributesWidth) : 0;
+        } else {
+          pp_attributesWidth = parseFloat(settings.attributesWidth);
+        }
+      }
+
       $('.pp_loaderIcon').show();
 
       if (settings.deeplinking) setHashtag();

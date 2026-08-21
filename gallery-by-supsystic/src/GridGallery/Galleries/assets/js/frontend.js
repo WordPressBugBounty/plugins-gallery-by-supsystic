@@ -925,21 +925,69 @@
     this.$elements.each(function () {
       var $element = $(this),
         isCaptionBuilderUsed = self.$container.data('caption-buider'),
+        // polaroid centers its icon wrap with flexbox now (see the
+        // [data-grid-gallery-type='polaroid'] .hi-icon-wrap rules in
+        // grid-gallery.galleries.effects.css) instead of this manual
+        // per-icon margin math - applying both would push icons off-center.
+        isPolaroid = $element.data('grid-gallery-type') == 'polaroid',
         $wrapper = $element.find('div.hi-icon-wrap'),
-        $icons = $element.find('a.hi-icon');
+        $icons = $element.find('a.hi-icon'),
+        marginX = $wrapper.data('margin'),
+        iconCount = $icons.length;
 
-      $icons.each(function () {
+      if (!iconCount) {
+        return;
+      }
+
+      // Measured once, before any icon gets a margin - a photo can show more
+      // than one icon at a time (e.g. an external link icon alongside the
+      // popup icon), and for polaroid specifically figcaption is in normal
+      // flow (position: relative, not absolute), so its own height feeds
+      // straight into the card's height:auto. Re-reading $element.height()
+      // inside the loop below (as this used to) means each icon "centers"
+      // itself against a parent the PREVIOUS icon's own margin just made
+      // taller, snowballing into runaway growth with 2+ icons - which is
+      // what was making some cards (and everything positioned after them,
+      // via the masonry packing) taller than their siblings.
+      //
+      // The icon wrap lives inside <figcaption>, so it should center against
+      // figcaption's OWN height, not $element's. For every type but polaroid
+      // figcaption is an absolutely-positioned overlay the size of the photo,
+      // so this is normally the same number as $element.height() - no change
+      // there. For polaroid, figcaption is a separate, much shorter strip
+      // below the photo (normal flow, not an overlay), so using the whole
+      // card's height instead (as this used to) way overshoots the strip's
+      // actual height and pushes icons toward its bottom edge/off it entirely.
+      // A figure sits display:none until Wookmark (or, for a paginated
+      // gallery, page navigation) reveals it - $figcaption.height() and
+      // $icons.first().height() both read 0 for a hidden subtree, which
+      // baked a wrong, height-independent margin-top into every icon on
+      // every not-yet-shown page as soon as this ran once at gallery init.
+      // That inline value then never got recomputed once the page was
+      // actually navigated to, permanently overriding the CSS 33.33% rule
+      // with the wrong number. Skipping margin-top here for a still-hidden
+      // figure leaves that CSS rule in charge - it centers correctly on its
+      // own once the figure is visible - for exactly the single-icon case
+      // this was silently breaking; showCurrentPage() also now re-runs this
+      // function after revealing a new page, which additionally restores
+      // the multi-icon stacking math this skip leaves out in the meantime.
+      var $figcaption = $element.find('figcaption'),
+        isHidden = $element.is(':hidden'),
+        elementHeight = $figcaption.length ? $figcaption.height() : $element.height(),
+        iconHeight = $icons.first().height(),
+        groupHeight = iconCount * iconHeight,
+        startMarginTop = Math.abs(elementHeight / 2 - groupHeight / 2 - 10);
+
+      $icons.each(function (index) {
         var $icon = $(this),
-          marginData = {},
-          marginY = $element.height() / 2 - $icon.height() / 2 - 10,
-          marginX = $wrapper.data('margin');
+          marginData = {};
 
-        if (marginX && !isCaptionBuilderUsed) {
+        if (marginX && !isCaptionBuilderUsed && !isPolaroid) {
           marginData['margin-left'] = marginX;
           marginData['margin-right'] = marginX;
         }
-        if (marginY && !isCaptionBuilderUsed) {
-          marginData['margin-top'] = Math.abs(marginY);
+        if (elementHeight && !isCaptionBuilderUsed && !isPolaroid && !isHidden) {
+          marginData['margin-top'] = startMarginTop + index * iconHeight;
         }
         $icon.css(marginData);
       });
@@ -1130,9 +1178,13 @@
 
     if ($captions.is('.shadow-show')) {
       $captions.css('box-shadow', 'none');
-      $captions.off('hover').on('hover', showOver);
+      // 'hover' is not a real DOM event - jQuery only ever treated it as an
+      // alias when passed to .bind()/.on(), and that alias was removed in
+      // jQuery 1.9. With the 3.7.1 bundled here it just registers a listener
+      // for an event that never fires, so showOver/hideOver never ran.
+      $captions.off('mouseenter.mouseShadow mouseleave.mouseShadow').on('mouseenter.mouseShadow mouseleave.mouseShadow', showOver);
     } else if ($captions.is('.shadow-hide')) {
-      $captions.off('hover').on('hover', hideOver);
+      $captions.off('mouseenter.mouseShadow mouseleave.mouseShadow').on('mouseenter.mouseShadow mouseleave.mouseShadow', hideOver);
     }
   };
 
@@ -1512,10 +1564,31 @@
       frameWidth = parseInt(this.$container.data('polaroid-frame-width'), 10) || 20,
       captionHeight = this.$container.data('polaroid-caption-height'),
       clearHeight = captionHeight ? parseInt(captionHeight.toString().match(/\d.?\d*.?\d*/)[0]) : 0,
-      overlayColor = $el.find('figcaption').css('backgroundColor'),
-      alpha = parseInt($el.find('figcaption').data('alpha')),
+      // When icons are enabled, the user's chosen caption background color
+      // ends up on the sibling .caption-with-icons div (see helpers.twig's
+      // figcaption_after block), not on <figcaption> itself, which is left
+      // transparent in that case. Reading it off <figcaption> unconditionally
+      // makes overlayColor resolve to transparent black, and
+      // generateOverlayCaptionColor() below then stamps a fresh opaque-ish
+      // alpha onto that black RGB, making the whole polaroid frame look
+      // solid black regardless of the real configured color.
+      $colorSource = $el.find('.caption-with-icons').length ? $el.find('.caption-with-icons') : $el.find('figcaption'),
+      overlayColor = $colorSource.css('backgroundColor'),
+      alpha = parseInt($colorSource.data('alpha')),
       $figcaption = $el.find('figcaption'),
       scaleRatio = $img.width() / $img.height();
+
+    // Neither color source has a real background in every combination of
+    // settings (e.g. icons enabled, this photo has no caption text and
+    // "Hide image title" is on, so .caption-with-icons never even renders) -
+    // overlayColor then comes back fully transparent ("rgba(0, 0, 0, 0)"),
+    // and generateOverlayCaptionColor() below only replaces the alpha
+    // channel, so transparent black becomes solid-looking black instead of
+    // falling through to any sensible color.
+    if (/rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*0\s*\)/.test(overlayColor) || overlayColor === 'transparent') {
+      overlayColor = '#ededed';
+    }
+
     if (gridType == 2) {
       var imageHeight = $img.height() - frameWidth * 2,
         imageWidth = imageHeight * scaleRatio;
@@ -1575,6 +1648,67 @@
 
     if ($figcaption.find('.grid-gallery-figcaption-wrap').text().length === 0) {
       $figcaption.find('.grid-gallery-figcaption-wrap').append('<span></span>');
+    }
+
+    // Icons sit on the photo itself for polaroid (see the [data-grid-gallery-
+    // type='polaroid'] .hi-icon-wrap rules in grid-gallery.galleries.effects.css
+    // for the hover-fade/centering) rather than in the always-visible caption
+    // strip. Positioned against .grid-gallery-figcaption-wrap - its actual
+    // CSS containing block (nearest position:relative ancestor - NOT
+    // <figcaption>, which is one level further out) - measured via
+    // getBoundingClientRect since that div collapses to 0 height once icons
+    // are pulled out of flow here, so there's no reliable CSS-only anchor
+    // (e.g. bottom:100%) to size/position against.
+    var $iconWrap = $el.find('.hi-icon-wrap'),
+      $iconWrapParent = $el.find('.grid-gallery-figcaption-wrap');
+    if ($iconWrap.length && $iconWrapParent.length) {
+      var imgRect = $img[0].getBoundingClientRect(),
+        parentRect = $iconWrapParent[0].getBoundingClientRect();
+      $iconWrap.css({
+        top: imgRect.top - parentRect.top + 'px',
+        height: imgRect.height + 'px',
+      });
+    }
+
+    // .caption-with-icons (the fallback title/caption text shown alongside
+    // icons - see helpers.twig's figcaption_after block) has a hardcoded
+    // height:35% (of the whole figure) in grid-gallery.galleries.frontend.css,
+    // !important. For every other effect type figcaption IS the whole
+    // figure, so that's a reasonable caption-strip proportion - but for
+    // polaroid the figure is photo + a separate, much shorter figcaption
+    // strip below it, so 35% of the *combined* height overshoots the real
+    // strip and rides up onto the photo. First cut just matched
+    // <figcaption>'s own height, but that's a fixed number unrelated to
+    // this text's actual padding+line-height - too short for its own
+    // content overflowed past the box (with overflow:visible) instead of
+    // sliding fully into view. height:auto - fit to content - and read its
+    // OWN resulting natural height back for the hidden-state offset instead.
+    var $captionWithIcons = $el.find('.caption-with-icons');
+    if ($captionWithIcons.length) {
+      $captionWithIcons[0].style.setProperty('height', 'auto', 'important');
+      var chHeight = $captionWithIcons.outerHeight(),
+        chAlwaysShow = this.$container.data('polaroid-always-show-caption') == true;
+      if (chAlwaysShow) {
+        // Pinned resting position should sit centered on the actual
+        // <figcaption> strip, not flush against the whole figure's bottom
+        // edge (bottom:0) - the two only coincide when this box's own
+        // (content-fit) height happens to match the strip's, which isn't
+        // guaranteed. Centering here uses top (not bottom), computed from
+        // <figcaption>'s own real position, since .caption-with-icons'
+        // containing block is the whole figure, not <figcaption> itself.
+        var figcaptionRect = $figcaption[0].getBoundingClientRect(),
+          figureRect = $el[0].getBoundingClientRect(),
+          figcaptionCenterY = figcaptionRect.top + figcaptionRect.height / 2,
+          cwiTop = figcaptionCenterY - chHeight / 2 - figureRect.top;
+        $captionWithIcons[0].style.setProperty('top', cwiTop + 'px', 'important');
+        $captionWithIcons[0].style.setProperty('bottom', 'auto', 'important');
+      } else {
+        // Hidden until hover: tucked exactly one (content-fit) height below
+        // the figure, sliding up via the existing transform:translateY(-100%)
+        // on hover (relative to this element's own height, so it still lands
+        // correctly regardless of what that height actually is).
+        $captionWithIcons[0].style.setProperty('bottom', -chHeight + 'px', 'important');
+      }
     }
 
     if (this.$container.data('polaroid-animation')) {

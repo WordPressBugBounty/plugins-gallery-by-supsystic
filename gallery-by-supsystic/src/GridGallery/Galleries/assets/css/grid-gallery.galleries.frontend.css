@@ -1,7 +1,7 @@
 /* Container */
 .grid-gallery {
   margin: 10px auto;
-  z-index: 0;
+  z-index: 1;
 }
 
 /* Remove normalize.css or/and theme styles from figure */
@@ -691,6 +691,9 @@
   align-items: center;
   text-decoration: none;
   font-family: 'Font Awesome 6 Brands';
+}
+a.supSocialIcon  {
+  text-decoration:none !important;
 }
 a.supSocialIcon:hover {
   opacity: 1 !important;

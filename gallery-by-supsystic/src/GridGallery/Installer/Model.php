@@ -101,8 +101,40 @@ class GridGallery_Installer_Model extends GridGallery_Core_BaseModel
     if ($parts[0] == 'altercolumn') {
       $existsColumn = $this->db->get_results('Show columns from `' . str_replace('{prefix}', $this->db->prefix, $parts[2]) . '` like \'' . $parts[1] . '\'');
       if (!$this->db->last_error && (!isset($existsColumn) || !is_array($existsColumn) || sizeof($existsColumn) == 0)) {
-        $this->db->query($query);
+        $this->safeQuery($query);
       }
+    }
+  }
+
+  /**
+   * One-time backfill for galleries whose stored settings blob has no
+   * icons.enabled key at all (as opposed to an explicit 'true'/'false'
+   * string) - this used to make PHP's loose `== 'true'` / `== 'false'`
+   * comparisons in helpers.twig fail on BOTH branches at once, leaving a
+   * gallery with no clickable link on its photos. Templates now default a
+   * missing key to 'false' at render time, but existing rows stay
+   * inconsistent in the DB until the gallery is resaved by hand - this
+   * makes that default explicit right away instead of waiting for that.
+   */
+  public function backfillIconsEnabledDefault()
+  {
+    $table = $this->prefix('{prefix}gg_settings_sets');
+    $rows = $this->db->get_results("SELECT id, data FROM `{$table}`");
+
+    if (!is_array($rows)) {
+      return;
+    }
+
+    foreach ($rows as $row) {
+      $data = @unserialize($row->data, ['allowed_classes' => false]);
+
+      if (!is_array($data) || isset($data['icons']['enabled'])) {
+        continue;
+      }
+
+      $data['icons']['enabled'] = 'false';
+
+      $this->db->update($table, ['data' => serialize($data)], ['id' => $row->id], ['%s'], ['%d']);
     }
   }
 
@@ -111,7 +143,7 @@ class GridGallery_Installer_Model extends GridGallery_Core_BaseModel
     $importantTable = [$this->prefix('{prefix}gg_photos'), $this->prefix('{prefix}gg_galleries_resources'), $this->prefix('{prefix}gg_settings_sets'), $this->prefix('{prefix}gg_galleries'), $this->prefix('{prefix}gg_tags'), $this->prefix('{prefix}gg_attributes')];
     if (!in_array($this->prefix($table), $importantTable)) {
       $query = 'DROP TABLE IF EXISTS ' . $this->prefix($table);
-      $this->db->query($query);
+      $this->safeQuery($query);
     }
   }
 }

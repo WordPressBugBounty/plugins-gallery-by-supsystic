@@ -1,0 +1,119 @@
+{#
+    Shared tile-grid renderer for the Images List page. Rendered both by
+    view.twig's first paint ({% include %}) and by
+    GridGallery_Galleries_Controller::photosDataAction (AJAX re-fetch on
+    page/sort/search change), so both stay in sync from one template.
+
+    Each tile carries only data-* attributes (no per-tile forms/panels) -
+    clicking a flyout option reads the tile's data-entity-info JSON and
+    opens one of the shared, page-level dialogs defined in view.twig.
+#}
+{% macro tile(image) %}
+    {% set src = image.attachment.sizes.thumbnail is empty ? image.attachment.sizes.full.url : image.attachment.sizes.thumbnail.url %}
+    <li class="gg-tile" data-entity data-entity-id="{{ image.id }}" data-entity-type="photo"
+        data-attachment-id="{{ image.attachment.id }}" data-position="{{ image.position }}"
+        data-entity-info="{{ image|json_encode|e }}">
+        <div class="gg-tile-inner">
+            <a data-colorbox href="{{ image.attachment.sizes.full.url }}" class="gg-tile-thumb-link" rel="grid-gallery-tiles">
+                <img class="gg-tile-thumb supsystic-lazy" data-original="{{ src }}" alt="{{ image.attachment.title }}">
+            </a>
+
+            <div class="gg-tile-caption">
+                <label class="gg-tile-check" title="{{ translate('Select %s')|format(image.attachment.title) }}">
+                    <input type="checkbox" name="image[]" id="cb-select-{{ image.id }}" value="{{ image.id }}" data-observable>
+                </label>
+                <span class="gg-tile-caption-text" title="{{ image.attachment.filename }}">{{ image.attachment.filename }}</span>
+            </div>
+
+            <div class="gg-tile-flyout">
+                <div class="gg-tile-flyout-scroll">
+                    {{ _self.tile_options(image) }}
+                </div>
+            </div>
+        </div>
+    </li>
+{% endmacro %}
+
+{% macro pro_option(icon, label, dataOption, utmMedium, desc) %}
+    <button type="button" class="gg-tile-option gg-pro-read-more"
+            data-gg-pro-title="{{ label|striptags }}"
+            data-gg-pro-desc="{{ '<p>' ~ desc ~ '</p><p><a class="button button-primary" target="_blank" href="' ~ getProUrl('?utm_source=plugin&utm_medium=' ~ utmMedium ~ '&utm_campaign=gallery') ~ '">' ~ translate('Get PRO') ~ '</a></p>' }}">
+        <i class="{{ 'fa ' ~ icon }}" aria-hidden="true"></i><span>{{ label }}</span>
+        <span class="gg-tile-pro-badge">{{ translate('PRO') }}</span>
+    </button>
+{% endmacro %}
+
+{% macro option(icon, label, dataOption, extraAttrs) %}
+    <button type="button" class="gg-tile-option" data-gg-option="{{ dataOption }}"{{ (extraAttrs is not empty ? ' ' ~ extraAttrs : '')|raw }}>
+        <i class="{{ 'fa ' ~ icon }}" aria-hidden="true"></i><span>{{ label }}</span>
+    </button>
+{% endmacro %}
+
+{% macro tile_options(image) %}
+    {% import _self as t %}
+
+    {{ t.option('fa-comment', translate('Caption'), 'caption') }}
+    {{ t.option('fa-tags', translate('SEO Alt / Title'), 'seo') }}
+    {{ t.option('fa-chain', translate('Link'), 'link') }}
+    {{ t.option('fa-magic', translate('Choose effect'), 'effect') }}
+
+    {% if environment.isPro() %}
+        {# Pro's Toast UI image editor binds its own delegated document-level
+           click handler on .edit-image (photos.js) - hook straight into it
+           instead of routing through the data-gg-option dispatch. #}
+        <button type="button" class="gg-tile-option edit-image" data-image-id="{{ image.id }}" data-attachment-id="{{ image.attachment.id }}">
+            <i class="fa fa-pencil-square" aria-hidden="true"></i><span>{{ translate('Edit image') }}</span>
+        </button>
+    {% else %}
+        {{ t.pro_option('fa-pencil-square', translate('Edit image'), 'edit', 'image_edit', translate('Edit the image directly - crop, filters and drawing tools - without leaving the gallery.')) }}
+    {% endif %}
+
+    {% if environment.isPro() %}
+        {{ t.option('fa-list-alt', translate('Attributes'), 'attributes', 'data-values="' ~ (image.attributes|default([])|json_encode|e) ~ '"') }}
+    {% else %}
+        {{ t.pro_option('fa-list-alt', translate('Attributes'), 'attributes', 'images_caption_attributes', translate('Add custom filterable attributes (color, size, material...) to each image.')) }}
+    {% endif %}
+
+    {% if environment.isPro() %}
+        {{ t.option('fa-link', translate('Linked Images'), 'linked') }}
+    {% else %}
+        {{ t.pro_option('fa-link', translate('Linked Images'), 'linked', 'linked_images', translate('Show a group of related images together when this thumbnail is clicked.')) }}
+    {% endif %}
+
+    {% if environment.isPro() %}
+        {{ t.option('fa-image', translate('Image on Hover'), 'hover') }}
+    {% else %}
+        {{ t.pro_option('fa-image', translate('Image on Hover'), 'hover', 'hover_caption_image_bg', translate('Show a second image when a visitor hovers over this thumbnail.')) }}
+    {% endif %}
+
+    {% if environment.isPro() %}
+        {{ t.option('fa-folder', translate('Categories'), 'categories') }}
+    {% else %}
+        {{ t.pro_option('fa-folder', translate('Categories'), 'categories', 'imagescategories', translate('Group images into categories your visitors can filter by.')) }}
+    {% endif %}
+
+    {% if environment.isPro() %}
+        {{ t.option('fa-video-camera', translate('Video'), 'video') }}
+    {% else %}
+        {{ t.pro_option('fa-video-camera', translate('Video'), 'video', 'video', translate('Open a YouTube or Vimeo video in the popup instead of the image.')) }}
+    {% endif %}
+
+    {{ t.option('fa-copy', translate('Copy to'), 'copy') }}
+    {{ t.option('fa-arrows', translate('Move to'), 'move') }}
+    {{ t.option('fa-repeat', translate('Rotate'), 'rotate') }}
+    {{ t.option('fa-crop', translate('Crop'), 'crop') }}
+    {{ t.option('fa-info-circle', translate('Meta'), 'meta') }}
+    {{ t.option('fa-refresh', translate('Replace'), 'replace') }}
+
+    <button type="button" class="gg-tile-option gg-tile-option-delete" data-gg-option="delete">
+        <i class="fa fa-trash" aria-hidden="true"></i><span>{{ translate('Delete') }}</span>
+    </button>
+{% endmacro %}
+
+<ul class="gg-tile-grid-list">
+    {% for image in photos %}
+        {{ _self.tile(image) }}
+    {% else %}
+        <li class="gg-tile-grid-empty">{{ translate('Currently this gallery has no images') }}</li>
+    {% endfor %}
+</ul>

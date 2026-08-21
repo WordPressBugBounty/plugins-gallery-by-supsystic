@@ -43,7 +43,7 @@ return [
         'sgg',
       ) . '<a target=\'_blank\' href=\'https://supsystic.com/documentation/gallery-by-link-in-popup/\'>https://supsystic.com/documentation/gallery-by-link-in-popup/</a>',
     'social-buttons-project' => __('Select Social Share Buttons project', 'sgg'),
-    'social-sharing' => __('In order to use this option you need to additionally install Social Share Buttons plugin by Supsystic. ', 'sgg') . '<a target=\'_blank\' href=\'https://supsystic.com/documentation/social-sharing/\'>https://supsystic.com/documentation/social-sharing/</a>',
+    'social-sharing' => __('Add social share buttons for all popular social networks, with a range of visual styles - colors, shapes, and sizes - to match your site.', 'sgg'),
     'gallery-social-sharing' => __('Enable social share buttons on gallery page', 'sgg'),
     'image-social-sharing' => __('Enable social share buttons on images', 'sgg'),
     'popup-social-sharing' => __('Enable  social share buttons in popup images', 'sgg'),
@@ -87,20 +87,29 @@ return [
     'video.size' => __('Set video size in pop-up box (width x height)', 'sgg'),
     'video.autoplay' => __('If this option is enabled, video playback starts automatically as soon as pop-up box appears.', 'sgg'),
     'video.onEnd' => __('Here you can select, what happens when a video is over.', 'sgg'),
-    'customAttributes' => __('Enable and customize custom attributes for filtering and searching.', 'sgg') . ' <a target=\'_blank\' href=\'https://supsystic.com/documentation/custom-attributes-filtering-and-searching/\'>read more</a>',
+    'customAttributes' => __('Enable and customize custom attributes for filtering and searching.', 'sgg') . ' <a target=\'_blank\' href=\'https://supsystic.com/documentation/custom-attributes-filtering-and-searching/\'>read more</a>' .
+      '<img style=\'width:99%;display:block;margin-top:8px;\' src=@url/attributes-01.webp />' .
+      '<img style=\'width:99%;display:block;margin-top:8px;\' src=@url/attributes-02.webp />' .
+      '<img style=\'width:99%;display:block;margin-top:8px;\' src=@url/attributes-03.webp />' .
+      '<img style=\'width:99%;display:block;margin-top:8px;\' src=@url/attributes-04.webp />' .
+      '<img style=\'width:99%;display:block;margin-top:8px;\' src=@url/attributes-05.webp />',
     'additionalCaptionSettingInPro' =>
       __('This option allows you to enable different animated effects for your gallery image thumbnails. The thumbnails will transform when the mouse cursor is over them. Note this option conflicts with some effects (see the list)', 'sgg') .
       ' <a target=\'_blank\' href=\'https://supsystic.com/documentation/thumbnail-transformations/\'>https://supsystic.com/documentation/thumbnail-transformations/</a>',
     'caption-settings-type-pro' =>
       __('Caption builder enables a wide range of options and detailed caption settings. Note: you will not be able to display descriptions of your images if Caption builder will be disabled. ', 'sgg') .
-      ' <a target=\'_blank\' href=\'https://supsystic.com/blog/caption-builder-of-photo-gallery/\'>https://supsystic.com/blog/caption-builder-of-photo-gallery/</a>',
+      ' <a target=\'_blank\' href=\'https://supsystic.com/documentation/caption-builder/\'>https://supsystic.com/documentation/caption-builder/</a>' .
+      '<img style=\'width:99%;display:block;margin-top:8px;\' src=@url/caption-icons.webp />',
     'overlay-effect-image-on-hover-enable' =>
       __(
         'If this effect is enabled, the other image will be shown on the place of the current one, when a mouse cursor is over it. The other image could be selected in the option below (\'Select Image on hover\') and will be shown for all images in this gallery. In case you want to show different pictures, upload them for each image separately on Images List section (\'Hover Caption Image\' tab). Please note, that \'Personal Captions\' option should be enabled',
         'sgg',
       ) . ' <a target=\'_blank\' href=\'https://supsystic.com/example/two-side-images-gallery/\'>https://supsystic.com/example/two-side-images-gallery/</a>',
-    'showExifDataPro' => __('This option helps you display image metadata from Exchangeable Image File Format to give your gallery more professional details.', 'sgg') . ' <a target=\'_blank\' href=\'https://supsystic.com/example/exif-meta-data/\'>https://supsystic.com/example/exif-meta-data/</a>',
-    'chooseIconPro' => __('Choose an icon to indicate that the gallery is loading.', 'sgg') . '</br><img style=\'max-width:200px\' src=@cdn_url_assets/gallery/img/settings/loader.gif />',
+    'showExifDataPro' => __('This option helps you display image metadata from Exchangeable Image File Format to give your gallery more professional details.', 'sgg') . ' <a target=\'_blank\' href=\'https://supsystic.com/example/exif-meta-data/\'>https://supsystic.com/example/exif-meta-data/</a>' .
+      '<img style=\'width:99%;display:block;margin-top:8px;\' src=@url/exif-01.webp />' .
+      '<img style=\'width:99%;display:block;margin-top:8px;\' src=@url/exif-02.webp />' .
+      '<img style=\'width:99%;display:block;margin-top:8px;\' src=@url/exif-03.webp />',
+    'chooseIconPro' => __('Choose an icon to indicate that the gallery is loading.', 'sgg') . '</br><img style=\'max-width:200px\' src=@url/load_more_icons.gif />', 
     'categoriesPro' =>
       __('This option allows you to arrange your gallery images by categories. It may be useful for galleries with a great number of images.', 'sgg') .
       ' <a target=\'_blank\' href=\'https://supsystic.com/example/categories-gallery-example/\'>https://supsystic.com/example/categories-gallery-example/</a>',
@@ -121,7 +130,8 @@ return [
     'preload' => __('This option enables animated loader to indicate, that images are loading. ', 'sgg') . '<a target=\'_blank\' href=\'https://supsystic.com/documentation/gallery-loader/\'>https://supsystic.com/documentation/gallery-loader/</a>',
     // caption and icons
     'sgg-ci-caption-enable' =>
-      __('If this option is enabled, captions are displayed when mouse cursor is over the thumbnail. You may also find detailed caption settings below. ', 'sgg') . '<a target=\'_blank\' href=\'https://supsystic.com/documentation/captions/\'>https://supsystic.com/documentation/captions/</a>',
+      __('If this option is enabled, captions are displayed when mouse cursor is over the thumbnail. You may also find detailed caption settings below. ', 'sgg') . '<a target=\'_blank\' href=\'https://supsystic.com/documentation/captions/\'>https://supsystic.com/documentation/captions/</a>' .
+      '<img style=\'width:99%;display:block;margin-top:8px;\' src=@url/caption-icons.webp />',
     'chooseEffect' => __('Choose your captions visual effect. If you are going to enable icons, you need to choose effects with icons. ', 'sgg'),
     'polaroid-effect' =>
       __('If this option is enabled, your gallery image thumbnails will be displayed in Polaroid style frames. Images will be cropped to a square shape. Captions will apperar below the thumbnails when hovering mouse over it. ', 'sgg') .
@@ -129,6 +139,7 @@ return [
     'polaroid-animation' => __('If this option is enabled, your polaroid image thumbnails move when mouse cursor is over them. ', 'sgg') . '<a target=\'_blank\' href=\'https://supsystic.com/documentation/polaroid-gallery/\'>https://supsystic.com/documentation/polaroid-gallery/</a>',
     'polaroid-scattering' => __('Choose this option to make your polaroid image thumbnails scatter in a random way. ', 'sgg') . '<a target=\'_blank\' href=\'https://supsystic.com/documentation/polaroid-gallery/\'>https://supsystic.com/documentation/polaroid-gallery/</a>',
     'polaroid-frame-width' => __('Set polaroid frame padding in pixels. Note: increasing this parameter may make your thumbnail images smaller. ', 'sgg') . '<a target=\'_blank\' href=\'https://supsystic.com/documentation/polaroid-gallery/\'>https://supsystic.com/documentation/polaroid-gallery/</a>',
+    'polaroid-always-show-caption' => __('By default, a caption only appears on a polaroid thumbnail when the mouse is over it. Enable this option to always show the caption instead.', 'sgg'),
     'overlay-background' => __('Choose your caption background color.', 'sgg'),
     'overlay-foreground' => __('Choose your caption text color.', 'sgg'),
     'overlay-transparency' => __('Choose your caption background transparency.', 'sgg'),
@@ -138,7 +149,8 @@ return [
     'font-family' => __('Choose font family for your caption text.', 'sgg'),
     'tooltip' => __('If this option is enabled, image title will not appear when mouse cursor is over the image.', 'sgg'),
     'ismobile' => __('When this option is enabled, caption will be always visible when gallery is displayed on mobile devices.', 'sgg'),
-    'photo-icon' => __('If this option is enabled, icons are displayed when mouse cursor is over the thumbnail. Icons make your gallery interactive and allow your site visitors to take different actions with thumbnails. ', 'sgg') . '</br><img src=@url/icons.jpg />',
+    'photo-icon' => __('If this option is enabled, icons are displayed when mouse cursor is over the thumbnail. Icons make your gallery interactive and allow your site visitors to take different actions with thumbnails. ', 'sgg') . '</br><img src=@url/icons.jpg />' .
+      '<img style=\'width:99%;display:block;margin-top:8px;\' src=@url/caption-icons.webp />',
     'ci-icons-animation-effects' => __('Here you may choose the animation effects for your icon symbols. Chosen effect will be the same for all the icons.', 'sgg'),
     'ci-icons-color' => __('Choose the color for your icon symbols.', 'sgg'),
     'ci-icons-hover-color' => __('Choose the color for your icon symbols while hovering over them.', 'sgg'),

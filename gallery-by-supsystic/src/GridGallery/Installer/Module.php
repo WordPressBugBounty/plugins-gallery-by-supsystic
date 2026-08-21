@@ -41,7 +41,7 @@ class GridGallery_Installer_Module extends GridGallery_Core_Module
         return;
       }
 
-      self::executeUpdate($currentVersion);
+      self::executeUpdate($currentVersion, $lastVersion);
     }
 
     if ($config->get('is_pro')) {
@@ -54,7 +54,7 @@ class GridGallery_Installer_Module extends GridGallery_Core_Module
     }
   }
 
-  protected static function executeUpdate($currentVersion)
+  protected static function executeUpdate($currentVersion, $previousVersion = false)
   {
     $model = self::getModel();
     $queries = self::getQueries();
@@ -65,12 +65,28 @@ class GridGallery_Installer_Module extends GridGallery_Core_Module
       foreach ($blog_id as $id) {
         if (switch_to_blog($id)) {
           $model->update($queries);
+          self::maybeBackfillIconsEnabled($model, $previousVersion);
           update_option(self::LAST_VERSION, $currentVersion);
           restore_current_blog();
         }
       }
     } else {
       $model->update($queries);
+      self::maybeBackfillIconsEnabled($model, $previousVersion);
+    }
+  }
+
+  /**
+   * One-shot: only runs while upgrading from a version older than 1.19.0,
+   * the release that introduced GridGallery_Installer_Model::
+   * backfillIconsEnabledDefault(). $previousVersion is false on a brand
+   * new install (nothing to backfill yet) and is captured before onInit()
+   * overwrites the stored LAST_VERSION option with $currentVersion.
+   */
+  private static function maybeBackfillIconsEnabled($model, $previousVersion)
+  {
+    if ($previousVersion !== false && version_compare($previousVersion, '1.19.0', '<')) {
+      $model->backfillIconsEnabledDefault();
     }
   }
 

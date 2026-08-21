@@ -47,6 +47,14 @@ a.post .grid-gallery-caption {
 
 .ggLazyImg {
   width: 150px !important;
+  /* The placeholder <img> keeps the crop's real width/height inline (so
+  masonry layout math reading its box size isn't disrupted) - without this,
+  the small loading.gif's actual picture gets stretched to fill that full
+  box instead of showing at its own size. object-fit:none keeps the box
+  as-is but renders the gif's content at its natural size, object-position
+  centers it within that box instead of anchoring to a corner. */
+  object-fit: none;
+  object-position: center;
 }
 
 .grid-gallery-caption figcaption {
@@ -1971,9 +1979,15 @@ a.post .grid-gallery-caption {
   position: relative;
 }
 
+/* z-index:3 (not the original 1) - figcaption's own z-index + position make
+it a stacking context, so .hi-icon-wrap's z-index:4 further below only
+matters *within* figcaption's own context; figcaption itself still had to
+out-rank .crop/img (z-index:2) as a whole for the icon overlay inside it
+(absolutely positioned up over the photo - see .hi-icon-wrap below) to
+actually render in front of the photo instead of invisibly behind it. */
 .grid-gallery-caption[data-grid-gallery-type='polaroid'] figcaption {
   position: relative;
-  z-index: 1;
+  z-index: 3;
 }
 
 .grid-gallery-caption[data-grid-gallery-type='polaroid'] img {
@@ -1983,6 +1997,74 @@ a.post .grid-gallery-caption {
 
 .grid-gallery-caption[data-grid-gallery-type='polaroid'] figcaption .grid-gallery-figcaption-wrap {
   position: relative;
+}
+
+/* .crop/img above sit at z-index:2 (see above); .caption-with-icons has no
+z-index of its own, so on the default stacking order it renders BEHIND the
+photo and its hover slide-up reveal is invisible even though it does happen. */
+.grid-gallery-caption[data-grid-gallery-type='polaroid'] .caption-with-icons {
+  z-index: 3;
+}
+
+/* Icons used to just sit in normal flow inside figcaption - for polaroid
+that's the always-visible strip below the photo (not a hover-revealed
+overlay like every other effect type gets), so they read as permanently
+"stuck" next to the title instead of appearing on hover. Lifted them out
+onto the photo itself instead: absolutely positioned (top/height set per-photo
+in polaroidCaptionCalculate(), frontend.js, since the photo's pixel height
+varies), centered via flex, hidden until the figure is hovered. z-index above
+.crop/img (2) so it isn't covered by the photo; pointer-events toggles so the
+invisible icons don't block clicks on the photo underneath while hidden. This
+also means icons no longer visually overlap .caption-with-icons (the "Always
+Show Caption" pinned text strip below), so the z-index:4 that used to be
+needed to keep them above it isn't relevant anymore. */
+.grid-gallery-caption[data-grid-gallery-type='polaroid'] .hi-icon-wrap {
+  /* Its containing block for position:absolute is .grid-gallery-figcaption-wrap
+  (the immediate parent, also position:relative), NOT <figcaption> - and that
+  div collapses to 0 height once icons are taken out of flow here, centered
+  on nothing in particular by the table-cell layout around it. top/height are
+  set in JS (polaroidCaptionCalculate(), frontend.js) measured against that
+  same element, since a CSS-only percentage (e.g. bottom:100%) resolves
+  against that 0-height box and does nothing useful. */
+  position: absolute;
+  left: 0;
+  width: 100%;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+/* .hi-icon's own base rule (icons-effects.css) gives it margin-top:33.33% to
+roughly center it in the old normal-flow layout - the flex container above
+does that centering now, so that margin would just push icons off-center
+here. setIconsPosition() (frontend.js) also skips its own manual
+margin-top/margin-left/margin-right for polaroid for the same reason. */
+.grid-gallery-caption[data-grid-gallery-type='polaroid'] .hi-icon {
+  margin-top: 0;
+}
+
+.grid-gallery-caption[data-grid-gallery-type='polaroid']:hover .hi-icon-wrap,
+.grid-gallery-caption[data-grid-gallery-type='polaroid'].hovered .hi-icon-wrap {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* By default (icons enabled) the caption sits in .caption-with-icons, which
+grid-gallery.galleries.frontend.css already keeps hidden below the frame
+(bottom:-35%, opacity:0) and slides up on figure:hover - that's the existing
+"reveal on hover" behaviour for every caption type, polaroid included. This
+"Always Show Caption" option (thumbnail[overlay][polaroidAlwaysShowCaption])
+opts polaroid out of that and pins it visible in its resting position. */
+.grid-gallery[data-polaroid-always-show-caption='true'] .grid-gallery-caption[data-grid-gallery-type='polaroid'] .caption-with-icons {
+  opacity: 1 !important;
+  bottom: 0 !important;
+  -webkit-transform: none !important;
+  -ms-transform: none !important;
+  transform: none !important;
 }
 
 /* @media (max-width:1024px) {

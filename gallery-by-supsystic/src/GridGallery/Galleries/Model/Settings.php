@@ -42,7 +42,7 @@ class GridGallery_Galleries_Model_Settings extends GridGallery_Core_BaseModel
   {
     $config->load('@galleries/categories_presets.php');
     $presets = $config->get('categories_presets');
-    $preset_number = isset($data['categories']) ? $data['categories']['preset'] : null;
+    $preset_number = isset($data['categories']) ? $data['categories']['preset'] : '';
     $customPresets = get_option('customCatsPresets');
 
     $index1 = (int) $preset_number - sizeof($presets);
@@ -61,7 +61,7 @@ class GridGallery_Galleries_Model_Settings extends GridGallery_Core_BaseModel
   {
     $config->load('@galleries/pagination_presets.php');
     $presets = $config->get('pagination_presets');
-    $preset_number = isset($data['pagination']) ? $data['pagination']['preset'] : null;
+    $preset_number = isset($data['pagination']) ? $data['pagination']['preset'] : '';
     $customPresets = get_option('customPagesPresets');
 
     $index1 = (int) $preset_number - sizeof($presets);
@@ -244,7 +244,17 @@ class GridGallery_Galleries_Model_Settings extends GridGallery_Core_BaseModel
       foreach (get_option('post_to_render' . $gallery_id) as $id) {
         $row = [];
         $post = get_post($id);
-        $row['author'] = get_user_by('id', $post->post_author)->user_login;
+        if (!$post) {
+          // Post was deleted after being added to this gallery's list -
+          // nothing to render for it, skip rather than dereference null.
+          continue;
+        }
+        $authorObj = get_user_by('id', $post->post_author);
+        // get_user_by() returns false for a deleted author - ->user_login on
+        // false previously evaluated to null (with a notice); null is what
+        // this line always produced in that case, so that's what it keeps
+        // producing, just without the notice.
+        $row['author'] = $authorObj ? $authorObj->user_login : null;
         $row['authorUrl'] = get_author_posts_url(get_the_author_meta($post->post_author), $row['author']);
         $row['title'] = $post->post_title;
         $row['content'] = strip_tags($post->post_content);
@@ -267,7 +277,15 @@ class GridGallery_Galleries_Model_Settings extends GridGallery_Core_BaseModel
       foreach (get_option('pages_to_render' . $gallery_id) as $id) {
         $row = [];
         $page = get_post($id);
-        $row['author'] = get_user_by('id', $page->post_author)->user_login;
+        if (!$page) {
+          // Page was deleted after being added to this gallery's list -
+          // nothing to render for it, skip rather than dereference null.
+          continue;
+        }
+        $authorObj = get_user_by('id', $page->post_author);
+        // Same reasoning as getPostsToRender() above - null, not '', to
+        // match what this already evaluated to when the author is gone.
+        $row['author'] = $authorObj ? $authorObj->user_login : null;
         $row['authorUrl'] = get_author_posts_url(get_the_author_meta($page->post_author), $row['author']);
         $row['title'] = $page->post_title;
         $row['content'] = strip_tags($page->post_content);

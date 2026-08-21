@@ -35,6 +35,20 @@
   font-family: FontAwesome !important;
 }
 
+/* Same font override as above, extended to the icon-picker modal
+(#captionBuilderIconsSelect) and the small "currently chosen icon" preview
+next to each Choose button (.mp-icon-preview). Neither sits inside a
+[data-caption-buider='1'] container, so they never picked up the rule above
+and rendered blank for any icon outside plain FA6 "Solid" (brand icons like
+fa-youtube live in a separate font face that bare .fa never reaches). Only
+font-family here, not the margin/frontend sizing above - these two contexts
+size themselves independently (inline font-size on the preview span, the
+picker grid's own CSS). */
+#captionBuilderIconsSelect i.fa,
+.mp-icon-preview {
+  font-family: FontAwesome !important;
+}
+
 .hi-icon:after {
   pointer-events: none;
   position: absolute;

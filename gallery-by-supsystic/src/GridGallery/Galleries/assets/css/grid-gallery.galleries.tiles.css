@@ -1,0 +1,445 @@
+#gg-tile-grid {
+  margin-top: 10px;
+}
+
+/* Every native jQuery UI dialog on this page (the new option popups, plus
+   the pre-existing Effect/Meta/Attributes/Linked-Images ones) can end up
+   taller than the viewport once it has real content - cap the wrapper and
+   let its own content area scroll instead of the whole dialog stretching.
+   Deliberately NOT touching `display` here: jQuery UI toggles that itself
+   (autoOpen:false sets an inline display:none) - an !important display
+   rule at this specificity would beat that inline style and force every
+   dialog open on page load regardless of state. */
+.ui-dialog {
+  max-height: 90vh !important;
+}
+
+.ui-dialog .ui-dialog-content {
+  max-height: calc(90vh - 110px) !important;
+  overflow-y: auto !important;
+  box-sizing: border-box;
+}
+
+.gg-tile-size-control {
+  display: inline-flex;
+  border: 1px solid #e1e1e1;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.gg-tile-size-btn {
+  border: none;
+  border-right: 1px solid #e1e1e1;
+  background: #fff;
+  color: #333;
+  height: 34px;
+  min-width: 34px;
+  padding: 0 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.gg-tile-size-btn:last-child {
+  border-right: none;
+}
+
+.gg-tile-size-btn:hover {
+  background: #f7fdfd;
+}
+
+.gg-tile-size-btn.gg-tile-size-active {
+  background: #2bc4c6;
+  color: #fff;
+}
+
+/* ---- Pagination (matches the Galleries list page's pagination styling) ---- */
+
+.gg-pagination {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.gg-pagination-info {
+  font-size: 12px;
+  color: #7f8c8d;
+  white-space: nowrap;
+}
+
+.gg-pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.gg-page-btn {
+  border: 1px solid #e1e1e1;
+  background: #fff;
+  color: #333;
+  width: 30px;
+  height: 30px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.gg-page-btn:hover:not(:disabled) {
+  border-color: #4ae8ea;
+  color: #2bc4c6;
+}
+
+.gg-page-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.gg-page-numbers {
+  display: inline-flex;
+  gap: 3px;
+  margin: 0 4px;
+}
+
+.gg-page-number {
+  border: 1px solid #e1e1e1;
+  background: #fff;
+  color: #333;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 6px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.gg-page-number:hover {
+  border-color: #4ae8ea;
+}
+
+.gg-page-active {
+  background: #2bc4c6;
+  border-color: #2bc4c6;
+  color: #fff;
+}
+
+#gg-per-page {
+  height: 30px;
+  margin-left: 8px;
+}
+
+/* ---- Tile grid ---- */
+
+.gg-tile-grid-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--gg-tile-size, 160px), 1fr));
+  gap: 14px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.gg-tile-grid-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: #bfbfbf;
+  padding: 40px 0;
+}
+
+.gg-tile {
+  list-style: none;
+}
+
+.gg-tile-inner {
+  position: relative;
+  background: #fff;
+  border: 1px solid #eaeaea;
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: move;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.gg-tile-inner:hover {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+  z-index: 2;
+}
+
+.gg-tile-check {
+  flex: none;
+  width: 19px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gg-tile-thumb-link {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #f7f7f7;
+  overflow: hidden;
+}
+
+.gg-tile-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.gg-tile-caption {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  font-size: 11px;
+  color: #5b6b7c;
+  border-top: 1px solid #f0f0f0;
+}
+
+.gg-tile-caption-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---- Hover flyout ---- */
+
+.gg-tile-flyout {
+  position: absolute;
+  inset: 0;
+  bottom: 27px;
+  background: rgba(20, 30, 40, 0.92);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+  display: flex;
+  align-items: stretch;
+}
+
+.gg-tile-inner:hover .gg-tile-flyout,
+.gg-tile-inner:focus-within .gg-tile-flyout {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.gg-tile-flyout-scroll {
+  width: 100%;
+  overflow-y: auto;
+  /* Extra right clearance keeps content clear of the scrollbar when the
+     option list overflows. */
+  padding: 6px 12px 6px 4px;
+  display: flex;
+  flex-direction: column;
+}
+
+.gg-tile-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: #eaf6f6;
+  text-align: left;
+  padding: 5px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+.gg-tile-option i {
+  width: 14px;
+  text-align: center;
+  flex: none;
+}
+
+.gg-tile-option span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gg-tile-option:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.gg-tile-option-delete {
+  color: #ff9b9b;
+}
+
+.gg-tile-option-delete:hover {
+  background: rgba(255, 90, 90, 0.18);
+  color: #ffbcbc;
+}
+
+/* Marks a submenu option that already has a value set for this image, so
+   it's clear at a glance without opening every dialog. */
+.gg-tile-option-filled {
+  position: relative;
+}
+
+.gg-tile-option-filled::after {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #27ae60;
+  box-shadow: 0 0 0 2px rgba(39, 174, 96, 0.25);
+  margin-left: auto;
+  flex: none;
+}
+
+/* Show Categories mode: images are placed by dragging into a bin, so only
+   the Categories option (for manually assigning the tag) stays usable -
+   everything else in the flyout is disabled. */
+body.gg-categories-mode .gg-tile-option:not([data-gg-option="categories"]) {
+  display: none !important;
+}
+
+/* .edit-image carries a global `color: green !important` (grid-gallery.
+   galleries.style.css) meant to make it stand out in the old options
+   table; needs matching !important to override on the dark flyout. */
+.gg-tile-flyout .edit-image {
+  color: #eaf6f6 !important;
+  font-weight: 400 !important;
+}
+
+/* Overrides .gg-pro-read-more's own teal-on-white styling (meant for
+   light-background settings rows) so it reads correctly on the tile
+   flyout's dark background - needs the extra specificity to win. */
+.gg-tile-flyout .gg-pro-read-more {
+  color: #eaf6f6;
+  background: transparent;
+  border-color: transparent;
+}
+
+.gg-tile-flyout .gg-pro-read-more:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.gg-tile-pro-badge {
+  margin-left: auto;
+  flex: none;
+  background: #2bc4c6;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  letter-spacing: 0.3px;
+}
+
+/* ---- Shared per-image option dialogs ---- */
+
+.gg-option-dialog .gg-dialog-field {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 8px;
+}
+
+.gg-option-dialog label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12px;
+}
+
+.gg-option-dialog label input[type='checkbox'] {
+  margin-right: 6px;
+}
+
+.gg-dialog-pro-hint {
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.gg-dialog-pro-hint textarea {
+  width: 100%;
+  box-sizing: border-box;
+  background: #f7f7f7;
+  color: #aaa;
+}
+
+.gg-dialog-pro-hint .gg-pro-read-more {
+  margin-top: 6px;
+  border: none;
+  background: none;
+  color: #2bc4c6;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.gg-dialog-actions {
+  margin-top: 10px;
+  text-align: right;
+}
+
+/* ---- Pro: category-bin grouped layout ---- */
+
+/* Bulk-select doesn't apply in the categories view (a photo can have
+   several on-screen clones there) - no per-tile checkbox in this mode. */
+#gg-tile-categories .gg-tile-check {
+  display: none;
+}
+
+/* Images are static/non-draggable in the categories view (only the
+   category blocks themselves are reorderable) - the "move" cursor from
+   the flat grid would be a misleading affordance here. */
+#gg-tile-categories .gg-tile-inner {
+  cursor: default;
+}
+
+/* Resets a leftover rule from the old sort.twig-era styling (grid-gallery.
+   galleries.style.css: width:100%; border:1px solid #000; margin:0 0 10px
+   -5px;), which would otherwise leak a black border and negative left
+   offset into this new layout. */
+.gg-category {
+  width: auto;
+  margin: 0 0 18px 0;
+  border: none;
+}
+
+/* .gg-category .gg-category-caption (grid-gallery.galleries.style.css) sets
+   width:100%; background:#e5e5e5; at higher specificity than a bare
+   .gg-category-caption rule would have - match it so ours actually wins. */
+.gg-category .gg-category-caption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: auto;
+  font-weight: 600;
+  font-size: 12px;
+  margin-bottom: 10px;
+  padding: 10px 16px;
+  background: #263546;
+  color: #eaf6f6;
+  border-radius: 4px;
+}
+
+.gg-category:not(.gg-category-uncategorized) .gg-category-caption {
+  cursor: move;
+}
+
+.gg-category-caption .ggImgVerticalMove {
+  color: #4ae8ea;
+  flex: none;
+}
+
+.gg-category-caption .gg-rename-category {
+  color: #fff;
+  text-decoration: none;
+}
+
+.gg-category-caption .gg-rename-category:hover {
+  color: #4ae8ea;
+  text-decoration: underline;
+}
+
+.gg-category-caption label {
+  color: #eaf6f6;
+  margin: 0;
+}

@@ -97,12 +97,17 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
   Controller.prototype.init = function () {
     var lastTab = this.getCookie('lastTab');
 
-    if (!lastTab) {
-      this.$currentTab = this.tabs[Object.keys(this.tabs)[0]];
-      this.$currentTarget = $('.change-tab').first();
-    } else {
+    if (lastTab) {
       this.$currentTarget = $('.change-tab[href="' + lastTab + '"]');
       this.$currentTab = $('[data-tab="' + lastTab + '"]');
+    }
+
+    // Fall back to the first tab if there's no saved tab, or the saved
+    // cookie refers to a tab key that no longer exists (e.g. a stale
+    // cookie from before the tabs were reorganized).
+    if (!lastTab || !this.$currentTarget.length || !this.$currentTab.length) {
+      this.$currentTab = this.tabs[Object.keys(this.tabs)[0]];
+      this.$currentTarget = $('.change-tab').first();
     }
 
     this.hideTabs();
@@ -130,8 +135,14 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
   Controller.prototype.getAvailableTabs = function () {
     var tabs = {};
 
+    // A single tab key can now be split across several non-adjacent
+    // [data-tab] elements, so collect every element sharing that key
+    // instead of keeping only the last one found.
     $.each($('[data-tab]'), function (index, tab) {
-      tabs[$(tab).data('tab')] = $(tab);
+      var key = $(tab).data('tab');
+      if (!tabs[key]) {
+        tabs[key] = $('[data-tab="' + key + '"]');
+      }
     });
 
     return tabs;
@@ -165,12 +176,84 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
     }
   };
 
+  // saveSettingsAction (Controller.php) fully replaces the gallery's stored
+  // settings blob with just whatever the form submits - Pro fields render
+  // `disabled` while unlicensed, so the browser never sends them, and a
+  // plain Save would silently erase any Pro option this gallery already has
+  // configured (watermark, social sharing, icons, etc). The two data-gg-*
+  // flags come from settings.twig, computed server-side from the same
+  // galleryFeatureStatuses list the toolbar pills use. Only one click
+  // handler is ever bound to #btnSave - branching before binding, rather
+  // than adding a second competing handler, since preventDefault() in one
+  // jQuery handler doesn't stop a sibling handler on the same element/event
+  // from also firing.
   Controller.prototype.saveButton = function () {
-    var selfC = this;
-    $('#btnSave').on('click', function () {
+    var selfC = this,
+      $form = $('#form-settings'),
+      licenseInactive = $form.attr('data-gg-license-inactive') === '1',
+      hasProSettings = $form.attr('data-gg-has-pro-settings') === '1';
+
+    function doSubmit() {
+      // "Use Caption Builder" toggles between two whole config sections
+      // (.caption-type[data-gg-cb-type="captions-icons"], the classic
+      // Captions/Icons/Polaroid/Shadow settings, vs "caption-builder", Pro's
+      // newer builder) by disabling whichever one is currently inactive -
+      // disabled fields aren't submitted, and since saveSettingsAction
+      // replaces the whole settings blob rather than merging, submitting
+      // like that would permanently erase the inactive section's config,
+      // not just hide it. Re-enable both right before the real submit so a
+      // save always carries the complete config for both, regardless of
+      // which one is currently shown; whichever fields the two sections
+      // share are already kept in sync by captionBuilderTypeChangeHandler on
+      // toggle, so submitting both here is redundant, not conflicting.
+      $('.ggCaptionBuilderWrap .caption-type').find('input, select, textarea').prop('disabled', false);
       selfC.saveScrollPos();
       document.forms['form-settings'].submit();
+    }
+
+    if (!licenseInactive || !hasProSettings || typeof $.fn.dialog !== 'function') {
+      $('#btnSave').on('click', doSubmit);
+      return;
+    }
+
+    var buttons = {};
+    buttons[$('#ggMsgProWipeCancel').val()] = function () {
+      $(this).dialog('close');
+    };
+    buttons[$('#ggMsgProWipeConfirm').val()] = function () {
+      $('#ggConfirmProWipe').val('1');
+      $(this).dialog('close');
+      doSubmit();
+    };
+
+    var $dialog = $('<div class="gg-pro-wipe-warning-dialog"></div>').appendTo('body');
+    $dialog.html('<p>' + $('#ggMsgProWipeWarningText').val() + '</p>');
+
+    $dialog.dialog({
+      autoOpen: false,
+      modal: true,
+      resizable: false,
+      draggable: false,
+      closeOnEscape: true,
+      width: 480,
+      maxWidth: '90%',
+      dialogClass: 'gg-pro-readmore-dialog-wrap gg-pro-wipe-warning-dialog-wrap',
+      title: $('#ggMsgProWipeWarningTitle').val(),
+      buttons: buttons,
     });
+
+    $('#btnSave').on('click', function () {
+      $dialog.dialog('open');
+    });
+
+    // saveSettingsAction redirects back here with this flag instead of
+    // saving when it hits the same guard server-side (a direct POST that
+    // skipped this dialog, e.g. a stale/cached form) - surface why nothing
+    // was saved and let the user confirm right away instead of guessing.
+    if (selfC.getParameterByName('gg_pro_wipe_blocked')) {
+      $.jGrowl($('#ggMsgProWipeBlocked').val());
+      $dialog.dialog('open');
+    }
   };
 
   Controller.prototype.saveScrollPos = function () {
@@ -494,7 +577,7 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
     $('#themeDialog').dialog({
       autoOpen: false,
       modal: true,
-      width: 570,
+      width: 1150,
       buttons: {
         // Select: function () {
         //     var selected = $('#bigImageThemeSelect').val(),
@@ -550,6 +633,27 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
         self.togglePopupTheme($this.data('val'));
         // change visibility for placement wrapper
         self.changeThemeDialogFitImageVisibility();
+      });
+    };
+
+    // iCheck's own "uncheck the other radio in this name group" logic
+    // (icheck.min.js) looks for a <form> ancestor to scope its same-name
+    // lookup, and falls back to a page-wide selector when there isn't one.
+    // jQuery UI's dialog moves #themeDialog's content to be a direct child
+    // of <body> as soon as it's initialized, so these radios are no longer
+    // inside <form id="form-settings"> by the time the dialog is opened -
+    // that fallback path stops reliably clearing the *visual* checked class
+    // off the previously-selected radio, so more than one can end up
+    // looking selected even though only one is really checked underneath.
+    // Resync the wrappers straight from the real DOM state instead of
+    // trusting iCheck's own bookkeeping for this specific group.
+    Controller.prototype.initPopupPlacementTypeSync = function () {
+      $('.popupPlacementTypeRadio').on('click', function () {
+        setTimeout(function () {
+          $('.popupPlacementTypeRadio').each(function () {
+            $(this).parent().toggleClass('checked', this.checked);
+          });
+        }, 0);
       });
     };
 
@@ -636,14 +740,9 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
   };
 
   Controller.prototype.setScroll = function () {
+    // Native scroll (styled via CSS on .settings-wrap) replaced the slimScroll
+    // plugin here - same fixed-height, fits-in-viewport behavior, no JS init needed.
     var $settingsWrap = $('.settings-wrap');
-
-    $settingsWrap.slimScroll({
-      height: '600px',
-      railVisible: true,
-      alwaysVisible: true,
-      allowPageScroll: true,
-    });
     var $preview = $('#preview.gallery-preview')
       .css({
         opacity: 1,
@@ -651,6 +750,58 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
       .hide();
     $settingsWrap.fadeIn();
     $preview.fadeIn();
+  };
+
+  // Keeps .settings-wrap's scroll position across both a Save (full page
+  // reload from the server) and a plain browser refresh, so the user isn't
+  // dropped back at the top of a very long settings page every time.
+  // sessionStorage is the primary source since it's updated continuously
+  // (covers a plain F5, which never touches the server) - the hidden
+  // adminPage[slimScrollStartPos] field (written by saveScrollPos() right
+  // before a real Save submit, read back here from its server-rendered
+  // value) is only a fallback for when sessionStorage is unavailable or
+  // empty, e.g. a fresh tab/private window after the previous one closed.
+  Controller.prototype.initScrollPosPersistence = function () {
+    var $settingsWrap = $('.settings-wrap'),
+      storageKey = 'ggSettingsScrollPos_' + $settingsWrap.data('gallery-id'),
+      scrollSaveTimeout = null;
+
+    $settingsWrap.on('scroll', function () {
+      if (scrollSaveTimeout) {
+        clearTimeout(scrollSaveTimeout);
+      }
+      scrollSaveTimeout = setTimeout(function () {
+        try {
+          sessionStorage.setItem(storageKey, $settingsWrap.scrollTop());
+        } catch (e) {}
+      }, 150);
+    });
+  };
+
+  // Called once, deferred past the whole synchronous init pass (including
+  // Pro's own sggInitGallerySettingsPro-triggered setup) - several toggleXXX
+  // init functions show/hide rows on load to sync their initial state, which
+  // changes .settings-wrap's scrollable height, so restoring any earlier
+  // would risk landing on the wrong spot once that settles.
+  Controller.prototype.restoreScrollPos = function () {
+    var $settingsWrap = $('.settings-wrap'),
+      storageKey = 'ggSettingsScrollPos_' + $settingsWrap.data('gallery-id'),
+      savedPos = null;
+
+    try {
+      var stored = sessionStorage.getItem(storageKey);
+      if (stored !== null) {
+        savedPos = parseInt(stored, 10);
+      }
+    } catch (e) {}
+
+    if (savedPos === null || isNaN(savedPos)) {
+      savedPos = parseInt($('#slimScrollStartPos').val(), 10);
+    }
+
+    if (!isNaN(savedPos) && savedPos > 0) {
+      $settingsWrap.scrollTop(savedPos);
+    }
   };
 
   Controller.prototype.initEffectPreview = function () {
@@ -702,6 +853,158 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
     $preview.find('[data-grid-gallery-type="' + $effect.val() + '"]').addClass('selected');
   };
 
+  // AJAX-refreshes .gg-detailed-info-preview (the small thumbnail at the
+  // top of this page, previously just a plain unstyled photo) so it shows
+  // real caption/icon/hover-effect styling as it's being edited - live,
+  // before Save. previewCaptionAction (Controller.php) renders this with
+  // the exact same helpers.twig include the real gallery grid uses per
+  // photo, so it's never just an approximation of the real output.
+  // Debounced and scoped to just the field groups that actually affect it;
+  // color pickers route through colorpicker.js, which redispatches a real
+  // "change" on the underlying input, so they're covered by this same
+  // delegated listener without any extra wiring.
+  Controller.prototype.initCaptionPreview = function () {
+    var $form = $('#form-settings'),
+      $preview = $('.gg-detailed-info-preview'),
+      galleryId = parseInt(this.getParameterByName('gallery_id'), 10),
+      refreshTimer = null;
+
+    function refresh() {
+      $.post(
+        ajaxurl,
+        $form.serialize() +
+          '&' +
+          $.param({
+            action: 'grid-gallery',
+            route: { module: 'galleries', action: 'previewCaption' },
+            _wpnonce: SupsysticGallery.nonce,
+            gallery_id: galleryId,
+          }),
+        function (response) {
+          if (response && typeof response.html !== 'undefined') {
+            $preview.html(response.html);
+            reinitPreviewVisuals($preview);
+          }
+        },
+        'json'
+      );
+    }
+
+    // The real gallery frontend finishes several things in JS after Twig
+    // renders a photo (frontend.js's Gallery.prototype.reinit): converting a
+    // solid caption background into the correctly-transparent one, wrapping
+    // the caption text for vertical centering, spacing out stacked hover
+    // icons, and (Social Sharing) cloning a hidden per-icon template into the
+    // figure. Nothing here ever constructs a real Gallery instance for this
+    // static preview box, so replicate just those steps, scoped to it.
+    function reinitPreviewVisuals($preview) {
+      var $figure = $preview.find('figure.grid-gallery-caption');
+
+      if (!$figure.length) {
+        return;
+      }
+
+      // This is a passive settings-page preview, not a real gallery - its
+      // icon/social-share <a href> elements point at popup targets, video
+      // URLs, etc. that shouldn't actually navigate/open from here. Blocking
+      // the click itself (rather than e.g. pointer-events:none) leaves hover
+      // CSS on these same elements working normally.
+      $preview.off('click.ggPreviewNoNav').on('click.ggPreviewNoNav', 'a', function (event) {
+        event.preventDefault();
+      });
+
+      // Social Sharing per-image icons - normally DOM-injected by
+      // Gallery.prototype.initImageSocialSharing() as a direct child of
+      // <figure> (its absolute-positioned wrapper classes anchor to it);
+      // preview_caption.twig renders the same markup into a hidden sibling
+      // template instead, since it has no live Gallery JS to do the cloning.
+      var $socialTpl = $preview.find('.gg-preview-social-icons-tpl');
+      if ($socialTpl.length) {
+        $figure.append($socialTpl.html());
+        $socialTpl.remove();
+      }
+
+      // Gallery.prototype.setOverlayTransparency: Twig renders the caption
+      // background as a plain opaque color plus a data-alpha attribute: JS
+      // is what actually blends the two into the real rgba() background.
+      $figure.find('figcaption, [class*="caption-with-icons"]').each(function () {
+        var $caption = $(this),
+          alphaAttr = $caption.data('alpha');
+
+        if (typeof alphaAttr === 'undefined') {
+          return;
+        }
+
+        var alpha = (10 - parseInt(alphaAttr, 10)) / 10,
+          rgb = $caption.css('background-color'),
+          rgba = rgb.replace(')', ', ' + alpha + ')').replace('rgb', 'rgba');
+
+        $caption.css('background', rgba);
+      });
+
+      // Gallery.prototype.initCaptionCalculations: wraps the figcaption
+      // content in a display:table cell/wrapper pair so the caption text is
+      // vertically centered - without it the text sits at the box's default
+      // (usually top) edge instead of respecting the configured position.
+      $figure.find('div.grid-gallery-figcaption-wrap').each(function () {
+        var $wrap = $(this),
+          $figcaption = $wrap.closest('figcaption');
+
+        $wrap.css({ display: 'table-cell', 'text-align': $figcaption.css('text-align') });
+        $wrap.wrap($('<div>', { css: { display: 'table', height: '100%', width: '100%' } }));
+      });
+
+      // Gallery.prototype.setIconsPosition, condensed to the single-figure
+      // case (no multi-figure masonry involved). Matches the real function's
+      // own guards: caption-builder and polaroid layouts position the icon
+      // wrap with CSS alone (data-caption-buider="1" / [data-grid-gallery-
+      // type="polaroid"]), applying this margin math on top would push icons
+      // off-center rather than leaving them centered.
+      var isCaptionBuilderUsed = $preview.find('.gg-detailed-info-preview-inner').data('caption-buider'),
+        isPolaroid = $figure.data('grid-gallery-type') == 'polaroid',
+        $wrapper = $figure.find('div.hi-icon-wrap'),
+        $icons = $figure.find('a.hi-icon'),
+        marginX = $wrapper.data('margin'),
+        iconCount = $icons.length;
+
+      if (iconCount) {
+        var $figcaption = $figure.find('figcaption'),
+          elementHeight = $figcaption.length ? $figcaption.height() : $figure.height(),
+          iconHeight = $icons.first().height(),
+          groupHeight = iconCount * iconHeight,
+          startMarginTop = Math.abs(elementHeight / 2 - groupHeight / 2 - 10);
+
+        $icons.each(function (index) {
+          var $icon = $(this),
+            marginData = {};
+
+          if (marginX && !isCaptionBuilderUsed && !isPolaroid) {
+            marginData['margin-left'] = marginX;
+            marginData['margin-right'] = marginX;
+          }
+          if (elementHeight && !isCaptionBuilderUsed && !isPolaroid) {
+            marginData['margin-top'] = startMarginTop + index * iconHeight;
+          }
+          $icon.css(marginData);
+        });
+      }
+    }
+
+    // Listen for change/input anywhere in the form rather than a hand-picked
+    // field whitelist - nearly every settings field can affect how a photo
+    // looks (border, shadow, hover effects, captions, watermark, social
+    // sharing, etc.), and keeping a whitelist in sync with new settings as
+    // they're added is a losing game. The debounce below keeps this cheap.
+    $form.on('change input', function () {
+      clearTimeout(refreshTimer);
+      refreshTimer = setTimeout(refresh, 400);
+    });
+
+    if (galleryId) {
+      refresh();
+    }
+  };
+
   Controller.prototype.openThemeDialog = function () {
     $('#themeDialog').dialog('open');
   };
@@ -717,7 +1020,9 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
       $responsiveColumnsRow = $('#responsive-columns').closest('tr'),
       $ggImageWidthUnit = $('[name="area[photo_width_unit]"]'),
       $ggImageHeightUnit = $('[name="area[photo_height_unit]"]'),
-      $mosaicImagesCountRow = $('#mosaic-images-count-row');
+      $mosaicImagesCountRow = $('#mosaic-images-count-row'),
+      $horizontalScrollTable = $('#gg-anl-horiz-scroll'),
+      $horizontalScrollDisable = $('#horizontal-scroll-disable');
 
     var $loadMoreContent = $('#gg-anl-load-more'),
       $afterLoadMoreContentSeparator = $('#gg-anl-load-more').next('.separator').first(),
@@ -763,7 +1068,6 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
         $afterLoadMoreContentSeparator.show();
       }
 
-      selfContr.slimScrollOnSizeEvent(selfContr);
     }
     $mosaicLayout.on('change', mosaicLayoutToggle);
 
@@ -776,6 +1080,7 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
         $columsRow.hide();
         $mosaicImagesCountRow.hide();
         $responsiveColumnsRow.hide();
+        $horizontalScrollTable.show();
 
         if (!$optionsHeight.val().length) {
           $optionsHeight.val($optionsWidth.val());
@@ -834,6 +1139,13 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
             $optionsWidthRow.find('option[name="percents"]').show();
             $alwaysShowObj.hide();
             $mosaicImagesCountRow.show();
+            // Mosaic lays photos out in a masonry-style block, not a single
+            // scrollable strip, so Horizontal Scroll has nothing to attach
+            // to here - force it off (matching the same pattern used above
+            // for the Mosaic multi-column layout forcing LazyLoad off) and
+            // hide the whole section rather than leaving a dead control visible.
+            $horizontalScrollDisable.prop('checked', true).iCheck('update').trigger('change');
+            $horizontalScrollTable.hide();
             break;
         }
         $pagesRow
@@ -871,23 +1183,20 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
   Controller.prototype.toggleBorder = function () {
     var $table = $('table[name="border"]'),
       $borderType = $('select[name="thumbnail[border][type]"]'),
-      $toggleRow = $borderType.closest('tr'),
-      value = 0;
+      $toggleRow = $borderType.closest('tr');
 
-    value = parseInt($toggleRow.val(), 10);
-
-    $borderType.on('change', function () {
-      if ($(this).find('option:selected').val() != 'none') {
+    function updateVisibility() {
+      if ($borderType.find('option:selected').val() != 'none') {
         $table.find('tr').show();
       } else {
         $table.find('tr').hide();
         $toggleRow.show();
       }
-    });
+      $table.find('[name="border-type"]').css('border-style', $borderType.find('option:selected').val());
+    }
 
-    $borderType.on('change', function () {
-      $table.find('[name="border-type"]').css('border-style', $(this).find('option:selected').val());
-    });
+    $borderType.on('change', updateVisibility);
+    updateVisibility();
   };
 
   Controller.prototype.toggleCaptions = function () {
@@ -962,27 +1271,399 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
   };
 
   Controller.prototype.togglePostsTable = function () {
-    var $navButtons = $('.form-tabs'),
-      $prePostTableControls = $('.sggPostsPreTable'),
+    var $prePostTableControls = $('.sggPostsPreTable'),
       $table = $('#gbox_ui-jqgrid-htable');
 
-    $navButtons
-      .on('click', function () {
-        var currHref = $(this).find('a.active').attr('href');
-        if (currHref == 'post') {
-          $table.show();
-          $prePostTableControls.show();
-        } else {
-          $table.hide();
-          $prePostTableControls.hide();
+    // The "Posts" tab itself is always available (it's also where the
+    // enable/disable toggle below now lives) - only the post-picker table
+    // is conditional, since there's nothing to pick posts for while the
+    // feature itself is off.
+    function updateVisibility() {
+      if ($('#ggShowPostsEnable').is(':checked')) {
+        $table.show();
+        $prePostTableControls.show();
+      } else {
+        $table.hide();
+        $prePostTableControls.hide();
+      }
+    }
+
+    $(document).on('change', '.ggPostsEnableCl', updateVisibility);
+    updateVisibility();
+  };
+
+  Controller.prototype.initCodeTypeSwitcher = function () {
+    var $select = $('#ggCodeTypeSelect'),
+      $shortcodeInput = $('#ggCodeValueShortcode'),
+      $phpInput = $('#ggCodeValuePhp');
+
+    $select.on('change', function () {
+      if ($(this).val() == 'php') {
+        $shortcodeInput.hide();
+        $phpInput.show();
+      } else {
+        $phpInput.hide();
+        $shortcodeInput.show();
+      }
+    });
+  };
+
+  // Shared Pro-upsell popup: any page in the Galleries module (not just
+  // Settings) can trigger it via a `.gg-pro-read-more` button carrying
+  // data-gg-pro-title/data-gg-pro-desc. Bound unconditionally, once, near
+  // the top of $(document).ready below - see initGgProReadMoreDialog().
+  function initGgProReadMoreDialog() {
+    if (typeof $.fn.dialog !== 'function') {
+      return;
+    }
+
+    var $dialog = $('<div class="gg-pro-readmore-dialog"></div>').appendTo('body');
+
+    $dialog.dialog({
+      autoOpen: false,
+      modal: true,
+      resizable: false,
+      draggable: false,
+      closeOnEscape: true,
+      width: 500,
+      maxWidth: '90%',
+      maxHeight: '85%',
+      dialogClass: 'gg-pro-readmore-dialog-wrap',
+    });
+
+    $(document).on('click', '.gg-pro-read-more', function (event) {
+      event.preventDefault();
+
+      var $btn = $(this);
+
+      $dialog.dialog('option', 'title', $btn.data('gg-pro-title') || '');
+      $dialog.html($btn.data('gg-pro-desc') || '');
+      $dialog.dialog('open');
+
+      // jQuery UI centers the dialog based on its height at the moment
+      // 'open' runs - but this content often includes an <img> (the
+      // feature preview screenshot) that hasn't finished loading yet, so
+      // the dialog gets centered while still short, then grows once the
+      // image loads and ends up pinned near the top instead of staying
+      // centered. Re-center once layout has settled and again after every
+      // image inside finishes loading.
+      function recenter() {
+        $dialog.dialog('option', 'position', { my: 'center', at: 'center', of: window });
+      }
+      setTimeout(recenter, 0);
+      $dialog.find('img').on('load', recenter);
+    });
+
+    // The feature-status badges in the Gallery Info panel don't carry their
+    // own popup content — they forward the click to the real .gg-pro-read-more
+    // button already rendered for that setting elsewhere on the page, so the
+    // title/description only ever lives in one place.
+    $(document).on('click', '.gg-pro-read-more-proxy', function (event) {
+      event.preventDefault();
+
+      var anchor = $(this).data('gg-anchor'),
+        $anchorEl = anchor ? $('#' + anchor) : $();
+
+      if ($anchorEl.length) {
+        $anchorEl.find('.gg-pro-read-more').first().trigger('click');
+      }
+    });
+  }
+
+  Controller.prototype.initFeatureStatusLinks = function () {
+    $('.gg-feature-status-link, .gg-info-edit-link').on('click', function (event) {
+      event.preventDefault();
+
+      var $btn = $(this),
+        anchor = $btn.data('gg-anchor');
+
+      if (!anchor) {
+        return;
+      }
+
+      var $anchorEl = $('#' + anchor);
+
+      if (!$anchorEl.length) {
+        return;
+      }
+
+      // The target might live on a tab other than the one currently showing
+      // (e.g. the "Posts" pill points into the Posts tab) - switch there
+      // first so the element is actually visible and its offset() is real
+      // by the time we scroll to it.
+      var tabKey = $anchorEl.closest('[data-tab]').data('tab'),
+        $tabLink = tabKey ? $('.change-tab[href="' + tabKey + '"]') : $();
+      if ($tabLink.length && !$tabLink.hasClass('active')) {
+        $tabLink.trigger('click');
+      }
+
+      // Only the section's header (the <th>/<h3> title bar) should glow,
+      // not the whole row/table the anchor id points to.
+      var $target = $anchorEl.is('table') ? $anchorEl.find('th').first() : $anchorEl.closest('tr').find('th').first();
+      if (!$target.length) {
+        $target = $anchorEl;
+      }
+
+      $('.settings-wrap').animate(
+        { scrollTop: $('.settings-wrap').scrollTop() + $target.offset().top - $('.settings-wrap').offset().top - 40 },
+        300,
+        function () {
+          $target.removeClass('gg-anchor-highlight');
+          void $target[0].offsetWidth;
+          $target.addClass('gg-anchor-highlight').one('animationend', function () {
+            $target.removeClass('gg-anchor-highlight');
+          });
         }
-        if (currHref == 'area') {
-          $('.gg-wraper-anchor-nav-links').show();
-        } else {
-          $('.gg-wraper-anchor-nav-links').hide();
+      );
+    });
+  };
+
+  Controller.prototype.initCollapsibleSections = function () {
+    // Sections that technically have an Enable/Disable toggle but whose
+    // detail fields should just always stay visible - no chevron at all.
+    var EXCLUDED_SECTION_KEYS = ['gg-anl-caption-add-sett'];
+
+    // 'useCaptionBuilder' (the Caption Builder Enable/Disable radio) shares
+    // one wrapper (.ggCaptionBuilderWrap) with the unrelated, older
+    // Captions/Icons block - its chevron should only fold up its own
+    // content (.caption-type[data-gg-cb-type="caption-builder"]), not that
+    // sibling block. The generic sibling-collection below
+    // (collectTrailingSiblings) would also stop immediately at the
+    // wrapper's own first nested h3 and end up with nothing to collapse, so
+    // this section gets its trailing content spelled out explicitly.
+    var SPECIAL_SECTIONS = {
+      useCaptionBuilder: {
+        trailing: '.caption-type[data-gg-cb-type="caption-builder"]',
+      },
+    };
+
+    var $wrap = $('.settings-wrap'),
+      galleryId = $wrap.data('gallery-id'),
+      savedState = $wrap.data('collapsed-sections');
+
+    // PHP's json_encode renders an empty array as JSON `[]`, not `{}`, so
+    // jQuery parses an unset/empty saved state as a JS Array rather than a
+    // plain object - left as-is, adding a string key to it would silently
+    // vanish under JSON.stringify (arrays only serialize integer indices).
+    if (!savedState || $.isArray(savedState)) {
+      savedState = {};
+    }
+
+    // A section's detail fields don't always live in the same <table> as
+    // its header row (e.g. EXIF's #ggExifDataTable only holds the toggle -
+    // its actual fields are a separate sibling <table>, #ggExifParametersTbl,
+    // with no h3 of its own). Collect every such headerless sibling so
+    // collapsing actually hides something.
+    // jQuery's .find() never matches the context element itself, only its
+    // descendants - so when a sibling *is* the table.form-table (rather than
+    // containing one), $sibling.find('.form-table th h3') always misses it,
+    // and this section gets wrongly swallowed as a "headerless" trailing
+    // sibling of whatever came before it (that's how Pagination ended up
+    // hidden entirely under Categories' collapse toggle instead of getting
+    // its own chevron). Check both the element itself and its descendants.
+    // Not every h3 inside a form-table is a real, independently-collapsible
+    // section start - some (e.g. EXIF's own "Show options" sub-header,
+    // grouping its list of field checkboxes) are just a decorative label
+    // with no enable/disable gate of their own. Only treat an h3 as a
+    // genuine section boundary if its row has the same kind of gate the
+    // main loop below requires before it hands out a chevron - otherwise
+    // collectTrailingSiblings stops early and a section's own detail table
+    // never gets folded in as part of its own collapse/expand.
+    function hasRealSectionGate($h3) {
+      var $row = $h3.closest('tr'),
+        $radios = $row.find('input[type="radio"]'),
+        $select = $row.find('select'),
+        $checkbox = $row.find('input[type="checkbox"]'),
+        $table = $h3.closest('table.form-table');
+      return (
+        $radios.length === 2 ||
+        ($select.length === 1 && $select.find('option[value="none"]').length > 0) ||
+        // Mirrors the main loop's checkbox case below - without this, Caption
+        // Builder's own Background/Caption/Description/Icons sub-tables
+        // (each gated by a lone checkbox) don't register as real section
+        // boundaries here, so a PRECEDING one of them (e.g. Background) walks
+        // straight through the following ones as "headerless trailing
+        // content" and wrongly collapses them together instead of each
+        // getting its own independent chevron.
+        ($checkbox.length === 1 && $table.hasClass('sgg-caption-builder'))
+      );
+    }
+
+    function hasOwnHeaderTable($el) {
+      var $tables = $el.filter('table.form-table').add($el.find('table.form-table'));
+      return (
+        $tables.filter(function () {
+          return (
+            $(this)
+              .find('th h3')
+              .filter(function () {
+                return hasRealSectionGate($(this));
+              }).length > 0
+          );
+        }).length > 0
+      );
+    }
+
+    function collectTrailingSiblings($start) {
+      var $out = $(),
+        $sibling = $start.next();
+      while ($sibling.length) {
+        if ($sibling.is('hr') || hasOwnHeaderTable($sibling)) {
+          break;
         }
-      })
-      .trigger('click');
+        $out = $out.add($sibling);
+        $sibling = $sibling.next();
+      }
+      return $out;
+    }
+
+    $wrap.find('.form-table th h3').each(function () {
+      var $h3 = $(this),
+        $table = $h3.closest('table.form-table');
+
+      if (!$table.length || $h3.find('.gg-section-toggle').length) {
+        return;
+      }
+
+      var $row = $h3.closest('tr');
+
+      // Only sections with a real on/off control in their header row get a
+      // chevron - plain option groups (Gallery Type, Gallery Actions, ...)
+      // have nothing to gate collapsing on and stay always open. Three forms
+      // seen in this plugin: a radio pair (Enable always listed first, by
+      // convention), a single <select> that actually offers a 'none' option
+      // (e.g. Border Type) - checking for that option specifically (rather
+      // than just "exactly one <select> in the row") keeps this from also
+      // matching unrelated selects like Gallery Type's grid mode - or a
+      // single checkbox, scoped to Caption Builder's own sub-tables only.
+      var $radios = $row.find('input[type="radio"]'),
+        $select = $row.find('select'),
+        $checkbox = $row.find('input[type="checkbox"]'),
+        isEnabled;
+
+      if ($radios.length === 2) {
+        isEnabled = function () {
+          return $radios.eq(0).is(':checked');
+        };
+      } else if ($select.length === 1 && $select.find('option[value="none"]').length) {
+        isEnabled = function () {
+          return $select.val() !== 'none';
+        };
+      } else if ($checkbox.length === 1 && $table.hasClass('sgg-caption-builder')) {
+        // Caption Builder's own Background/Caption/Description/Icons
+        // sub-sections gate their detail rows on a single checkbox
+        // (captionBuilder[x][enable]), not the Enable/Disable radio pair
+        // used everywhere else on this page - scoped to .sgg-caption-builder
+        // tables specifically so this doesn't turn every other
+        // single-checkbox h3 row on the settings page into a collapsible
+        // section too.
+        isEnabled = function () {
+          return $checkbox.is(':checked');
+        };
+      } else {
+        return;
+      }
+
+      // The stable id can live on the row itself (getProPanelRow / form.row's
+      // row_id land it on the <tr> the h3 is inside), on the table, or on a
+      // wrapping <div> - checked in that order, bounded to inside
+      // .settings-wrap so a section with none of those never falls back all
+      // the way up to #form-settings and aliases onto unrelated sections.
+      var sectionKey = $row.attr('id') || $table.attr('id') || $table.closest('[id]', $wrap[0]).attr('id');
+
+      if (!sectionKey || $.inArray(sectionKey, EXCLUDED_SECTION_KEYS) !== -1) {
+        return;
+      }
+
+      var special = SPECIAL_SECTIONS[sectionKey];
+
+      $table.find('tr').first().addClass('gg-section-header-row');
+      var $trailing = special && special.trailing ? $wrap.find(special.trailing) : collectTrailingSiblings($table);
+
+      var collapsed = !!savedState[sectionKey];
+      var $btn = $('<button type="button" class="gg-section-toggle"><i class="fa"></i></button>').appendTo($h3);
+
+      function persist() {
+        // Autosaves immediately via AJAX (works even if the user never
+        // touches the big Save button), and also keeps the hidden
+        // ui[collapsedSections] form field in sync so a real Save submit
+        // doesn't wipe this back out (saveSettingsAction rebuilds the whole
+        // settings blob from just the submitted fields - see the field's
+        // own comment in settings.twig).
+        if (collapsed) {
+          savedState[sectionKey] = true;
+        } else {
+          delete savedState[sectionKey];
+        }
+        $('#uiCollapsedSectionsInput').val(JSON.stringify(savedState));
+
+        app.Ajax.Post(
+          { module: 'galleries', action: 'saveUiState' },
+          { gallery_id: galleryId, key: sectionKey, collapsed: collapsed ? 1 : 0 }
+        ).send(function () {});
+      }
+
+      function render() {
+        $table.toggleClass('gg-section-collapsed', collapsed);
+        $trailing.toggleClass('gg-section-collapsed-extra', collapsed);
+        $btn.find('i').attr('class', 'fa ' + (collapsed ? 'fa-chevron-down' : 'fa-chevron-up'));
+      }
+
+      function syncVisibility() {
+        // Disabled options hide their detail fields already (via their own
+        // toggle logic) - no point offering a chevron for an empty shell.
+        // A special section (see SPECIAL_SECTIONS above) can opt out of this
+        // via alwaysToggleable, for the rare case where its own trailing
+        // content stays visible regardless of the gate's state.
+        $btn.toggle((special && special.alwaysToggleable) || isEnabled());
+      }
+
+      syncVisibility();
+      render();
+
+      // Delegated (not bound directly on $radios/$select) because iCheck
+      // re-initializing later (its own destroy()+re-create() cycle, e.g. if
+      // it re-scans the page after some other dynamic change) can strip
+      // listeners bound straight onto the input - delegation from a
+      // never-replaced ancestor survives that. Both 'change' and 'click'
+      // are covered since toggleShadow-style handlers elsewhere in this
+      // file rely on 'click' specifically, so a real user click is proven
+      // to reach the input by the time our handler runs either way.
+      var $gateInputs = $radios.length ? $radios : $select.length ? $select : $checkbox,
+        gateName = $gateInputs.eq(0).attr('name'),
+        gateSelector = ($select.length && !$radios.length ? 'select' : 'input') + '[name="' + gateName + '"]';
+
+      // Bound on the next tick, not immediately: several toggleXXX() init
+      // functions (this file's own, plus Pro's - Pro's specifically run
+      // later, off the sggInitGallerySettingsPro event fired after this
+      // whole function) do their own one-time
+      // "$(currently-checked radio).trigger('click').trigger('change')" to
+      // sync dependent UI on page load. Binding synchronously would catch
+      // those synthetic events too and misread them as the user just
+      // clicking Enable, force-expanding (and re-saving) a freshly-loaded,
+      // legitimately-collapsed section before the user ever touched it.
+      // Deferring past the current synchronous init pass sidesteps that.
+      setTimeout(function () {
+        $wrap.on('change click', gateSelector, function () {
+          syncVisibility();
+          if (isEnabled()) {
+            // Just turned on - always show its settings rather than leaving
+            // them collapsed from a stale saved state.
+            collapsed = false;
+            render();
+            persist();
+          }
+        });
+      }, 0);
+
+      $btn.on('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        collapsed = !collapsed;
+        render();
+        persist();
+      });
+    });
   };
 
   Controller.prototype.togglePopUp = function () {
@@ -1081,6 +1762,28 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
         }
       })
       .trigger('change');
+  };
+
+  Controller.prototype.togglePostsFields = function () {
+    var $fieldsToToggle = $(
+      '#sgg-posts-layout-style, #sgg-auto-posts-enable, #sgg-auto-posts-number, #posts, #pages, #post_author, #posts_date, #sgg-posts-show-content, #sgg-posts-show-category',
+    )
+      .closest('tr')
+      .add($('#autopostsCategories').closest('tr'));
+
+    function updateVisibility() {
+      if ($('#ggShowPostsEnable').is(':checked')) {
+        $fieldsToToggle.show();
+        // Re-sync the auto-posts vs manual posts/pages sub-toggle now that
+        // its row is visible again.
+        $('#autoposts').trigger('change');
+      } else {
+        $fieldsToToggle.hide();
+      }
+    }
+
+    $('.ggPostsEnableCl').on('change', updateVisibility);
+    updateVisibility();
   };
 
   Controller.prototype.initSocialSharing = function () {
@@ -1309,10 +2012,36 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
   Controller.prototype.initShadowDialog = function () {
     var $wrapper = $('#shadowDialog');
 
+    // Marks whichever preset's own offset/blur combination matches the
+    // gallery's current saved shadow values - re-run every time the dialog
+    // opens (not just once at page load) since those fields can also be
+    // edited directly, outside this dialog. Deliberately NOT comparing
+    // color: wpColorPicker here is plain (no alpha plugin/option), so it
+    // silently truncates a preset's rgba(...) to an opaque hex value the
+    // moment it's applied - the stored color can never string-match the
+    // preset's own rgba value again. x/y/blur alone already uniquely
+    // identify every preset (the only two that share x/y also differ in
+    // blur), so they're a sufficient and reliable match on their own.
+    function markSelectedPreset() {
+      var offsetX = parseInt($('[name="thumbnail[shadow][x]"]').val(), 10),
+        offsetY = parseInt($('[name="thumbnail[shadow][y]"]').val(), 10),
+        blur = parseInt($('[name="thumbnail[shadow][blur]"]').val(), 10);
+
+      $wrapper.find('.shadow-preset').each(function () {
+        var $preset = $(this);
+        var matches =
+          parseInt($preset.data('offset-x'), 10) === offsetX &&
+          parseInt($preset.data('offset-y'), 10) === offsetY &&
+          parseInt($preset.data('blur'), 10) === blur;
+        $preset.toggleClass('selected', matches);
+      });
+    }
+
     $wrapper.dialog({
       autoOpen: false,
       modal: true,
       width: 650,
+      open: markSelectedPreset,
       buttons: {
         Cancel: function () {
           $(this).dialog('close');
@@ -1332,12 +2061,19 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
           blur = parseInt($(this).data('blur')),
           color = $(this).data('color');
 
-        $shadowColor.attr('value', color);
-        $shadowOffsetX.attr('value', offsetX);
-        $shadowOffsetY.attr('value', offsetY);
-        $shadowBlur.attr('value', blur);
+        // .attr('value', x) only sets the HTML attribute, not the live
+        // value wpColorPicker (Iris) is actually tracking internally once
+        // it's initialized - the picker's own 'color' method is what
+        // actually updates its state and swatch (matches the same working
+        // pattern used a few hundred lines up for the caption "Shadow"
+        // preset default).
+        $shadowColor.wpColorPicker('color', color);
+        $shadowOffsetX.val(offsetX);
+        $shadowOffsetY.val(offsetY);
+        $shadowBlur.val(blur);
 
-        $shadowColor.trigger('change');
+        $wrapper.find('.shadow-preset').removeClass('selected');
+        $(this).addClass('selected');
 
         $wrapper.dialog('close');
       });
@@ -1543,7 +2279,7 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
       .on('change', function (event) {
         event.preventDefault();
         var $overlayEffect = $('#overlayEffect').val(),
-          $polaroidSettings = $('#polaroid-animation, #polaroid-scattering, #polaroid-frame-width').closest('tr');
+          $polaroidSettings = $('#polaroid-always-show-caption, #polaroid-animation, #polaroid-scattering, #polaroid-frame-width').closest('tr');
         if ($(this).val() == 'true') {
           $polaroidSettings.removeClass('hidden');
           if ($overlayEffect !== 'polaroid') {
@@ -1595,17 +2331,12 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
     $LoaderDialog.dialog({
       autoOpen: false,
       modal: true,
-      width: 450,
-      buttons: {
-        Cancel: function () {
-          $(this).dialog('close');
-        },
-      },
-      create: function (event) {
-        $(event.target).parent().css({
-          position: 'fixed',
-        });
-      },
+      resizable: false,
+      draggable: false,
+      closeOnEscape: true,
+      width: 480,
+      maxWidth: '90%',
+      dialogClass: 'gg-pro-readmore-dialog-wrap',
     });
 
     $('#choosePreicon-free').on('click', function (event) {
@@ -1648,145 +2379,6 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
     });
 
     checkOpenLink();
-  };
-
-  Controller.prototype.slimScrollOnSizeEvent = function (_self) {
-    var offsetTop2 = Math.floor($('#gg-anl-main').offset().top),
-      galleryType = $('[name="area[grid]"]').val(),
-      $mosaicParamsWrapper = $('#gg-mosaic-image-count-text-wrapper'),
-      $loadMoreLink = $('#gg-anl-load-more-link'),
-      isMosaicLayout2Used = $('#sggMosaicLayout').find('option:selected').val() == 1,
-      $mosaicLink = $('#gg-anl-mosaic-settings-link');
-
-    _self.linksOyPositions = [];
-    _self.linksOyPositions.push({
-      id: '#gg-anl-main',
-      offset: 0,
-    });
-
-    if (galleryType == 4 && $mosaicParamsWrapper.length && !isMosaicLayout2Used) {
-      $mosaicLink.removeClass('ggSettingsDisplNone');
-      _self.linksOyPositions.push({
-        id: '#gg-mosaic-image-count-text-wrapper',
-        offset: Math.abs(Math.floor($mosaicParamsWrapper.offset().top) - offsetTop2 - 40),
-      });
-    } else {
-      $mosaicLink.addClass('ggSettingsDisplNone');
-    }
-
-    _self.linksOyPositions.push({
-      id: '#gg-anl-soc-share',
-      offset: Math.abs(Math.floor($('#gg-anl-soc-share').offset().top) - offsetTop2 - 40),
-    });
-    if (galleryType == 4 && !isMosaicLayout2Used) {
-      $loadMoreLink.addClass('ggSettingsDisplNone');
-    } else {
-      $loadMoreLink.removeClass('ggSettingsDisplNone');
-      _self.linksOyPositions.push({
-        id: '#gg-anl-load-more',
-        offset: Math.abs(Math.floor($('#gg-anl-load-more').offset().top) - offsetTop2 - 40),
-      });
-    }
-    _self.linksOyPositions.push({
-      id: '#gg-anl-cust-button',
-      offset: Math.abs(Math.floor($('#gg-anl-cust-button').offset().top) - offsetTop2 - 40),
-    });
-    _self.linksOyPositions.push({
-      id: '#gg-anl-horiz-scroll',
-      offset: Math.abs(Math.floor($('#gg-anl-horiz-scroll').offset().top) - offsetTop2 - 40),
-    });
-    _self.linksOyPositions.push({
-      id: '#gg-anl-border-type',
-      offset: Math.abs(Math.floor($('#gg-anl-border-type').offset().top) - offsetTop2 - 40),
-    });
-    _self.linksOyPositions.push({
-      id: '#gg-anl-shadow',
-      offset: Math.abs(Math.floor($('#gg-anl-shadow').offset().top) - offsetTop2 - 40),
-    });
-    _self.linksOyPositions.push({
-      id: '#gg-anl-popup',
-      offset: Math.abs(Math.floor($('#gg-anl-popup').offset().top) - offsetTop2 - 40),
-    });
-    _self.linksOyPositions.push({
-      id: '#gg-anl-lazyload',
-      offset: Math.abs(Math.floor($('#gg-anl-lazyload').offset().top) - offsetTop2 - 40),
-    });
-    _self.linksOyPositions.push({
-      id: '#gg-anl-preloader',
-      offset: Math.abs(Math.floor($('#gg-anl-preloader').offset().top) - offsetTop2 - 40),
-    });
-    _self.linksOyPositions.push({
-      id: '#gg-anl-attributes',
-      offset: Math.abs(Math.floor($('#gg-anl-attributes').offset().top) - offsetTop2 - 40),
-    });
-    _self.linksOyPositions.push({
-      id: '#gg-anl-caption-add-sett',
-      offset: Math.abs(Math.floor($('#gg-anl-caption-add-sett').offset().top) - offsetTop2 - 40),
-    });
-
-    $('.settings-wrap').slimScroll({}).off('slimscrolling').on('slimscrolling', null, { oy: _self.linksOyPositions }, Controller.prototype.slimScrollOnScrollEvent);
-  };
-
-  Controller.prototype.initSubMenuFastLinks = function () {
-    var self = this;
-    resizeEvent('.form-gall-settings div[data-tab="area"]', function () {
-      self.slimScrollOnSizeEvent(self);
-    });
-
-    $('.gg-anchor-nav-links').on('click', function (e1, funcParams) {
-      e1.preventDefault();
-      var $settingsWrap = $('.settings-wrap'),
-        urlLink = $(this).attr('href'),
-        $linkItem = $(urlLink),
-        $topItem = $('#gg-anl-main');
-      if ($linkItem.length) {
-        var offsetLink = $linkItem.offset().top,
-          offsetTop = $topItem.offset().top,
-          offsetAbs = Math.abs(offsetLink - offsetTop);
-        // if need to set start position
-        if (funcParams && funcParams.offsetScTop) {
-          offsetAbs = funcParams.offsetScTop;
-        }
-        if (!isNaN(offsetAbs)) {
-          $settingsWrap.slimScroll({ scrollTo: offsetAbs + 'px' });
-        }
-      }
-    });
-
-    // init anchor link
-    setTimeout(function () {
-      var slScrollTopPos = parseInt($('#slimScrollStartPos').val());
-      $('.gg-anchor-nav-links[href="#gg-anl-main"]').trigger('click', { offsetScTop: slScrollTopPos });
-    }, 500);
-  };
-
-  Controller.prototype.slimScrollOnScrollEvent = function (e, pos) {
-    if (e && e.data && e.data.oy) {
-      var ind1 = 0,
-        $activeItem = $('.gg-anchor-nav-links.active'),
-        isFind = false;
-      while (ind1 < e.data.oy.length - 1 && !isFind) {
-        if (e.data.oy[ind1].offset <= pos && e.data.oy[ind1 + 1].offset > pos) {
-          isFind = ind1;
-          ind1 = e.data.oy.length;
-        }
-        ind1++;
-      }
-      // if current position at last anchor
-      if (isFind == false && ind1 == 8) {
-        isFind = ind1;
-      }
-      //check curr active item
-      var activeId = $activeItem.attr('href');
-      if (e.data.oy[isFind] && activeId != e.data.oy[isFind].id) {
-        if ($activeItem.length) {
-          // remove active class
-          $activeItem.removeClass('active');
-        }
-        // add active class
-        $('.gg-anchor-nav-links[href="' + e.data.oy[isFind].id + '"]').addClass('active');
-      }
-    }
   };
 
   Controller.prototype.initOtherPluginsConf = function () {
@@ -2277,8 +2869,25 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
     var qs = new URI().query(true),
       controller;
 
+    // Available on every Galleries-module admin page (not just Settings),
+    // since Pro-gated options on the Images List tile grid use the same
+    // upsell popup.
+    initGgProReadMoreDialog();
+
     if (qs.module === 'galleries' && qs.action === 'settings') {
+      // The Posts jqGrid table is rendered by the base layout's separate
+      // {% block table %} (outside .settings-wrap), which leaves it out of
+      // the same scroll/height container as the other tabs. Move it inside
+      // so it behaves like the rest of the tab content.
+      $('[data-tab="posts"]').appendTo('.settings-wrap');
+
       controller = new Controller();
+
+      // Bound early (before togglePostsTable(), which can synchronously
+      // trigger a click on this tab to redirect off a now-hidden "posts"
+      // tab during setup) so that click actually updates .active instead
+      // of leaving updateVisibility() re-reading a stale current tab.
+      $('.change-tab').on('click', $.proxy(controller.changeTab, controller));
 
       $('a')
         .not('.hi-icon.fa, .iris-palette, .nav-tab, .wp-color-result, .gg-anchor-nav-links, .caption-available-in-pro-link, .sggLinkToProVer')
@@ -2291,6 +2900,7 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
         });
 
       controller.setScroll();
+      controller.initScrollPosPersistence();
       controller.initSaveDialog();
       controller.initDeleteDialog();
       controller.initLoadDialog();
@@ -2301,6 +2911,7 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
       controller.togglePreload();
 
       controller.initEffectPreview();
+      controller.initCaptionPreview();
 
       controller.initShadowDialog();
       controller.initImportSettingDialog();
@@ -2319,6 +2930,7 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
 
       controller.initSocialSharing();
       controller.initThemeSelect();
+      controller.initPopupPlacementTypeSync();
 
       controller.savePosts();
       controller.savePages();
@@ -2326,9 +2938,13 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
       controller.showReviewNotice();
 
       controller.saveButton();
+      controller.initCodeTypeSwitcher();
+      controller.initFeatureStatusLinks();
+      controller.initCollapsibleSections();
       controller.togglePosts();
       controller.togglePostsTable();
       controller.toggleAutoPosts();
+      controller.togglePostsFields();
       controller.areaNotifications();
       controller.setInputColor();
       controller.toggleSlideShow();
@@ -2355,9 +2971,6 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
       // Delete gallery
       $('.delete').on('click', controller.remove);
 
-      // Change the tab
-      $('.change-tab').on('click', $.proxy(controller.changeTab, controller));
-
       // Open theme dialog
       $('#chooseTheme').on('click', controller.openThemeDialog);
 
@@ -2367,8 +2980,10 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
       // Cover
       $('.covers img').on('click', controller.selectCover);
 
-      controller.initSubMenuFastLinks();
       $(document).trigger('sggInitGallerySettingsPro', controller);
+      setTimeout(function () {
+        controller.restoreScrollPos();
+      }, 0);
       //controller.callExtenedFunc('initExtendedGallerySettings', ['params1', 'params2']);
       // prevent click for icons
       $(document).on('click', '#preview .hi-icon.fa', function (event) {

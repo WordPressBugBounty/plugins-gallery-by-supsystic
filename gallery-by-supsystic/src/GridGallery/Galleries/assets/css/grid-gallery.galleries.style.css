@@ -2,6 +2,111 @@
   margin-top: 10px;
 }
 
+/* Posts tab content used to render visible for an instant before settings.js's
+   init() (Controller.prototype.hideTabs + fadeIn the current tab, which reads
+   a lastTab cookie) ran on document-ready, causing a flash of the Posts jqGrid
+   table on every load of this page. Starting it hidden at first paint is safe
+   in every case: whichever tab ends up "current" (Settings by default, or
+   Posts if the cookie says so) still gets shown via the same .fadeIn() call. */
+[data-tab="posts"] {
+  display: none;
+}
+
+/* Marks the boundary between the old Layout/Appearance/Viewing/Advanced
+   tab groups now that they're flowed into one continuous Settings page -
+   plain, no label, just a stronger break than the .separator already
+   used between individual option blocks. */
+.gg-settings-group-divider {
+  height: 0;
+  margin: 0;
+  margin-top:1%;
+  border: none;
+  border-top: 2px solid #dcdcdc;
+}
+
+/* Per-option collapse/expand chevron (only on sections that have a real
+   Enable/Disable toggle - see initCollapsibleSections). Absolutely
+   positioned against the h3 (position:relative, padding-right reserved in
+   supsystic-ui.css) so it always sits pinned to the right edge regardless
+   of label length, instead of flowing inline after the text. Hides every
+   row except the header row while collapsed; !important is needed to beat
+   the inline display the option's own enable/disable JS may have set. */
+.gg-section-toggle {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  opacity: 0.7;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.gg-section-toggle:hover {
+  opacity: 1;
+}
+
+.gg-section-collapsed tr:not(.gg-section-header-row) {
+  display: none !important;
+}
+
+/* Detail fields that live in a headerless sibling table/element rather
+   than inside the toggle's own table (e.g. EXIF's #ggExifParametersTbl). */
+.gg-section-collapsed-extra {
+  display: none !important;
+}
+
+/* Captions, Icons and Caption Builder (plus Caption Builder's own
+   Background/Caption/Description/Icons sub-toggles) are one interlocking
+   system - only one of "Captions + Icons" vs "Caption Builder" is ever
+   actually active at a time (the "Use Caption Builder" switch), and Caption
+   Builder's 4 sub-sections only mean anything while it's on. A distinct h3
+   color (overriding supsystic-ui.css's shared #263546 default via id
+   specificity, no !important needed) ties them together visually instead of
+   reading as unrelated options scattered down the page. Targeted via each
+   row's own <tr id> rather than the h3's own id: form.row's h3 id only
+   matches the row id when the row's 3rd and 5th arguments happen to be the
+   same string (true for the 4 Caption Builder sub-rows and Icons, but NOT
+   Captions - "sgg-ci-caption-enable" vs "useCaptions"), and Free's
+   upsell-panel h3 (getProPanelRow) has no id of its own at all - the <tr>
+   id is the one thing every variant reliably has. */
+#useCaptions h3,
+#photo-icon h3,
+#useCaptionBuilder h3,
+#captionBuilderBackgroundEnableRow h3,
+#captionBuilderTitleEnableRow h3,
+#captionBuilderDescriptionEnableRow h3,
+#iconsEnable h3 {
+  background: #2b4d73;
+}
+
+/* Caption Builder's own "Polaroid Style" toggle (Background sub-section) and
+   its 4 dependent rows (Always Show Caption / Animation / Scattering / Frame
+   Padding) - .gg-caption-table (Builder's own markup) has no real CSS/JS
+   support for polaroid's short-strip-below-the-photo layout, only the
+   legacy .grid-gallery-figcaption-wrap structure does. Enabling it here used
+   to look like it worked (confirm dialog, checkbox flips to Enable) but
+   silently never persisted: polaroidEffectSettings() (Pro settings.js) sets
+   the real effect field by clicking the "polaroid" figure inside the
+   #effectsPreview picker, which the Caption-Builder-mode effect whitelist
+   (helpers.twig / settings.twig's effectsToShow) no longer renders at all -
+   0 elements to click, so the effect field never actually changes. Hiding
+   the toggle avoids offering a control that can't work rather than trying
+   to half-fix a feature with no real backing. The separate legacy-Captions
+   "Polaroid Style" toggle (gallery-by-supsystic's own settings.twig, no id,
+   just the shared .polaroid-effect-class) is untouched by this - different
+   element entirely. */
+#captionBuilderPolaroidEffectRow,
+#captionBuilderPolaroidAlwaysShowCaptionRow,
+#captionBuilderPolaroidAnimationRow,
+#captionBuilderPolaroidScatteringRow,
+#captionBuilderPolaroidFrameWidthRow {
+  display: none !important;
+}
+
 .gg-gallery {
   /*width: 350px;*/
   /*float: left;*/
@@ -169,19 +274,493 @@ input[type='range']::-webkit-slider-thumb {
 
 .form-tabs {
   display: inline-block;
-  float: right;
+  float: left;
   min-width: 543px;
   /*overflow: hidden;*/
 }
 
+.gg-settings-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 10px;
+  /* padding: 5px 0; */
+  margin-left: 68px;
+  clear: both;
+}
+
+.gg-settings-header-row .form-tabs {
+  float: none;
+}
+
+.gg-header-toolbar ul.supsystic-bar-controls {
+  margin: 0;
+}
+
+.gg-code-switcher {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.gg-code-switcher select {
+  height: 26px;
+  font-size: 12px;
+}
+
+.gg-code-switcher .gg-code-value {
+  min-width: 260px;
+}
+
+.gg-detailed-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 10px;
+  padding-top:0px;
+  margin: 0;
+  margin-left:75px;
+  background: #fbfbfb;
+  border: 1px solid #eaeaea;
+  border-left: 3px solid #4ae8ea;
+}
+
+.gg-detailed-info-preview {
+  display: flex;
+  position: relative;
+  padding-top:5px;
+  height: 165px;
+  width: 165px;
+  flex-shrink: 0;
+  object-fit: cover;
+  flex-direction: row;
+  align-content: center;
+  justify-content: center;
+  align-items: center;
+}
+
+.gg-detailed-info-preview img {
+  display:block;
+  width: 100%;
+  height: 100%;
+  object-fit:cover;
+  border-radius: 3px;
+}
+
+.gg-detailed-info-preview .gg-no-images-placeholder {
+  max-width: 165px;
+  text-align: center;
+  color: #7f8c8d;
+}
+
+.gg-detailed-info-text {
+  flex: 1 1 auto;
+}
+
+.gg-detailed-info-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  margin: 0 0 5px;
+  padding-bottom: 0px;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.gg-info-stats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 28px;
+}
+
+.gg-info-item {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.gg-info-item-link {
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.gg-info-item-link:hover .gg-info-label,
+.gg-info-item-link:hover .gg-info-value {
+  text-decoration: underline;
+}
+
+.gg-info-label {
+  color: #7f8c8d;
+  font-size: 12px;
+}
+
+.gg-info-value {
+  font-weight: 600;
+  color: #23282d;
+}
+
+.gg-info-edit-link {
+  cursor: pointer;
+  color: #b0b0b0;
+  font-size: 11px;
+}
+
+.gg-info-edit-link:hover {
+  color: #2bc4c6;
+}
+
+.gg-info-dates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.gg-info-dates .gg-info-item {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 3px;
+  padding: 2px 14px;
+  background: #f2fdfd;
+  border: 1px solid #d3f4f4;
+  border-radius: 6px;
+  min-width: 132px;
+}
+
+.gg-info-dates .gg-info-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: #7fb8b9;
+}
+
+.gg-info-dates .gg-info-label:before {
+  font-family: 'FontAwesome';
+  font-size: 12px;
+  color: #2bc4c6;
+}
+
+.gg-info-dates .gg-info-item:first-child .gg-info-label:before {
+  content: '\f073';
+}
+
+.gg-info-dates .gg-info-item:last-child .gg-info-label:before {
+  content: '\f040';
+}
+
+.gg-info-dates .gg-info-value {
+  font-size: 12px;
+  color: #339f9f;
+}
+
+.gg-feature-status-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 5px;
+  padding-top: 10px;
+  border-top: 1px solid #eaeaea;
+}
+
+.gg-feature-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px 4px 10px;
+  border-radius: 12px;
+  white-space: nowrap;
+  border: 1px groove #e1e1e1;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.gg-feature-status-link {
+  font-family: inherit;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.gg-feature-status-link:hover .gg-feature-label {
+  text-decoration: underline;
+}
+
+.gg-feature-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.gg-feature-label {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.gg-feature-status-on {
+  background: #eafaf1;
+}
+
+.gg-feature-status-on .gg-feature-dot {
+  background: #27ae60;
+  box-shadow: 0 0 0 2px rgba(39, 174, 96, 0.2);
+}
+
+.gg-feature-status-on .gg-feature-label {
+  color: #1e8449;
+}
+
+.gg-feature-status-off {
+  background: #f2f2f2;
+}
+
+.gg-feature-status-off .gg-feature-dot {
+  background: #b0b0b0;
+}
+
+.gg-feature-status-off .gg-feature-label {
+  color: #7f8c8d;
+}
+
+.gg-feature-status-pro {
+  background: #f2fdfd;
+  border-color: #d3f4f4;
+  cursor: pointer;
+}
+
+.gg-feature-status-pro .gg-feature-dot {
+  background: #2bc4c6;
+  box-shadow: 0 0 0 2px rgba(43, 196, 198, 0.2);
+}
+
+.gg-feature-status-pro .gg-feature-label {
+  color: #339f9f;
+}
+
+.gg-feature-status-pro:hover {
+  background: #e4f9f9;
+}
+
+.gg-feature-status-pro:hover .gg-feature-label {
+  color: #339f9f;
+}
+
+.gg-feature-status-pro-badge {
+  display: inline-block;
+  margin-left: 5px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: #2bc4c6;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  vertical-align: middle;
+}
+
+.gg-pro-read-more {
+  color: #339f9f;
+  background: #f2fdfd;
+  border-color: #d3f4f4;
+}
+
+.gg-pro-read-more:hover {
+  background: #e4f9f9;
+}
+
+.gg-pro-read-more-q {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  line-height: 14px;
+  border-radius: 50%;
+  background: #2bc4c6;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.gg-pro-readmore-dialog {
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.gg-pro-readmore-dialog img {
+  max-width: 100%;
+  height: auto;
+}
+
+.gg-pro-readmore-dialog a {
+  color: #2bc4c6;
+}
+
+.gg-pro-readmore-dialog a:hover {
+  color: #23a2a4;
+}
+
+.gg-pro-get-btn-wrap {
+  text-align: center;
+  margin-top: 18px !important;
+  margin-bottom: 4px !important;
+}
+
+/* Overrides WP core's plain .button.button-primary look (and the generic
+   ".gg-pro-readmore-dialog a" link color above) - this is the whole point
+   of the upsell dialog, it should look worth clicking. */
+.gg-pro-readmore-dialog a.gg-pro-get-button,
+.gg-pro-readmore-dialog a.gg-pro-get-button:visited {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 8px;
+  height: auto !important;
+  padding: 13px 30px !important;
+  line-height: normal !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: #fff !important;
+  background: linear-gradient(135deg, #4ae8ea 0%, #2bc4c6 55%, #1a9fa1 100%) !important;
+  border: none !important;
+  border-radius: 999px !important;
+  box-shadow: 0 6px 16px rgba(43, 196, 198, 0.4), 0 2px 4px rgba(0, 0, 0, 0.08) !important;
+  text-shadow: none !important;
+  text-decoration: none !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.gg-pro-get-button-star {
+  font-size: 13px;
+  transform: translateY(-1px);
+}
+
+.gg-pro-readmore-dialog a.gg-pro-get-button:hover {
+  color: #fff !important;
+  background: linear-gradient(135deg, #5cf0f2 0%, #2bc4c6 45%, #1a9fa1 100%) !important;
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 10px 26px rgba(43, 196, 198, 0.5), 0 3px 6px rgba(0, 0, 0, 0.12) !important;
+}
+
+.gg-pro-readmore-dialog a.gg-pro-get-button:active {
+  transform: translateY(0) scale(0.99);
+  box-shadow: 0 4px 10px rgba(43, 196, 198, 0.4) !important;
+}
+
+.gg-pro-readmore-dialog a.gg-pro-get-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(43, 196, 198, 0.3), 0 6px 16px rgba(43, 196, 198, 0.4) !important;
+}
+
+.gg-pro-readmore-dialog-wrap.ui-dialog {
+  border-radius: 6px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+  max-height: 90vh !important;
+}
+
+/* Content scrolls on its own instead of pushing the dialog (and its
+   recentering) past the viewport - longer descriptions/taller preview
+   images shouldn't be able to grow this past the screen. */
+.gg-pro-readmore-dialog-wrap .ui-dialog-content {
+  max-height: calc(90vh - 50px) !important;
+  overflow-y: auto !important;
+  box-sizing: border-box;
+}
+
+.gg-pro-readmore-dialog-wrap .ui-dialog-titlebar {
+  background: #263546;
+  color: #fff;
+  border: none;
+  border-radius: 6px 6px 0 0;
+}
+
+.gg-pro-readmore-dialog-wrap .ui-dialog-title {
+  font-weight: 600;
+}
+
+.gg-pro-readmore-dialog-wrap .ui-dialog-titlebar-close {
+  background: transparent;
+  border: none;
+  color: #fff;
+}
+
+.gg-pro-wipe-warning-dialog {
+  font-size: 13px;
+  line-height: 1.6;
+  padding: 2px 2px 2px 14px;
+  border-left: 3px solid #e74c3c;
+}
+
+
+.supsystic-plugin .form-table .gg-anchor-highlight h3 {
+  position: relative !important;
+  z-index: 1 !important;
+  animation: ggAnchorGlow 2s ease-out !important;
+}
+
+.supsystic-plugin .form-table .gg-anchor-highlight label {
+  position: relative !important;
+  z-index: 1 !important;
+  animation: ggAnchorGlowLight 2s ease-out !important;
+  border-radius: 2px;
+}
+
+@keyframes ggAnchorGlow {
+  0% {
+    background: #4ae8ea;
+  }
+  100% {
+    background: #263546;
+  }
+}
+
+@keyframes ggAnchorGlowLight {
+  0% {
+    background: #b2f1f2;
+  }
+  100% {
+    background: transparent;
+  }
+}
+
+.form-gall-settings select {
+  height: 26px;
+  padding: 2px 24px 2px 6px;
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.form-gall-settings select option {
+  font-size: 12px;
+}
+
+/* The loader-icon preview was floated right (Pro's backend.css sets
+   "float: right; margin-right: 50px"), which sends it to the far right of
+   the now-wide settings column instead of sitting next to the button -
+   cancel the float and pin it inline right next to the button instead. */
+#gg-anl-preloader .gallery-loading {
+  display: inline-block;
+  float: none;
+  vertical-align: middle;
+  width: 48px;
+  height: 48px;
+  margin: 0 0 0 10px;
+}
+
 #form-settings {
   /*margin: 0 10px 0 10px;*/
-  height: 600px;
+  /* height: 600px; */
   /*overflow: scroll;*/
   /*min-height: 380px;*/
   border-left: 1px solid rgb(234, 234, 234);
-  padding-left: 20px;
 }
+
 
 .properties {
   width: 200px !important;
@@ -324,6 +903,11 @@ input.cmn-toggle-round:checked + label:after {
 
 #effectsPreview figure.selected,
 #effectsPreview figure:hover {
+  outline: solid 4px #4ae8ea;
+}
+
+#shadowDialog .shadow-preset.selected,
+#shadowDialog .shadow-preset:hover {
   outline: solid 4px #4ae8ea;
 }
 
@@ -616,14 +1200,14 @@ div.gg-shortcode {
 
 .load-more-button-preview {
   margin: 10px 0;
-  text-align: center;
 }
 
-.load-more-button-preview .button.get-pro {
-  margin-bottom: 20px;
-}
-
-.ui-dialog {
+/* Pinning every dialog 40px from the top works fine for the big ones
+   (Effect/Theme pickers etc. are tall enough that centering wouldn't look
+   much different), but it also caught the small Pro-upsell popup
+   (.gg-pro-readmore-dialog-wrap), pinning it near the top of the screen
+   instead of centered - excluded so it can use its own centered position. */
+.ui-dialog:not(.gg-pro-readmore-dialog-wrap) {
   top: 40px !important;
   margin-bottom: 40px !important;
 }
@@ -704,26 +1288,53 @@ div.gg-shortcode {
   display: block;
 }
 
-#themeDialog .grid-gallery-caption {
-  float: left;
-  cursor: pointer;
-  margin-top: 5px;
+/* Capped like every jQuery UI dialog (.ui-dialog rule below), but pinned
+   again directly on the dialog content too - these two dialogs re-measure
+   their own height against their (previously unbounded) grid of preview
+   images on open, so a more specific rule here keeps that from winning. */
+#themeDialog,
+#effectDialog {
+  max-height: calc(90vh - 110px) !important;
+  overflow-y: auto !important;
+  box-sizing: border-box;
 }
 
-#themeDialog .grid-gallery-caption:nth-child(2n) {
-  margin-left: 15px;
+.gg-theme-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+}
+
+#themeDialog .grid-gallery-caption {
+  cursor: pointer;
+  margin: 0;
 }
 
 #themeDialog .grid-gallery-caption img {
-  width: 262px;
-  height: 170px;
+  width: 100%;
+  height: auto;
 }
-.slimScrollDiv {
-  min-height: calc(100vh - 300px) !important;
-}
+/* Native scroll (replaces the slimScroll plugin) - same fixed height/
+   fits-in-viewport behavior, styled to match Supsystic's teal accent. */
 .settings-wrap {
-  border-left: 1px solid rgb(234, 234, 234);
-  min-height: calc(100vh - 300px) !important;
+  height: calc(100vh - 360px) !important;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #2bc4c6 #f1f1f1;
+}
+.settings-wrap::-webkit-scrollbar {
+  width: 8px;
+}
+.settings-wrap::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+.settings-wrap::-webkit-scrollbar-thumb {
+  background: #2bc4c6;
+  border-radius: 4px;
+}
+.settings-wrap::-webkit-scrollbar-thumb:hover {
+  background: #239a9c;
 }
 .settings-wrap .form-gall-settings {
   border: none !important;
@@ -854,9 +1465,18 @@ div.gg-shortcode {
   text-transform: none;
   line-height: 1em;
 }
-.supsystic-plugin .captions-settings-type th,
-.supsystic-plugin .captions-settings-type td {
-  padding: 0px 10px !important;
+
+/* Pro overrides icon_wrap_item_class with real FontAwesome classes (fa
+   fa-...) instead of the .icon-fullscreen custom-font class above -
+   icons-effects.css's own ".hi-icon::before { font-weight: normal }" (a
+   third-party hover-effects library, loaded only in wp-admin) has equal
+   selector specificity and loads after font-awesome.min.css, so it wins
+   the cascade and silently breaks FontAwesome 6's own font-weight:900
+   default - most Free-tier FA6 icons only exist in the solid (900) weight,
+   so this makes their glyph disappear entirely (empty :before content). */
+.hi-icon.fa::before,
+.hi-icon.fa:before {
+  font-weight: 900 !important;
 }
 .available-in-pro .get-in-pro-element {
   position: absolute;
@@ -1047,42 +1667,6 @@ label.sggCheckboxLabelInOneRow {
   font-size: 0.8em;
 }
 
-#galleries_wrapper .top {
-  float: left;
-}
-
-#galleries_wrapper .dt_rigth {
-  float: right !important;
-  text-align: right !important;
-}
-#galleries_wrapper .dataTables_paginate {
-  text-align: left !important;
-  width: 40%;
-  float: right;
-}
-.paginate_links {
-  box-sizing: border-box;
-  display: inline-block;
-  min-width: 1em;
-  padding: 0.5em;
-  margin-left: 2px;
-  text-align: center;
-  text-decoration: none !important;
-  cursor: pointer;
-  color: #333 !important;
-  border: 1px solid transparent;
-  border-radius: 2px;
-}
-.dataTables_info {
-  padding: 0.4em !important;
-}
-
-#gg-galleries #galleries_length select {
-  height: auto;
-}
-#gg-galleries #delete-group {
-  margin-top: 10px;
-}
 
 .edit-image {
   cursor: pointer;

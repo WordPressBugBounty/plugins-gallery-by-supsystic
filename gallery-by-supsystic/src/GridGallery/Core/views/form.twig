@@ -39,7 +39,7 @@
                 </h3>
 			{% else %}
                 <label {{ ' ' }} {% if id is not empty %}id="label-{{ id }}" for="{{ id }}"{% endif %}>
-                    {{ label }}
+                    {{ label | raw }}
                     {{ form.show_tooltip(id) }}
                 </label>
             {% endif %}
@@ -66,21 +66,45 @@
             {% if titleRow is not empty %}
                 <h3 style="margin: 0 !important;">
                     {{ label }}
+                    <span class="gg-feature-status-pro-badge">PRO</span>
                     {{ form.show_tooltip(id) }}
                 </h3>
             {% else %}
                 <label {% if id is not empty %}id="label-{{ id }}" for="{{ id }}"{% endif %}>
                     {{ label }}
+                    <span class="gg-feature-status-pro-badge">PRO</span>
                     {{ form.show_tooltip(id) }}
                 </label>
             {% endif %}
-			{% if notAddBr == null %}
-				<br/>
-			{% endif %}
-			<label><a href="{{ getProUrl(link) }}" target="_blank" style="color: #0074a2; font-size: 10px; text-decoration: none;" class="sggLinkToProVer">PRO Option</a> </label>
         </th>
         <td>{{ element|raw }}</td>
     </tr>
+{% endmacro %}
+
+{% macro getProPanelRow(title, utmParams, rowId, description, imageUrl) %}
+    {% set readMoreHtml = (imageUrl is not empty ? '<img src="' ~ imageUrl ~ '" style="max-width:100%;display:block;border-radius:4px;margin-bottom:12px;" />' : '') ~ (description|default('')) ~ '<p class="gg-pro-get-btn-wrap"><a class="button button-primary gg-pro-get-button" target="_blank" href="' ~ getProUrl(utmParams) ~ '"><span class="gg-pro-get-button-star">&#9733;</span>' ~ translate('Get PRO') ~ '</a></p>' %}
+    <tr{{ (rowId is not empty ? ' id="' ~ rowId ~ '"' : '')|raw }}>
+        <th scope="row">
+            <h3 style="margin: 0 !important;">
+                {{ title|raw }}
+                <span class="gg-feature-status-pro-badge">PRO</span>
+            </h3>
+        </th>
+        <td>
+            <button type="button" class="button gg-pro-read-more" data-gg-pro-title="{{ title|striptags }}" data-gg-pro-desc="{{ readMoreHtml }}">
+                {{ translate('Read more') }} <span class="gg-pro-read-more-q">?</span>
+            </button>
+        </td>
+    </tr>
+{% endmacro %}
+
+{% macro getProPanel(title, utmParams, rowId, description, imageUrl) %}
+    {% import _self as form %}
+    <table class="form-table">
+        <tbody>
+            {{ form.getProPanelRow(title, utmParams, rowId, description, imageUrl) }}
+        </tbody>
+    </table>
 {% endmacro %}
 
 {% macro input(type = 'text', name, value, attributes) %}
@@ -210,5 +234,11 @@
 {% endmacro %}
 
 {% macro icon(name, size, id) %}
-    <i class="fa {{name}} mp-icon-preview" style="font-size:{{size}}px;" id="{{id}}"></i>
+    {# This Twig build silently drops a literal space that sits directly
+    next to a {{ }} tag with nothing else between them - without the
+    explicit {{' '}} here, "fa" and the icon class glue into one invalid
+    token (e.g. "fafa-youtube"), so no Font Awesome rule ever matches and
+    the icon renders blank. Same workaround already used for this exact
+    reason elsewhere in settings.twig and the frontend templates. #}
+    <i class="fa{{' '}}{{name}} mp-icon-preview" style="font-size:{{size}}px;" id="{{id}}"></i>
 {% endmacro %}

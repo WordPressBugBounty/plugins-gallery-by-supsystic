@@ -77,9 +77,10 @@
             $('.supsystic-lazy').ggLazyLoad();
             if (!--reload) {
               SupsysticGallery.Loader.hide();
-              //location.reload(true);
-              window.location.search = 'page=supsystic-gallery&module=galleries&action=view&gallery_id=' + defaults.galleryId;
-              location.reload(true);
+              if (typeof window.sessionStorage !== 'undefined' && window.sessionStorage.getItem('sgg-tutorial-step') !== null) {
+                window.sessionStorage.setItem('sgg-tutorial-after-import', '1');
+              }
+              window.location.href = window.location.pathname + '?page=supsystic-gallery&module=galleries&action=view&gallery_id=' + defaults.galleryId;
             }
           }
 
