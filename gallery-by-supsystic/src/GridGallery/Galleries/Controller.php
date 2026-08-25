@@ -59,6 +59,7 @@ class GridGallery_Galleries_Controller extends GridGallery_Core_BaseController
       'imageOptimize' => 'GridGallery_Optimization_Model_ImageOptimize',
       'optimization' => 'GridGallery_Optimization_Model_Optimization',
       'pagination' => 'GridGallery_Galleries_Model_Pagination',
+      'galleryGroups' => 'GridGallery_GalleryGroups_Model_Groups',
     ];
   }
 
@@ -389,7 +390,53 @@ class GridGallery_Galleries_Controller extends GridGallery_Core_BaseController
         ->dispatch('before_gallery_photos_edit', [$photos]);
     }
 
+    $photos = $this->annotatePhotosWithEcommerceItems($photos);
+
     return ['photos' => $photos, 'total' => $total];
+  }
+
+  private function annotatePhotosWithEcommerceItems(array $photos)
+  {
+    $itemsModel = $this->getEcommerceItemsModel();
+    if (!$itemsModel) {
+      return $photos;
+    }
+
+    $photoIds = [];
+    foreach ($photos as $photo) {
+      if (is_object($photo) && !empty($photo->id)) {
+        $photoIds[] = (int) $photo->id;
+      }
+    }
+
+    if (!$photoIds) {
+      return $photos;
+    }
+
+    $itemsByPhotoId = [];
+    foreach ($itemsModel->getByEntities('gallery_img', $photoIds) as $item) {
+      $photoId = (int) $item->entity_id;
+      if (!isset($itemsByPhotoId[$photoId])) {
+        $itemsByPhotoId[$photoId] = $item;
+      }
+    }
+
+    foreach ($photos as $index => $photo) {
+      if (!is_object($photo) || empty($photo->id) || empty($itemsByPhotoId[(int) $photo->id])) {
+        continue;
+      }
+
+      $item = $itemsByPhotoId[(int) $photo->id];
+      $photo->ecommerceItem = [
+        'id' => (int) $item->id,
+        'name' => $item->name,
+        'status' => (int) $item->status,
+      ];
+      $photo->ecommerceAdditional = $itemsModel->decodeAdditional($item);
+      $photos[$index] = $photo;
+    }
+
+    return $photos;
   }
 
   /**
@@ -874,6 +921,16 @@ class GridGallery_Galleries_Controller extends GridGallery_Core_BaseController
       }
     }
 
+    $galleryGroupsModel = $this->getModel('galleryGroups');
+    $galleryGroups = $galleryGroupsModel->getActive();
+    $selectedGalleryGroups = $galleryGroupsModel->getGroupIdsByGalleryId($galleryId);
+    $galleryGroupSummary = $this->buildGalleryGroupSummary($galleryGroups, $selectedGalleryGroups);
+    $galleryGroupIdsForEcommerce = [];
+    foreach ($galleryGroupSummary as $groupSummary) {
+      $galleryGroupIdsForEcommerce[] = (int) $groupSummary['id'];
+    }
+    $galleryEcommerceSummary = $this->buildGalleryEcommerceSummary((int) $galleryId, $galleryGroupIdsForEcommerce);
+
     return $this->response('@galleries/settings.twig', [
       'gallery' => $this->getModel('galleries')->getById($galleryId),
       'settings' => $settings->data,
@@ -884,7 +941,16 @@ class GridGallery_Galleries_Controller extends GridGallery_Core_BaseController
       'pageOptions' => $pageOptions,
       'ioServiceParams' => isset($ioParams) ? json_encode($ioParams) : null,
       'cdnServiceParams' => isset($cdnParams) ? json_encode($cdnParams) : null,
+      'optimizeStats' => $this->getModel('imageOptimize')->getStatsByGalleryId($galleryId),
+      'cdnStats' => $this->getModel('cdn')->getStatsByGalleryId($galleryId),
+      'servicesReady' => $this->getServicesReadyState(),
       'pluginUrl' => $this->getModuleUrl(),
+      'galleryGroups' => $galleryGroups,
+      'selectedGalleryGroups' => $selectedGalleryGroups,
+      'selectedGalleryGroupChoices' => $this->buildGalleryGroupChoices($galleryGroups, $selectedGalleryGroups),
+      'galleryGroupSummary' => $galleryGroupSummary,
+      'galleryEcommerceSummary' => $galleryEcommerceSummary,
+      'hasEcommerceRestrictions' => $this->galleryHasActiveEcommerceRestrictions($galleryId),
     ]);
   }
 
@@ -937,6 +1003,8 @@ class GridGallery_Galleries_Controller extends GridGallery_Core_BaseController
     }
 
     $allSettings = $request->post->all();
+    $galleryGroupIds = $request->post->get('gallery_group_ids', []);
+    unset($allSettings['gallery_group_ids']);
     if (isset($allSettings['attributes']) && isset($allSettings['attributes']['order'])) {
       $allSettings['attributes']['order'] = json_decode($allSettings['attributes']['order']);
       $allSettings['attributes']['enable'] = json_decode($allSettings['attributes']['enable']);
@@ -955,6 +1023,12 @@ class GridGallery_Galleries_Controller extends GridGallery_Core_BaseController
       $allSettings['ui']['collapsedSections'] = is_array($decodedCollapsedSections) ? $decodedCollapsedSections : [];
     }
 
+    $allSettings = $this->normalizeOptimizationFormatSettings($allSettings);
+
+    if ($this->galleryHasActiveEcommerceRestrictions($galleryId)) {
+      $allSettings = $this->disableOptimizationAndCdnSettings($allSettings);
+    }
+
     $settings->settingsDiff($stats, $galleryId, $allSettings);
     $data = $settings->getCatsFromPreset($allSettings, $config);
     $data = $settings->getPagesFromPreset($data, $config);
@@ -963,6 +1037,7 @@ class GridGallery_Galleries_Controller extends GridGallery_Core_BaseController
       $settings->save($galleryId, $data);
       $galleriesModel = $this->getModel('galleries');
       $galleriesModel->rename($galleryId, $data['title']);
+      $this->getModel('galleryGroups')->setGroupIdsForGallery($galleryId, $galleryGroupIds);
       $this->getModule('galleries')->cleanCache($galleryId, false);
     }
 
@@ -971,6 +1046,90 @@ class GridGallery_Galleries_Controller extends GridGallery_Core_BaseController
         'gallery_id' => $request->query->get('gallery_id'),
       ]),
     );
+  }
+
+  /**
+   * Whether each optimize/CDN service actually has credentials saved, so the
+   * gallery settings page can point the user at Advanced Settings instead of
+   * letting them press "Optimize now" against a service that will just fail.
+   *
+   * The server engine needs no credentials - only a working image library -
+   * so it reports on GD/Imagick availability instead.
+   *
+   * @return array
+   */
+  protected function getServicesReadyState()
+  {
+    $state = ['tinypng' => false, 'keycdn' => false, 'server' => false];
+
+    if (class_exists('GridGallery_Optimization_Model_Optimization')) {
+      $sett = $this->getModel('optimization')->getServiceSettings();
+      $state['tinypng'] = !empty($sett['setting']['tinypng']['auth_key']);
+    }
+
+    if (class_exists('GridGallery_Optimization_Model_Cdn')) {
+      $cdnModel = $this->getModel('cdn');
+      if (!$cdnModel->checkRequirements()) {
+        $sett = $cdnModel->getServiceSettings();
+        $keycdn = isset($sett['setting']['keycdn']) ? $sett['setting']['keycdn'] : [];
+        $state['keycdn'] = !empty($keycdn['zone_name']) && !empty($keycdn['u_name']) && !empty($keycdn['u_pass']);
+      }
+    }
+
+    $state['server'] = extension_loaded('gd') || extension_loaded('imagick');
+
+    return $state;
+  }
+
+  protected function galleryHasActiveEcommerceRestrictions($galleryId)
+  {
+    $ecommerceModule = $this->getEnvironment()->getModule('ecommerce');
+
+    return $ecommerceModule
+      && method_exists($ecommerceModule, 'galleryHasActiveRestriction')
+      && $ecommerceModule->galleryHasActiveRestriction((int) $galleryId);
+  }
+
+  protected function disableOptimizationAndCdnSettings(array $settingsData)
+  {
+    if (!isset($settingsData['optimization']) || !is_array($settingsData['optimization'])) {
+      $settingsData['optimization'] = [];
+    }
+    if (!isset($settingsData['cdn']) || !is_array($settingsData['cdn'])) {
+      $settingsData['cdn'] = [];
+    }
+
+    $settingsData['optimization']['enabled'] = 'false';
+    $settingsData['optimization']['serve_webp'] = '0';
+    $settingsData['optimization']['serve_avif'] = '0';
+    $settingsData['optimization']['frontend_format'] = 'original';
+    $settingsData['cdn']['enabled'] = 'false';
+    $settingsData['cdn']['auto'] = '0';
+
+    return $settingsData;
+  }
+
+  protected function normalizeOptimizationFormatSettings(array $settingsData)
+  {
+    if (!isset($settingsData['optimization']) || !is_array($settingsData['optimization'])) {
+      return $settingsData;
+    }
+
+    $format = isset($settingsData['optimization']['frontend_format'])
+      ? (string) $settingsData['optimization']['frontend_format']
+      : '';
+
+    if (!in_array($format, ['original', 'webp', 'avif'], true)) {
+      $format = 'original';
+    }
+
+    $settingsData['optimization']['frontend_format'] = $format;
+    $settingsData['optimization']['serve_webp'] = $format === 'webp' ? '1' : '0';
+    $settingsData['optimization']['serve_avif'] = $format === 'avif' ? '1' : '0';
+    $settingsData['optimization']['convert_webp'] = $format === 'webp' ? '1' : '0';
+    $settingsData['optimization']['convert_avif'] = $format === 'avif' ? '1' : '0';
+
+    return $settingsData;
   }
 
   /**
@@ -1034,6 +1193,10 @@ class GridGallery_Galleries_Controller extends GridGallery_Core_BaseController
       isset($data['lazyload']['enabled']) && $data['lazyload']['enabled'] === '1',
       isset($data['exif']['enabled']) && (int) $data['exif']['enabled'] === 1,
       isset($data['attributes']['enabled']) && $data['attributes']['enabled'] === 'true',
+      // Per-gallery CDN / optimization: Pro-only from the start, never seeded
+      // by a creation preset, so their stored value is a trustworthy signal.
+      isset($data['cdn']['enabled']) && $data['cdn']['enabled'] === 'true',
+      isset($data['optimization']['enabled']) && $data['optimization']['enabled'] === 'true',
     ];
 
     foreach ($checks as $check) {
@@ -1566,6 +1729,120 @@ class GridGallery_Galleries_Controller extends GridGallery_Core_BaseController
       // 'membership' => $this->getModel('membership'),
       'cdn' => $this->getModel('cdn'),
     ];
+  }
+
+  protected function buildGalleryGroupChoices($groups, array $selectedIds)
+  {
+    $selectedIds = array_map('intval', $selectedIds);
+    $choices = [];
+
+    foreach ($groups as $group) {
+      $id = is_array($group)
+        ? (int) ($group['group_id'] ?? 0)
+        : (int) ($group->group_id ?? 0);
+      $name = is_array($group)
+        ? (string) ($group['name'] ?? '')
+        : (string) ($group->name ?? '');
+      if ($name === '') {
+        $name = '#' . $id;
+      }
+
+      if ($id && in_array($id, $selectedIds, true)) {
+        $choices[] = [
+          'id' => $id,
+          'text' => sprintf('#%d %s', $id, $name),
+        ];
+      }
+    }
+
+    return $choices;
+  }
+
+  protected function buildGalleryGroupSummary($groups, array $selectedIds)
+  {
+    $selectedIds = array_map('intval', $selectedIds);
+    $summary = [];
+
+    foreach ($groups as $group) {
+      $id = is_array($group)
+        ? (int) ($group['group_id'] ?? 0)
+        : (int) ($group->group_id ?? 0);
+      $name = is_array($group)
+        ? (string) ($group['name'] ?? '')
+        : (string) ($group->name ?? '');
+      if ($name === '') {
+        $name = '#' . $id;
+      }
+
+      if ($id && in_array($id, $selectedIds, true)) {
+        $summary[] = [
+          'id' => $id,
+          'name' => $name,
+          'edit_url' => $this->generateUrl('gallerygroups', 'edit', ['group_id' => $id]),
+        ];
+      }
+    }
+
+    return $summary;
+  }
+
+  protected function buildGalleryEcommerceSummary($galleryId, array $groupIds)
+  {
+    $itemsModel = $this->getEcommerceItemsModel();
+    if (!$itemsModel) {
+      return null;
+    }
+
+    $items = $itemsModel->getActiveForGallery((int) $galleryId, [], $groupIds);
+    if (empty($items)) {
+      return null;
+    }
+
+    $byType = [
+      'gallery' => [],
+      'gallery_group' => [],
+    ];
+    foreach ($items as $item) {
+      if (isset($byType[$item->entity_type])) {
+        $byType[$item->entity_type][(int) $item->entity_id][] = $item;
+      }
+    }
+
+    $item = null;
+    if (!empty($byType['gallery'][(int) $galleryId][0])) {
+      $item = $byType['gallery'][(int) $galleryId][0];
+    } else {
+      foreach ($groupIds as $groupId) {
+        if (!empty($byType['gallery_group'][(int) $groupId][0])) {
+          $item = $byType['gallery_group'][(int) $groupId][0];
+          break;
+        }
+      }
+    }
+
+    if (!$item) {
+      return null;
+    }
+
+    return [
+      'id' => (int) $item->id,
+      'name' => (string) $item->name,
+      'edit_url' => $this->generateUrl('ecommerce', 'editItem', ['item_id' => (int) $item->id]),
+    ];
+  }
+
+  protected function getEcommerceItemsModel()
+  {
+    $ecommerceModule = $this->getEnvironment()->getModule('ecommerce');
+    if (!$ecommerceModule || !method_exists($ecommerceModule, 'getEcommerceModel')) {
+      return null;
+    }
+
+    try {
+      return $ecommerceModule->getEcommerceModel('items');
+    } catch (Exception $e) {
+      return null;
+    }
   }
 
   public function cloneAction(RscSgg_Http_Request $request)

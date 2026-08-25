@@ -1,0 +1,58 @@
+{% extends 'grid-gallery.twig' %}
+
+{% block header %}
+    <nav class="supsystic-breadcrumbs">
+        <a href="{{ environment.generateUrl('gallerygroups') }}">{{ translate('Gallery Groups') }}</a>
+        <i class="fa fa-angle-right"></i>
+        <span>{{ group.group_id ? translate('Edit Group') : translate('Create Group') }}</span>
+    </nav>
+{% endblock %}
+
+{% block content %}
+    {% import '@gallerygroups/_admin-ui.twig' as ui %}
+    {% if request.query.message == 'saved' %}
+        <div class="updated notice"><p>{{ translate('Gallery Group saved.') }}</p></div>
+    {% endif %}
+
+    <form method="post" action="{{ environment.generateUrl('gallerygroups', 'save', {'_wpnonce': _wpnonce}) }}">
+        <input type="hidden" name="group_id" value="{{ group.group_id }}">
+        <table class="form-table">
+            <tbody>
+                <tr>
+                    <th scope="row">{{ ui.label('gg-group-name', translate('Name'), translate('Internal organizational name for this gallery group.')) }}</th>
+                    <td><input id="gg-group-name" class="regular-text" type="text" name="name" value="{{ group.name }}"></td>
+                </tr>
+                <tr>
+                    <th scope="row">{{ translate('Active') }} {{ ui.help(translate('Inactive groups remain saved but are hidden from active e-commerce and gallery selection flows.')) }}</th>
+                    <td>
+                        <label>
+                            <input type="checkbox" name="active" value="1" {% if group.active %}checked{% endif %}>
+                            {{ translate('Enable this group') }}
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">{{ ui.label('gg-group-galleries', translate('Galleries'), translate('Search and attach galleries that belong to this organizational group.')) }}</th>
+                    <td>
+                        {{ ui.ajax_select(
+                            'gg-group-galleries',
+                            'gallery_ids[]',
+                            'gallery',
+                            selectedGalleryChoices,
+                            {
+                                'nonce': _wpnonce,
+                                'multiple': true,
+                                'placeholder': translate('Search galleries...'),
+                                'emptyText': translate('No matching galleries found.')
+                            }
+                        ) }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p>
+            <button type="submit" class="button button-primary">{{ translate('Save') }}</button>
+            <a class="button" href="{{ environment.generateUrl('gallerygroups') }}">{{ translate('Back') }}</a>
+        </p>
+    </form>
+{% endblock %}

@@ -125,6 +125,23 @@
   PRIMARY KEY (`gallery_id`)
 ) DEFAULT CHARSET=utf8',
 
+  '{prefix}gg_gallery_groups' => 'CREATE TABLE `{prefix}gg_gallery_groups` (
+  `group_id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) CHARACTER SET utf8 NOT NULL,
+  `active` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`group_id`),
+  KEY `active` (`active`)
+) AUTO_INCREMENT=0 DEFAULT CHARSET=utf8',
+
+  '{prefix}gg_gallery_group_relations' => 'CREATE TABLE `{prefix}gg_gallery_group_relations` (
+  `gallery_group_id` int(11) NOT NULL,
+  `gallery_id` int(11) NOT NULL,
+  PRIMARY KEY (`gallery_group_id`, `gallery_id`),
+  KEY `gallery_id` (`gallery_id`)
+) DEFAULT CHARSET=utf8',
+
   'altercolumn:link_type:{prefix}gg_photos' => 'ALTER TABLE `{prefix}gg_photos`
   ADD COLUMN `link_type` TINYINT(4) NOT NULL DEFAULT 0,
   ADD COLUMN `link_full` varchar(255) CHARACTER SET utf8 NOT NULL,

@@ -2,9 +2,9 @@
 Contributors: supsystic.com
 Donate link: https://supsystic.com/plugins/gallery
 Tags: gallery, image-gallery, photo gallery, album-gallery, gallery-plugin
-Tested up to: 7.0
+Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.19.0
+Stable tag: 1.20.0
 License: GNU General Public License v2.0 or later
 
 Photo Gallery helps you create clean, responsive image galleries and album galleries without wrestling with complex settings, layouts, or custom CSS.
@@ -116,6 +116,17 @@ Need help?
 == Changelog ==
 
 = 2026 =
+
+= 1.20.0 — August 24, 2026 =
+
+* Added popup (slidebox) theme 1 to free version.
+* Added standalone e-commerce module for galleries with payment provider integrations.
+* Added gallery groups.
+* Added self-host image optimization.
+
+= 1.19.01 — August 21, 2026 =
+
+* General UI/UX improvements.
 
 = 1.19.0 — August 17, 2026 =
 

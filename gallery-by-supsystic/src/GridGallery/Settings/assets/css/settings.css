@@ -40,3 +40,99 @@
 .supsystic-plugin .chosen-select {
   min-width: 300px;
 }
+
+/* =================================================================
+   Image Optimization & CDN credentials block
+   ================================================================= */
+.sgg-svc {
+  margin-top: 26px;
+  border-top: 1px solid #e3e9ef;
+  padding-top: 4px;
+}
+
+.sgg-svc-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 18px 0 10px;
+}
+
+.sgg-svc-head h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #263546;
+}
+
+.sgg-svc-head p {
+  flex: 1 1 260px;
+  margin: 0;
+  font-size: 13px;
+  color: #7f8c8d;
+}
+
+.sgg-svc-pro {
+  background: linear-gradient(135deg, #2bc4c6, #1c8b9c);
+  color: #fff;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.sgg-svc .setting-control input[type='text'],
+.sgg-svc .setting-control input[type='password'] {
+  width: 320px;
+  max-width: 100%;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid #dcdcde;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.sgg-svc-promo {
+  padding: 4px 0 18px;
+}
+
+.sgg-svc-promo p {
+  margin: 0 0 14px;
+  font-size: 13.5px;
+  color: #5b6b7c;
+  max-width: 70ch;
+}
+
+.sgg-svc-shots {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.sgg-svc-shots img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid #e3e9ef;
+  border-radius: 8px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.sgg-svc-shots a:hover img {
+  border-color: #2bc4c6;
+  box-shadow: 0 6px 16px rgba(43, 196, 198, 0.18);
+}
+
+.sgg-svc-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sgg-svc-shots img {
+    transition: none;
+  }
+}

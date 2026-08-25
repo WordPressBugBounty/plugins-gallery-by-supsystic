@@ -1285,3 +1285,77 @@ a.pp_next {
   display: inline-block;
   float: left;
 }
+
+.pp_pic_holder.sgg-theme-6 {
+  box-sizing: content-box;
+  max-width: calc(100vw - 24px);
+}
+
+.pp_pic_holder.sgg-theme-6 .pp_content,
+.pp_pic_holder.sgg-theme-6 .pp_content_container,
+.pp_pic_holder.sgg-theme-6 .pp_fade {
+  box-sizing: content-box;
+  max-width: 100%;
+}
+
+.pp_pic_holder.sgg-theme-6 #pp_full_res {
+  max-width: 100%;
+}
+
+.pp_pic_holder.sgg-theme-6 .pp_hoverContainer {
+  max-width: 100%;
+}
+
+.pp_pic_holder.sgg-theme-6 .pp_attributes_container {
+  box-sizing: border-box;
+  max-width: min(220px, 42vw);
+  overflow-y: auto;
+}
+
+.pp_pic_holder.sgg-theme-6 .pp_details {
+  box-sizing: border-box;
+  clear: both;
+  min-height: 36px;
+  width: 100% !important;
+}
+
+.pp_pic_holder.sgg-theme-6 .pp_details .pp_nav,
+.pp_pic_holder.sgg-theme-6 .pp_details .pp_description,
+.pp_pic_holder.sgg-theme-6 .pp_details .pp_social,
+.pp_pic_holder.sgg-theme-6 .sggTheme6PopupBtns {
+  box-sizing: border-box;
+}
+
+.pp_pic_holder.sgg-theme-6 .pp_description {
+  max-width: calc(100% - 170px);
+}
+
+.pp_pic_holder.sgg-theme-6 .sggTheme6PopupBtns {
+  float: right;
+  max-width: 170px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.pp_pic_holder.sgg-theme-6 .sggTheme6PopupBtns a {
+  display: inline-block;
+  margin: 0 0 0 8px;
+}
+
+.pp_pic_holder.sgg-theme-6 .pp_gallery {
+  max-width: calc(100% - 20px);
+}
+
+@media (max-width: 782px) {
+  .pp_pic_holder.sgg-theme-6 .pp_description,
+  .pp_pic_holder.sgg-theme-6 .sggTheme6PopupBtns {
+    max-width: 100%;
+  }
+
+  .pp_pic_holder.sgg-theme-6 .sggTheme6PopupBtns {
+    float: none;
+    margin-top: 6px;
+    text-align: left;
+    white-space: normal;
+  }
+}

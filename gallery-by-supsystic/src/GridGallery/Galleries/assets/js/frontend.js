@@ -1,4 +1,4 @@
-(function ($, undefined) {
+﻿(function ($, undefined) {
   window.supSocialSharePrintImage = function (img) {
     var printFrame = document.createElement('iframe');
     printFrame.style.display = 'none';
@@ -481,10 +481,12 @@
       var $this = this.$container;
       // simple selector
       var colorBoxItemSelector =
+        '.grid-gallery-photos > .gg-colorbox[data-ecommerce-restrict],' +
         '.grid-gallery-photos > .gg-colorbox:visible,' +
         // mosaic selector
         ' .grid-gallery-photos .gg-mosaic-wrapper .gg-colorbox,' +
         // icon selector
+        ' .hi-icon.gg-colorbox[data-ecommerce-restrict],' +
         ' .hi-icon.gg-colorbox:visible';
       // for popup "Display only first image"
       if ($this.hasClass('one-photo') || $this.hasClass('hidden-item')) {
@@ -531,9 +533,11 @@
         fixed: true,
         maxHeight: getImageDimension().height,
         maxWidth: getImageDimension().width,
+        photo: true,
         scalePhotos: true,
         scrolling: false,
         returnFocus: false,
+        trapFocus: false,
         slideshow: slidePlay && this.$container.data('popup-slideshow-speed'),
         slideshowAuto: slidePlayAuto,
         slideshowSpeed: slideshowSpeed,
@@ -555,6 +559,11 @@
           self.addSocialShareToPopUp($(e.el), $('#cboxContent'), 'popup');
           self.$container.find('.grid-gallery-photos > .gg-colorbox, .hi-icon.gg-colorbox').colorbox.resize();
           $('#cboxLoadedContent').append("<div id='cboxRight'></div><div id='cboxLeft'></div>");
+          window.setTimeout(function () {
+            if (window.colorboxEcommerceRestrict) {
+              window.colorboxEcommerceRestrict($(e.el));
+            }
+          }, 0);
         },
         onLoad: function (e) {
           if (self.popup_opened_image == e.el) return;
@@ -585,6 +594,10 @@
         },
         onClosed: function () {
           self.popup_opened_image = false;
+          $('#colorbox').removeClass('gg-cbox-ecommerce-open');
+          $('#cboxEcommerceRestrict').remove();
+          $('#ggEcommerceAccessOverlay').hide();
+          $(window).off('resize.ggEcommerceColorboxPanel');
           self.clearPopUpHash();
         },
       };
@@ -609,10 +622,21 @@
 
     if (popupType == 'pretty-photo') {
       // simple selector
-      var prettyPhotoItemSelector =
+      var prettyPhotoTheme = this.$container.data('popup-theme'),
+        isPrettyPhotoTheme6 = prettyPhotoTheme == 'theme_6',
+        prettyPhotoThemeClass = isPrettyPhotoTheme6 ? 'light_square sgg-theme-6' : 'light_square',
+        prettyPhotoItemSelector =
+        '.grid-gallery-photos > a[data-rel^="prettyPhoto"][data-ecommerce-restrict],' +
         '.grid-gallery-photos > a[data-rel^="prettyPhoto"]:visible,' +
         ' .grid-gallery-photos .gg-mosaic-wrapper a[data-rel^="prettyPhoto"],' + // mosaic selector
+        ' .grid-gallery-photos .hi-icon-wrap > a[data-rel^="prettyPhoto"][data-ecommerce-restrict],' +
         ' .grid-gallery-photos .hi-icon-wrap > a[data-rel^="prettyPhoto"]:visible'; // icon selector
+      if (isPrettyPhotoTheme6) {
+        prettyPhotoItemSelector =
+          '.grid-gallery-photos > a[data-rel^="prettyPhoto"],' +
+          ' .grid-gallery-photos .gg-mosaic-wrapper a[data-rel^="prettyPhoto"],' +
+          ' .grid-gallery-photos .hi-icon-wrap > a[data-rel^="prettyPhoto"]';
+      }
       // for popup "Display only first image"
       if (this.$container.hasClass('one-photo') || this.$container.hasClass('hidden-item')) {
         prettyPhotoItemSelector =
@@ -648,7 +672,7 @@
           .off('click')
           .ggPrettyPhoto({
             hook: 'data-rel',
-            theme: 'light_square',
+            theme: prettyPhotoThemeClass,
             allow_resize: true,
             allow_expand: true,
             deeplinking: false,
@@ -663,8 +687,9 @@
             isDisableRightClick: this.$container.attr('data-disable-right-click') == 'true',
             isShowRotateBtn: this.$container.attr('data-show-rotate-btn-in-popup') == 1,
             isShowAttributes: this.$container.attr('data-show-attributes-in-popup') == 1,
+            isShowEcommerceRestrict: true,
             attributesPosition: this.$container.attr('data-attributes-position'),
-            attributesWidth: this.$container.attr('data-attributes-width'),
+            attributesWidth: this.$container.attr('data-attributes-width') || 200,
             isShowButtonLink: this.$container.attr('data-show-buttonlink-in-popup') == 1,
             buttonLinkStyle: this.$container.attr('data-buttonlink-style'),
             isShowLinkBtn: this.$container.attr('data-show-link-btn-in-popup') == 1,
@@ -694,6 +719,9 @@
               }
               if (self.$container.attr('data-show-attributes-in-popup') == 1 && window.prettyPhotoAttributes) {
                 window.prettyPhotoAttributes(element, self.$container);
+              }
+              if (window.prettyPhotoEcommerceRestrict) {
+                window.prettyPhotoEcommerceRestrict(element);
               }
 
               //Enable/Disable stop slideshow on mouse hover
@@ -2977,6 +3005,50 @@
   $(document).on('ggFirInitialize', function () {
     contentLoaded();
   });
+
+  (function initThumbnailDescriptionTooltip() {
+    var $tooltip = $('<div class="gg-thumbnail-description-tooltip" role="tooltip">').appendTo('body').hide();
+
+    function placeTooltip($trigger) {
+      var text = $trigger.attr('data-tooltip') || '';
+      var offset = $trigger.offset();
+      var left;
+      var top;
+
+      if (!text || !offset) {
+        $tooltip.hide();
+        return;
+      }
+
+      $tooltip.text(text).show();
+      left = offset.left + $trigger.outerWidth() / 2 - $tooltip.outerWidth() / 2;
+      top = offset.top - $tooltip.outerHeight() - 10;
+
+      left = Math.max(8, Math.min(left, $(window).scrollLeft() + $(window).width() - $tooltip.outerWidth() - 8));
+      if (top < $(window).scrollTop() + 8) {
+        top = offset.top + $trigger.outerHeight() + 10;
+      }
+
+      $tooltip.css({ left: left, top: top });
+    }
+
+    $(document)
+      .on('mouseenter mouseover focus', '.gg-thumbnail-description-help', function () {
+        placeTooltip($(this));
+      })
+      .on('click touchstart', '.gg-thumbnail-description-help', function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        placeTooltip($(this));
+      })
+      .on('mouseleave blur', '.gg-thumbnail-description-help', function () {
+        $tooltip.hide();
+      });
+
+    $(window).on('scroll resize', function () {
+      $tooltip.hide();
+    });
+  })();
 
   //if a customer enter an e-mail for image link in gallery he'll get a mailto: link
   $('a.gg-link').each(function () {

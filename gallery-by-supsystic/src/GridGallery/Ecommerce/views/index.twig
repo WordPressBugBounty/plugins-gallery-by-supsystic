@@ -1,0 +1,68 @@
+{% extends 'grid-gallery.twig' %}
+
+{% block header %}
+    <nav class="supsystic-breadcrumbs">
+        <a href="{{ environment.generateUrl('ecommerce') }}">{{ translate('Ecommerce') }}</a>
+    </nav>
+{% endblock %}
+
+{% block content %}
+    <section class="gg-ecommerce-promo">
+        <div class="gg-ecommerce-promo-copy">
+            <span class="gg-ecommerce-promo-kicker">{{ translate('PRO feature') }}</span>
+            <h1>{{ translate('Sell licensed access to your WordPress galleries.') }}</h1>
+            <p>{{ translate('Ecommerce for Photo Gallery lets you sell access to full-resolution images, private galleries, selected gallery groups, and individual photos while keeping the gallery experience clean for visitors.') }}</p>
+            <div class="gg-ecommerce-promo-actions">
+                <a class="button button-primary" href="{{ upgradeUrl }}" target="_blank">
+                    <i class="fa fa-shopping-cart"></i>
+                    {{ translate('Get Ecommerce in PRO') }}
+                </a>
+                <a class="button" href="{{ environment.generateUrl('overview') }}">
+                    <i class="fa fa-info-circle"></i>
+                    {{ translate('Back to overview') }}
+                </a>
+                <a class="button" href="https://supsystic.com/documentation/ecommerce-for-wordpress-gallery/" target="_blank" rel="noopener">
+                    <i class="fa fa-book"></i>
+                    {{ translate('Read more about feature') }}
+                </a>
+            </div>
+        </div>
+
+        <div class="gg-ecommerce-promo-media">
+            <div class="gg-ecommerce-promo-preview">
+                <img class="gg-ecommerce-promo-gif" src="{{ SGG_PLUGIN_URL }}/src/GridGallery/Overview/assets/img/gallery_popup.webp" alt="{{ translate('Ecommerce preview') }}">
+                <div class="gg-ecommerce-promo-panel">
+                    <span class="gg-ecommerce-promo-example-badge">{{ translate('Example of your card') }}</span>
+                    <span class="gg-ecommerce-promo-panel-kicker">{{ translate('Gallery access') }}</span>
+                    <strong>{{ translate('Unlock the full gallery') }}</strong>
+                    <span class="gg-ecommerce-promo-panel-copy">{{ translate('Get every image without watermarks in maximum quality.') }}</span>
+                    <span class="gg-ecommerce-promo-panel-price"><b>$30</b> {{ translate('per month') }}</span>
+                    <button type="button">{{ translate('Buy gallery access') }}</button>
+                    <span class="gg-ecommerce-promo-payment-label">{{ translate('Payment methods') }}</span>
+                    <span class="gg-ecommerce-promo-payment-badges">
+                        <small>PayPal</small>
+                        <small>Stripe</small>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="gg-ecommerce-promo-features">
+        <article>
+            <i class="fa fa-lock"></i>
+            <h3>{{ translate('Protected originals') }}</h3>
+            <p>{{ translate('Rename restricted originals, hide direct metadata leaks, and serve paid downloads through a protected endpoint.') }}</p>
+        </article>
+        <article>
+            <i class="fa fa-image"></i>
+            <h3>{{ translate('Flexible access rules') }}</h3>
+            <p>{{ translate('Apply access to a whole gallery, gallery group, or selected images with thumbnail and popup restriction modes.') }}</p>
+        </article>
+        <article>
+            <i class="fa fa-download"></i>
+            <h3>{{ translate('Resolution downloads') }}</h3>
+            <p>{{ translate('Show free and PRO image sizes, keep proportions automatically, and let paid visitors download available resolutions.') }}</p>
+        </article>
+    </section>
+{% endblock %}

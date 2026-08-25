@@ -10,6 +10,18 @@
 class GridGallery_Galleries_Module extends GridGallery_Core_Module
 {
   /**
+   * The one popup engine + theme Free is allowed to render: base Colorbox.
+   * Every other theme (and the styling options around the popup) stays Pro
+   * and is shown PRO-badged/locked in settings.twig's #themeDialog.
+   *
+   * Keep FREE_POPUP_THEME in sync with the `freePopupTheme` value at the top
+   * of that dialog in settings.twig - if the two drift, the settings page
+   * starts advertising a theme the frontend won't actually render.
+   */
+  const FREE_POPUP_TYPE = '0';
+  const FREE_POPUP_THEME = 'theme_1';
+
+  /**
    * {@inheritdoc}
    */
   public function onInit()
@@ -177,6 +189,13 @@ class GridGallery_Galleries_Module extends GridGallery_Core_Module
     if ($environment->isAction('view')) {
       $cssList[] = $this->getLocationUrl() . '/assets/css/grid-gallery.galleries.tiles.css';
     }
+    $ecommerceModule = $environment->getModule('ecommerce');
+    if ($ecommerceModule && ($environment->isAction('settings') || $environment->isAction('view'))) {
+      $ecommerceCss = $ecommerceModule->getLocation() . '/assets/css/ecommerce.css';
+      if (is_file($ecommerceCss)) {
+        $cssList[] = $ecommerceModule->getLocationUrl() . '/assets/css/ecommerce.css';
+      }
+    }
 
     return $cssList;
   }
@@ -215,6 +234,13 @@ class GridGallery_Galleries_Module extends GridGallery_Core_Module
     if ($environment->isAction('index')) {
       $jsList[] = $this->getLocationUrl() . '/assets/js/gallery.index.js';
     }
+    $ecommerceModule = $environment->getModule('ecommerce');
+    if ($ecommerceModule && $environment->isAction('settings')) {
+      $ecommerceAdminJs = $ecommerceModule->getLocation() . '/assets/js/admin.js';
+      if (is_file($ecommerceAdminJs)) {
+        $jsList[] = $ecommerceModule->getLocationUrl() . '/assets/js/admin.js';
+      }
+    }
 
     return $jsList;
   }
@@ -236,6 +262,195 @@ class GridGallery_Galleries_Module extends GridGallery_Core_Module
         $ui->asset->enqueue('scripts', $this->getFrontendJS(), 'frontend');
       }
     }
+  }
+
+  /**
+   * @var GridGallery_Galleries_Attachment|null
+   */
+  protected $shortcodeAttachment = null;
+
+  /**
+   * @var array Mime types to try for the gallery currently being rendered.
+   */
+  protected $modernFormats = [];
+
+  /**
+   * @var int Encoding quality for siblings built on demand.
+   */
+  protected $modernQuality = 90;
+
+  /**
+   * @var GridGallery_Optimization_Model_ServerOptimize|null
+   */
+  protected $modernEngine = null;
+
+  /**
+   * Twig `get_attachment`: the model call, plus a swap to a modern-format
+   * sibling when the gallery asked for one and the browser accepts it.
+   *
+   * @param int $attachmentId
+   * @param int $width
+   * @param int|null $height
+   * @param string|null $cropPosition
+   * @param int|null $cropQuality
+   * @return string
+   */
+  public function twigGetAttachment($attachmentId, $width, $height = null, $cropPosition = null, $cropQuality = null)
+  {
+    if ($this->shortcodeAttachment === null) {
+      $this->shortcodeAttachment = new GridGallery_Galleries_Attachment();
+    }
+
+    $url = $this->shortcodeAttachment->getAttachment($attachmentId, $width, $height, $cropPosition, $cropQuality);
+
+    return $this->toModernFormatUrl($url);
+  }
+
+  public function twigModernImageUrl($url)
+  {
+    return $this->toModernFormatUrl($url);
+  }
+
+  /**
+   * Decides, once per rendered gallery, which modern formats may be served.
+   *
+   * Content negotiation via the Accept header is used rather than <picture>
+   * markup on purpose: the gallery figure is styled and scripted in a dozen
+   * places, and wrapping every image would risk all of it, whereas swapping
+   * the URL changes nothing structurally. The trade-off is that the response
+   * now varies by Accept, so a Vary header is sent to stop a shared cache
+   * handing an AVIF page to a browser that cannot render it.
+   *
+   * @param array $settingsData
+   * @return void
+   */
+  protected function beginModernImageFormats($settingsData)
+  {
+    $this->modernFormats = [];
+
+    if (!is_array($settingsData) || !class_exists('GridGallery_Optimization_Model_ServerOptimize')) {
+      return;
+    }
+
+    $options = isset($settingsData['optimization']) && is_array($settingsData['optimization']) ? $settingsData['optimization'] : [];
+    if (!isset($options['enabled']) || $options['enabled'] !== 'true') {
+      return;
+    }
+
+    $frontendFormat = isset($options['frontend_format']) ? (string) $options['frontend_format'] : '';
+    $wantAvif = $frontendFormat === 'avif' || ($frontendFormat === '' && isset($options['serve_avif']) && $options['serve_avif'] === '1');
+    $wantWebp = $frontendFormat === 'webp' || ($frontendFormat === '' && isset($options['serve_webp']) && $options['serve_webp'] === '1');
+
+    if (!$wantAvif && !$wantWebp) {
+      return;
+    }
+
+    $accept = isset($_SERVER['HTTP_ACCEPT']) ? (string) $_SERVER['HTTP_ACCEPT'] : '';
+
+    // Preference order matters: AVIF is the smaller of the two, so try it
+    // first and fall back to WebP for browsers that only advertise WebP.
+    if ($wantAvif && strpos($accept, 'image/avif') !== false) {
+      $this->modernFormats[] = GridGallery_Optimization_Model_ServerOptimize::FORMAT_AVIF;
+    }
+    if ($wantWebp && strpos($accept, 'image/webp') !== false) {
+      $this->modernFormats[] = GridGallery_Optimization_Model_ServerOptimize::FORMAT_WEBP;
+    }
+
+    $quality = isset($options['quality']) ? (int) $options['quality'] : 90;
+    // Quality 100 is a sensible default for "leave my JPEG alone", but it makes
+    // a pointlessly heavy WebP - cap the on-demand conversion where the format
+    // still wins clearly.
+    $this->modernQuality = $quality > 0 && $quality < 100 ? $quality : 90;
+
+    if (!empty($this->modernFormats) && !headers_sent()) {
+      header('Vary: Accept', false);
+    }
+  }
+
+  /**
+   * @return void
+   */
+  protected function endModernImageFormats()
+  {
+    $this->modernFormats = [];
+  }
+
+  protected function galleryHasActiveEcommerceRestrictions($galleryId)
+  {
+    $ecommerceModule = $this->getEnvironment()->getModule('ecommerce');
+
+    return $ecommerceModule
+      && method_exists($ecommerceModule, 'galleryHasActiveRestriction')
+      && $ecommerceModule->galleryHasActiveRestriction((int) $galleryId);
+  }
+
+  protected function disableOptimizationAndCdnForEcommerce(array $settingsData)
+  {
+    if (!isset($settingsData['optimization']) || !is_array($settingsData['optimization'])) {
+      $settingsData['optimization'] = [];
+    }
+    if (!isset($settingsData['cdn']) || !is_array($settingsData['cdn'])) {
+      $settingsData['cdn'] = [];
+    }
+
+    $settingsData['optimization']['enabled'] = 'false';
+    $settingsData['optimization']['serve_webp'] = '0';
+    $settingsData['optimization']['serve_avif'] = '0';
+    $settingsData['optimization']['frontend_format'] = 'original';
+    $settingsData['cdn']['enabled'] = 'false';
+    $settingsData['cdn']['auto'] = '0';
+
+    return $settingsData;
+  }
+
+  /**
+   * @param string $url
+   * @return string The sibling URL when one exists on disk, else $url.
+   */
+  protected function toModernFormatUrl($url)
+  {
+    if (empty($this->modernFormats) || !is_string($url) || $url === '') {
+      return $url;
+    }
+
+    if ($this->shortcodeAttachment === null) {
+      $this->shortcodeAttachment = new GridGallery_Galleries_Attachment();
+    }
+
+    $path = $this->shortcodeAttachment->replaceUrlToFilePath($url);
+    if (!$path) {
+      return $url;
+    }
+
+    foreach ($this->modernFormats as $mime) {
+      $pathPart = parse_url($url, PHP_URL_PATH);
+      $extension = $pathPart ? strtolower(pathinfo($pathPart, PATHINFO_EXTENSION)) : '';
+      if ($extension === GridGallery_Optimization_Model_ServerOptimize::getExtensionForMime($mime)) {
+        return $url;
+      }
+
+      $siblingPath = GridGallery_Optimization_Model_ServerOptimize::getSiblingPath($path, $mime);
+      if ($siblingPath === null) {
+        continue;
+      }
+
+      // Built lazily: the rendered file is a derivative that only comes into
+      // existence when the gallery is first displayed, so the sibling cannot
+      // be produced ahead of time. Costs one conversion on the first request
+      // and is reused from disk afterwards.
+      if (!is_file($siblingPath)) {
+        if ($this->modernEngine === null) {
+          $this->modernEngine = new GridGallery_Optimization_Model_ServerOptimize();
+        }
+        $this->modernEngine->createSibling($path, $mime, $this->modernQuality);
+      }
+
+      if (is_file($siblingPath)) {
+        return $url . '.' . GridGallery_Optimization_Model_ServerOptimize::getExtensionForMime($mime);
+      }
+    }
+
+    return $url;
   }
 
   public function loadFrontendAssets()
@@ -380,17 +595,61 @@ class GridGallery_Galleries_Module extends GridGallery_Core_Module
         $settingsData['thumbnail']['overlay']['enabled'] = 'false';
         $settingsData['lazyload']['enabled'] = '0';
         $settingsData['slideshow'] = false;
-        // Popup stays visible/editable in the Free settings UI (labeled
-        // PRO - see settings.twig), but must not actually function on the
-        // live frontend without an active license: box.type is what
-        // helpers.twig's aClass checks to decide whether a photo gets the
-        // gg-colorbox/gg-video/pbox class, so an empty string that matches
-        // none of its '0'/'1'/'2' branches turns the popup off cleanly.
-        $settingsData['box']['enabled'] = 'false';
-        $settingsData['box']['type'] = '';
+
+        // Free ships a REAL working popup - competitors (NextGEN, FooGallery)
+        // all include a lightbox in their free tier, and showing a configured
+        // popup in the settings UI that silently does nothing on the frontend
+        // was worse than not offering it at all.
+        //
+        // What stays Pro is everything AROUND the popup: the other themes,
+        // the popup border, slideshow, custom size and image-fit mode. Those
+        // are forced back to their neutral values here so a gallery that was
+        // configured under an active license (or has a Pro preset stored)
+        // can't leak premium popup styling into a Free render.
+        //
+        // box.enabled is deliberately NOT touched: turning the popup off is a
+        // legitimate Free choice and must survive. When it IS off, box.type is
+        // blanked rather than forced to '0' - gallery.twig's `box.type == '0'`
+        // branch doesn't re-check box.enabled, so a '0' there would emit a
+        // second data-popup-type alongside the "disable" one, and helpers.twig
+        // would still hang gg-colorbox on every photo.
+        $popupEnabled = !isset($settingsData['box']['enabled']) || $settingsData['box']['enabled'] !== 'false';
+
+        if ($popupEnabled) {
+          $settingsData['box']['type'] = self::FREE_POPUP_TYPE;
+          $settingsData['box']['theme'] = self::FREE_POPUP_THEME;
+        } else {
+          $settingsData['box']['type'] = '';
+        }
+
+        $settingsData['box']['slideshow'] = 'false';
+        $settingsData['box']['slideshowAuto'] = 'false';
+        $settingsData['box']['popupwidth'] = '';
+        $settingsData['box']['popupheight'] = '';
+
+        if (!isset($settingsData['popup']) || !is_array($settingsData['popup'])) {
+          $settingsData['popup'] = [];
+        }
+        $settingsData['popup']['placementType'] = 0;
+        $settingsData['popup']['border']['enable'] = '';
+
+        // Optimization and CDN are PRO in full, including the frontend
+        // delivery switches - a gallery configured under a licence must not
+        // keep serving WebP/AVIF once that licence lapses.
+        $settingsData['optimization']['serve_webp'] = '0';
+        $settingsData['optimization']['serve_avif'] = '0';
+        $settingsData['optimization']['frontend_format'] = 'original';
       }
 
+      $hasEcommerceRestrictions = $this->galleryHasActiveEcommerceRestrictions((int) $id);
+      if ($hasEcommerceRestrictions) {
+        $settingsData = $this->disableOptimizationAndCdnForEcommerce($settingsData);
+      }
+
+      $this->beginModernImageFormats($settingsData);
+
       $gallery->random_val = rand(1, 99999);
+      $this->applyEcommerceAccessState($gallery);
       $renderData = $this->render('@galleries/shortcode/gallery.twig', [
         'gallery' => $gallery,
         'settings' => $settingsData,
@@ -401,8 +660,10 @@ class GridGallery_Galleries_Module extends GridGallery_Core_Module
       // if (isset($this->cacheDirectory)) {
       //     file_put_contents($cachePath, $renderData);
       // }
+      $this->endModernImageFormats();
+
       // if CDN enable, replace HTTP_HOST
-      if ($environment->isPro() && $licenseModule && $licenseModule->isActive()) {
+      if (!$hasEcommerceRestrictions && $environment->isPro() && $licenseModule && $licenseModule->isActive()) {
         $this->replacePhotoHttpHostForCdnServer($renderData, $id);
       }
 
@@ -412,6 +673,13 @@ class GridGallery_Galleries_Module extends GridGallery_Core_Module
 
   function replacePhotoHttpHostForCdnServer(&$renderData, $galleryId)
   {
+    $settings = $this->getModel('settings')->get((int) $galleryId);
+    $settingsData = $settings && isset($settings->data) && is_array($settings->data) ? $settings->data : [];
+    $cdnOptions = isset($settingsData['cdn']) && is_array($settingsData['cdn']) ? $settingsData['cdn'] : [];
+    if (!isset($cdnOptions['enabled']) || $cdnOptions['enabled'] !== 'true') {
+      return false;
+    }
+
     $cdnModel = $this->getModel('cdn');
     $currentHost = trim($cdnModel->getCurrentServerName());
 
@@ -571,6 +839,55 @@ class GridGallery_Galleries_Module extends GridGallery_Core_Module
   public function getModel($alias)
   {
     return $this->getController()->getModel($alias);
+  }
+
+  protected function applyEcommerceAccessState($gallery)
+  {
+    if (!$gallery || empty($gallery->id) || empty($gallery->photos) || !is_array($gallery->photos)) {
+      return;
+    }
+
+    $ecommerceModule = $this->getEnvironment()->getModule('ecommerce');
+    if (!$ecommerceModule || !method_exists($ecommerceModule, 'getPhotoAccessState')) {
+      return;
+    }
+
+    $groupIds = $this->getGalleryGroupIdsForEcommerce((int) $gallery->id);
+
+    foreach ($gallery->photos as $photo) {
+      $photoId = !empty($photo->id) ? (int) $photo->id : 0;
+      $attachmentId = !empty($photo->attachment_id) ? (int) $photo->attachment_id : (!empty($photo->attachment['id']) ? (int) $photo->attachment['id'] : 0);
+      if (!$photoId || !$attachmentId) {
+        continue;
+      }
+
+      $state = $ecommerceModule->getPhotoAccessState((int) $gallery->id, $photoId, $groupIds);
+      if (!$state) {
+        continue;
+      }
+
+      if (empty($state->locked) && method_exists($ecommerceModule, 'buildProtectedImageUrl')) {
+        $state->protected_url = $ecommerceModule->buildProtectedImageUrl((int) $gallery->id, $photoId, $attachmentId);
+      }
+
+      $photo->ecommerce = $state;
+    }
+  }
+
+  protected function getGalleryGroupIdsForEcommerce($galleryId)
+  {
+    if (!class_exists('GridGallery_GalleryGroups_Model_Groups')) {
+      return [];
+    }
+
+    $groups = new GridGallery_GalleryGroups_Model_Groups();
+    if (method_exists($groups, 'setEnvironment')) {
+      $groups->setEnvironment($this->getEnvironment());
+    }
+
+    return method_exists($groups, 'getActiveGroupIdsByGalleryId')
+      ? $groups->getActiveGroupIdsByGalleryId((int) $galleryId)
+      : [];
   }
 
   public function render($template, $parameters)
@@ -750,9 +1067,18 @@ class GridGallery_Galleries_Module extends GridGallery_Core_Module
     $handler = [$this, 'getGallery'];
     $shortcode = $this->getEnvironment()->getConfig()->get('shortcode_name');
 
+    $this->shortcodeAttachment = $attachment;
+
+    // Wrapped rather than bound straight to the model: this is the single
+    // choke point where every rendered image URL is produced, and it is the
+    // only place a WebP/AVIF swap can catch the cropped/watermarked
+    // derivatives the template actually outputs.
     $this->getEnvironment()
       ->getTwig()
-      ->addFunction(new Twig_SupTwgSgg_SimpleFunction('get_attachment', [$attachment, 'getAttachment']));
+      ->addFunction(new Twig_SupTwgSgg_SimpleFunction('get_attachment', [$this, 'twigGetAttachment']));
+    $this->getEnvironment()
+      ->getTwig()
+      ->addFunction(new Twig_SupTwgSgg_SimpleFunction('modern_image_url', [$this, 'twigModernImageUrl']));
     $this->getEnvironment()
       ->getTwig()
       ->addFunction(new Twig_SupTwgSgg_SimpleFunction('set_attachment_settings', [$attachment, 'setAttachmentSettings']));
@@ -841,12 +1167,30 @@ class GridGallery_Galleries_Module extends GridGallery_Core_Module
 
   public static function rgbToArray($rgb)
   {
+    if ($rgb === null || is_array($rgb)) {
+      return [];
+    }
+
+    $rgb = trim((string)$rgb);
+    if ($rgb === '') {
+      return [];
+    }
+
     $rgb = array_map('trim', explode(',', trim(str_replace(['rgb', 'a', '(', ')'], '', $rgb))));
     return $rgb;
   }
 
   public static function hexToRgb($hex)
   {
+    if ($hex === null || is_array($hex)) {
+      return [];
+    }
+
+    $hex = trim((string)$hex);
+    if ($hex === '') {
+      return [];
+    }
+
     if (strpos($hex, 'rgb') !== false) {
       // Maybe it's already in rgb format - just return it as array
       return self::rgbToArray($hex);
@@ -869,6 +1213,10 @@ class GridGallery_Galleries_Module extends GridGallery_Core_Module
   public static function hexToRgbaStr($hex, $alpha = 1)
   {
     $rgbArr = self::hexToRgb($hex);
+    if (empty($rgbArr)) {
+      return '';
+    }
+
     return 'rgba(' . implode(',', $rgbArr) . ',' . $alpha . ')';
   }
 }

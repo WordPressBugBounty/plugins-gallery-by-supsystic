@@ -113,7 +113,7 @@
       return {
         longname: 'Gallery by Supsystic buttons',
         author: 'Dmitriy Smus',
-        infourl: 'http://supsystic.com',
+        infourl: 'https://supsystic.com',
         version: '0.1',
       };
     },

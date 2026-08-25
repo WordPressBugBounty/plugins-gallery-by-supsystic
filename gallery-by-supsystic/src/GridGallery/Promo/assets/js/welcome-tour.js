@@ -208,7 +208,7 @@
     var tour = new WelcomeTour(GalleryWelcomeTourData);
     window.sggWelcomeTour = tour;
 
-    $(document).on('click', '#sgg-start-welcome-tour', function (event) {
+    $(document).on('click', '#sgg-start-welcome-tour, .sgg-start-welcome-tour', function (event) {
       event.preventDefault();
       tour.open();
     });

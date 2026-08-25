@@ -61,8 +61,19 @@ class GridGallery_Optimization_Model_Optimization extends GridGallery_Core_BaseM
     if ($code == 'tinypng') {
       return 'TinyPNG';
     }
+    if ($code == self::ENGINE_SERVER) {
+      return 'This server';
+    }
     return null;
   }
+
+  /**
+   * Engine that compresses through this server's own GD/Imagick instead of a
+   * third-party API. Stored in the same service_code column as 'tinypng', so
+   * rows written before this engine existed keep reading back correctly.
+   */
+  const ENGINE_SERVER = 'server';
+  const ENGINE_TINYPNG = 'tinypng';
 
   public static function getSizeInMb($sizeInBytes)
   {

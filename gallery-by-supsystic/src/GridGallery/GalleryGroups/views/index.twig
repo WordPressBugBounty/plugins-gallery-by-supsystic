@@ -1,0 +1,67 @@
+{% extends 'grid-gallery.twig' %}
+
+{% block header %}
+    <nav class="supsystic-breadcrumbs">
+        <a href="{{ environment.generateUrl('gallerygroups') }}">{{ translate('Gallery Groups') }}</a>
+    </nav>
+{% endblock %}
+
+{% block content %}
+    {% import '@gallerygroups/_admin-ui.twig' as ui %}
+    <section id="gg-gallery-groups">
+        <div class="gg-table-toolbar">
+            <div class="gg-table-toolbar-left">
+                <a class="button button-primary" href="{{ environment.generateUrl('gallerygroups', 'create') }}">
+                    <i class="fa fa-plus-circle"></i>
+                    {{ translate('Create Group') }}
+                </a>
+                {{ ui.help(translate('Gallery Groups are organizational containers for galleries. E-commerce access is configured only in E-commerce Items.')) }}
+                <form method="get">
+                    <input type="hidden" name="page" value="supsystic-gallery">
+                    <input type="hidden" name="module" value="gallerygroups">
+                    <input type="hidden" name="action" value="index">
+                    <div class="gg-galleries-search">
+                        <input type="search" name="s" value="{{ search }}" placeholder="{{ translate('Search groups...') }}">
+                    </div>
+                </form>
+            </div>
+            <div class="gg-pagination-info">{{ recordsTotal }} {{ translate('records') }}</div>
+        </div>
+
+        <table class="gg-galleries-table">
+            <thead>
+                <tr>
+                    <th>{{ translate('ID') }}</th>
+                    <th>{{ translate('Name') }}</th>
+                    <th>{{ translate('Active') }}</th>
+                    <th>{{ translate('Created At') }}</th>
+                    <th>{{ translate('Updated At') }}</th>
+                    <th>{{ translate('Actions') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for group in groups %}
+                    <tr>
+                        <td>{{ group.group_id }}</td>
+                        <td><a href="{{ environment.generateUrl('gallerygroups', 'edit', {'group_id': group.group_id}) }}">{{ group.name }}</a></td>
+                        <td>{{ group.active ? translate('Yes') : translate('No') }}</td>
+                        <td>{{ group.created_at }}</td>
+                        <td>{{ group.updated_at }}</td>
+                        <td>
+                            <a class="button" href="{{ environment.generateUrl('gallerygroups', 'edit', {'group_id': group.group_id}) }}">
+                                <i class="fa fa-pencil"></i> {{ translate('Edit') }}
+                            </a>
+                            <a class="button" data-confirm="{{ translate('Are you sure?') }}" href="{{ environment.generateUrl('gallerygroups', 'delete', {'group_id': group.group_id, '_wpnonce': _wpnonce}) }}">
+                                <i class="fa fa-trash"></i> {{ translate('Delete') }}
+                            </a>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="6">{{ translate('No gallery groups found.') }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+{% endblock %}

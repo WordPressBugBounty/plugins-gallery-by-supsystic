@@ -32,6 +32,13 @@
         <td class="gg-col-type">
             <span class="gg-type-badge">{{ gallery.typeLabel }}</span>
         </td>
+        <td class="gg-col-group">
+            {% if gallery.gallery_group is defined and gallery.gallery_group is not empty %}
+                {{ gallery.gallery_group }}
+            {% else %}
+                &mdash;
+            {% endif %}
+        </td>
         <td class="gg-col-count">{{ gallery.total|default(0) }}</td>
         <td class="gg-col-date">{{ gallery.createdFormatted }}</td>
         <td class="gg-col-date">{{ gallery.modifiedFormatted }}</td>

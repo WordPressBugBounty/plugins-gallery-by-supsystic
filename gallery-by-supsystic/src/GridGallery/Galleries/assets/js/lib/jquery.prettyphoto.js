@@ -63,14 +63,17 @@ Version: 3.1.6
     if (typeof pp_settings.isShowAttributes == 'undefined') {
       pp_settings.isShowAttributes = false;
     }
-    if (pp_settings.isShowAttributes) {
+    if (typeof pp_settings.isShowEcommerceRestrict == 'undefined') {
+      pp_settings.isShowEcommerceRestrict = false;
+    }
+    if (pp_settings.isShowAttributes || pp_settings.isShowEcommerceRestrict) {
       if (typeof pp_settings.attributesPosition == 'undefined') {
         pp_settings.attributesPosition = 'right';
       }
       if (typeof pp_settings.attributesWidth == 'undefined') {
         pp_settings.attributesWidth = '200';
       }
-      var attributesHtml = '<div class="pp_attributes_container" style="width:' + pp_settings.attributesWidth + 'px"><div id="ppCustomAttributes"></div>';
+      var attributesHtml = '<div class="pp_attributes_container" style="width:' + pp_settings.attributesWidth + 'px"><div id="ppCustomAttributes"></div><div id="ppEcommerceRestrict"></div>';
 
       if (pp_settings.isShowButtonLink) {
         attributesHtml += '<div id="ppAttributeButton"><a target="_blank" href="#" style="' + pp_settings.buttonLinkStyle + '"></a></div>';
@@ -115,7 +118,7 @@ Version: 3.1.6
       '</span>' +
       '</a>' +
       '</div>';
-    if (pp_settings.isShowAttributes) {
+    if (pp_settings.isShowAttributes || pp_settings.isShowEcommerceRestrict) {
       if (pp_settings.attributesPosition == 'left') {
         markupHtml += attributesHtml + '<div id="pp_full_res" style="float:left;"></div>';
       } else {
@@ -252,7 +255,7 @@ Version: 3.1.6
       // prettyPhoto container specific
       pp_contentHeight,
       pp_contentWidth,
-      pp_attributesWidth = pp_settings.isShowAttributes ? parseFloat(pp_settings.attributesWidth) : 0,
+      pp_attributesWidth = pp_settings.isShowAttributes || pp_settings.isShowEcommerceRestrict ? parseFloat(pp_settings.attributesWidth) : 0,
       pp_containerHeight,
       pp_containerWidth,
       // Window size
@@ -383,16 +386,19 @@ Version: 3.1.6
       // hides the panel for an item with no Custom Attributes, the image
       // never reclaims that reserved space. Recompute it per item, before
       // any of those calculations run for this position.
-      if (settings.isShowAttributes) {
-        if (settings.hideAttributesPanelIfEmpty) {
+      if (settings.isShowAttributes || settings.isShowEcommerceRestrict) {
+        var $currentSidePanelItem = $('[href="' + pp_images[set_position] + '"]'),
+          hasEcommerceRestrict = settings.isShowEcommerceRestrict && $currentSidePanelItem.attr('data-ecommerce-restrict');
+        if (settings.isShowAttributes && settings.hideAttributesPanelIfEmpty && !hasEcommerceRestrict) {
           var ppCurrentItemAttrs;
           try {
-            ppCurrentItemAttrs = JSON.parse($('[href="' + pp_images[set_position] + '"]').attr('data-attributes'));
+            ppCurrentItemAttrs = JSON.parse($currentSidePanelItem.attr('data-attributes'));
           } catch (err) {}
           pp_attributesWidth = $.isArray(ppCurrentItemAttrs) && ppCurrentItemAttrs.length > 0 ? parseFloat(settings.attributesWidth) : 0;
         } else {
-          pp_attributesWidth = parseFloat(settings.attributesWidth);
+          pp_attributesWidth = settings.isShowAttributes || hasEcommerceRestrict ? parseFloat(settings.attributesWidth) : 0;
         }
+        $pp_pic_holder.find('.pp_attributes_container').toggle(pp_attributesWidth > 0);
       }
 
       $('.pp_loaderIcon').show();
@@ -825,7 +831,7 @@ Version: 3.1.6
                 $pp_pic_holder.find('.pp_hoverContainer').hide();
               }
 
-              if (settings.isShowAttributes) {
+              if (settings.isShowAttributes || settings.isShowEcommerceRestrict) {
                 if (settings.attributesPosition == 'left') {
                   $ppHoverContainer.css('left', pp_attributesWidth);
                 } else {
@@ -1124,7 +1130,7 @@ Version: 3.1.6
 
         // Set the proper width to the gallery items
         $pp_gallery
-          .css('margin-left', -(galleryWidth / 2 + navWidth / 2 + (settings.isShowAttributes ? (pp_attributesWidth / 2) * (settings.attributesPosition == 'left' ? -1 : 1) : 0)))
+          .css('margin-left', -(galleryWidth / 2 + navWidth / 2 + (settings.isShowAttributes || settings.isShowEcommerceRestrict ? (pp_attributesWidth / 2) * (settings.attributesPosition == 'left' ? -1 : 1) : 0)))
           .find('div:first')
           .width(galleryWidth + 5)
           .find('ul')
@@ -1189,7 +1195,7 @@ Version: 3.1.6
 
         toInject = settings.gallery_markup.replace(/{gallery}/g, toInject);
 
-        $pp_pic_holder.find(settings.isShowAttributes && settings.attributesPosition == 'right' ? '.pp_attributes_container' : '#pp_full_res').after(toInject);
+        $pp_pic_holder.find((settings.isShowAttributes || settings.isShowEcommerceRestrict) && settings.attributesPosition == 'right' ? '.pp_attributes_container' : '#pp_full_res').after(toInject);
 
         (($pp_gallery = $('.pp_pic_holder .pp_gallery')), ($pp_gallery_li = $pp_gallery.find('li'))); // Set the gallery selectors
 

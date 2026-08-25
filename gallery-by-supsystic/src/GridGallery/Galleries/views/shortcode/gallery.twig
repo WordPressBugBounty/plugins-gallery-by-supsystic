@@ -222,9 +222,12 @@
 			{% else %}
 				<div class="gallery-loading">
 					<div class="la-{{ settings.preload.icon_name }}" style="color: {{ settings.preload.background }}">
-						{% for i in 1..settings.preload.icon_items %}
-							<div></div>
-						{% endfor %}
+						{% set preloadIconItems = settings.preload.icon_items|numDefault(0) %}
+						{% if preloadIconItems > 0 %}
+							{% for i in 1..preloadIconItems %}
+								<div></div>
+							{% endfor %}
+						{% endif %}
 					</div>
 				</div>
 			{% endif %}

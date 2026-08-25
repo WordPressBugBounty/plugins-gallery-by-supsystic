@@ -23,6 +23,49 @@
 	{% endif %}
 {% endmacro %}
 
+{% macro ecommerceRestrictData(photo, includeData, gallery) %}
+	{% if includeData %}
+		{% set ecommerceRestrictData = {
+			'locked': photo.ecommerce.locked ? 1 : 0,
+			'gallery_id': gallery.id,
+			'photo_id': photo.id,
+			'item_id': photo.ecommerce.item_id,
+			'user_type': photo.ecommerce.user_type,
+			'title': photo.ecommerce.restrict_panel_title,
+			'description': photo.ecommerce.restrict_panel_description,
+			'item_name': photo.ecommerce.item_name,
+			'item_description': photo.ecommerce.item_description,
+			'price_label': photo.ecommerce.restrict_panel_price_label,
+			'price': photo.ecommerce.price_label,
+			'button_label': photo.ecommerce.restrict_panel_button_label,
+			'checkout_url': photo.ecommerce.checkout_url,
+			'protected_url': photo.ecommerce.protected_url|default(''),
+			'show_resolution_sidebar_in_popup': photo.ecommerce.show_resolution_sidebar_in_popup|default(0),
+			'download_label': translate('Download'),
+			'resolutions_label': photo.ecommerce.restrict_resolutions_label,
+			'resolutions': photo.ecommerce.resolutions|default([]),
+			'login_or_label': photo.ecommerce.restrict_login_or_label,
+			'login_button_label': photo.ecommerce.restrict_login_button_label,
+			'access_modal_title': photo.ecommerce.access_modal_title,
+			'access_modal_description': photo.ecommerce.access_modal_description,
+			'access_key_label': photo.ecommerce.access_key_label,
+			'access_key_placeholder': photo.ecommerce.access_key_placeholder,
+			'access_email_label': photo.ecommerce.access_email_label,
+			'access_email_placeholder': photo.ecommerce.access_email_placeholder,
+			'access_password_label': photo.ecommerce.access_password_label,
+			'access_password_placeholder': photo.ecommerce.access_password_placeholder,
+			'access_submit_label': photo.ecommerce.access_submit_label,
+			'access_success_label': photo.ecommerce.access_success_label,
+			'access_error_label': photo.ecommerce.access_error_label,
+			'wp_login_url': photo.ecommerce.wp_login_url,
+			'validate_access_url': photo.ecommerce.validate_access_url,
+			'validate_access_nonce': photo.ecommerce.validate_access_nonce,
+			'style': photo.ecommerce.style|default({})
+		} %}
+		data-ecommerce-restrict="{{ ecommerceRestrictData|json_encode|e }}"
+	{% endif %}
+{% endmacro %}
+
 {% set figureStyle %}
 	{% if settings.thumbnail.border.type != 'none' %}
         border: {{ settings.thumbnail.border.width }}px{{' '}} {{ settings.thumbnail.border.type }}{{' '}} {{ settings.thumbnail.border.color }};
@@ -65,27 +108,63 @@
 {% else %}
 	{% set is_ext_link = photo.attachment.external_link is defined and photo.attachment.external_link is not empty %}
 {% endif %}
+{% set isEcommerceLocked = photo.ecommerce is defined and photo.ecommerce.locked %}
+{% set ecommerceRestrictPlacement = photo.ecommerce.restrict_placement|default('thumbnail') %}
+{% set isGalleryPopupEnabled = settings.browserUrlTooltipHide|default(0) != 1 and settings.box.enabled|default('true') == 'true' and settings.box.type in ['0', '1', '2'] %}
+{% set isEcommercePopupMode = isGalleryPopupEnabled and photo.ecommerce is defined and photo.ecommerce.item_type == 'full_resolution' and (ecommerceRestrictPlacement == 'popup' or not isEcommerceLocked) %}
+{% set isEcommercePrivatePopupSidebar = isGalleryPopupEnabled and photo.ecommerce is defined and photo.ecommerce.item_type == 'private_access' and not isEcommerceLocked and photo.ecommerce.show_resolution_sidebar_in_popup|default(0) %}
+{% set isEcommercePopupPanel = isEcommercePopupMode or isEcommercePrivatePopupSidebar %}
+{% set isEcommercePopupRestrict = isEcommerceLocked and isEcommercePopupMode %}
+{% set isEcommerceThumbnailLocked = isEcommerceLocked and not isEcommercePopupPanel %}
+{% set isEcommerceThumbnailPlaceholder = isEcommerceThumbnailLocked and ecommerceRestrictPlacement == 'thumbnail' and photo.ecommerce.item_type == 'private_access' and photo.ecommerce.thumbnail_placeholder_url is defined and photo.ecommerce.thumbnail_placeholder_url is not empty %}
+{% set isEcommerceOriginalWithoutWatermark = photo.ecommerce is defined and photo.ecommerce.show_original_without_watermark|default(0) %}
+{% set link = false %}
+{% set ecommerceRestrictedPreviewUrl %}
+	{% if photo.ecommerce.preview_url is defined and photo.ecommerce.preview_url is not empty %}
+		{{ photo.ecommerce.preview_url }}
+	{% else %}
+		data:image/gif;base64,R0lGODlhAQABAAAAACw=
+	{% endif %}
+{% endset %}
+{% set ecommerceProtectedDisplayUrl %}
+	{% if photo.ecommerce.display_url is defined and photo.ecommerce.display_url is not empty %}
+		{{ photo.ecommerce.display_url }}
+	{% else %}
+		data:image/gif;base64,R0lGODlhAQABAAAAACw=
+	{% endif %}
+{% endset %}
 
 {% set aClass %}
-	{% if (is_ext_link == false) and (photo.attachment.video is not defined or photo.attachment.video|trim is empty) and settings.box.type == '0' %}
-		gg-colorbox
-	{% endif %}
+	{% if isEcommerceThumbnailLocked %}
+		gg-ecommerce-locked-link
+	{% else %}
+		{% if (is_ext_link == false) and (photo.attachment.video is not defined or photo.attachment.video|trim is empty) and settings.box.type == '0' %}
+			gg-colorbox
+		{% endif %}
 
-	{% if photo.attachment.video is defined and photo.attachment.video|trim is not empty and settings.box.type == '0' %}
-		gg-video
-	{% endif %}
+		{% if photo.attachment.video is defined and photo.attachment.video|trim is not empty and settings.box.type == '0' %}
+			gg-video
+		{% endif %}
 
-	{% if settings.box.type == '2' and (is_ext_link == false or (photo.attachment.video is defined and photo.attachment.video|trim is not empty)) %}
-		pbox
+		{% if settings.box.type == '2' and (is_ext_link == false or (photo.attachment.video is defined and photo.attachment.video|trim is not empty)) %}
+			pbox
+		{% endif %}
 	{% endif %}
 {% endset %}
 
 {% set aHref %}
-	{% if is_ext_link == true %}
+	{% if isEcommerceThumbnailLocked %}
+		{{ photo.ecommerce.checkout_url }}
+		{% set link = true %}
+	{% elseif isEcommercePopupRestrict %}
+		{{ ecommerceRestrictedPreviewUrl|trim }}
+	{% elseif photo.ecommerce is defined and not isEcommerceLocked and ecommerceProtectedDisplayUrl|trim is not empty %}
+		{{ ecommerceProtectedDisplayUrl|trim }}
+	{% elseif is_ext_link == true %}
 		{{ photo.attachment.external_link|force_http }}
 		{% set link = true %}
 	{% else %}
-		{{ photo.attachment.url ~ "?gid=" ~ gallery.id }}
+		{{ modern_image_url(photo.attachment.url) ~ "?gid=" ~ gallery.id }}
 	{% endif %}
 {% endset %}
 
@@ -129,16 +208,17 @@
 
 			{% block sggPopupLinkForDetailsButton %}
 				{# Popup #}
-				{% if settings.box.type == '1' and link == false %}
+				{% if settings.box.type == '1' and link != true %}
 					data-rel="prettyPhoto[pp_gal]"
 				{% elseif photo.attachment.video == null %}
 					rel="{{ aRel | trim }}"
 				{% endif %}
 				{# Popup #}
 
-				{% if link == true %}
-					data-type="link"
-				{% endif %}
+			{% if link == true %}
+				data-type="link"
+			{% endif %}
+			{{ _self.ecommerceRestrictData(photo, isEcommercePopupPanel, gallery) }}
 			{% endblock %}
 			style="border-radius: {{ settings.thumbnail.border.radius ~ settings.thumbnail.border.radius_unit|unitReplace(['px', '%']) }};"
 		{% endblock %}
@@ -184,6 +264,7 @@
 		{% block figure_attributes %}
 			class="grid-gallery-caption
 			{% if settings.displayFirstPhoto == 'on' and index > 0 %} hidden-item {% endif %}
+			{% if isEcommerceThumbnailLocked %} gg-ecommerce-locked-figure {% endif %}
 			{{ ggMosaicHiddenItemVar }}
 			{% if settings.mouse_shadow == '1' and settings.use_shadow == '1' %}
 				shadow-show
@@ -245,7 +326,15 @@
 
 	{% set previewImgUrl %}
 		{% block previewImageUrlVar %}
-			{% if photo.attachment.isNotRealAttachment == 1 %}
+			{% if isEcommerceThumbnailPlaceholder %}
+				{{ photo.ecommerce.thumbnail_placeholder_url }}
+			{% elseif isEcommerceThumbnailLocked and photo.ecommerce.item_type in ['private_access', 'full_access'] %}
+				data:image/gif;base64,R0lGODlhAQABAAAAACw=
+			{% elseif photo.ecommerce.thumbnail_preview_url is defined and photo.ecommerce.thumbnail_preview_url is not empty %}
+				{{ photo.ecommerce.thumbnail_preview_url }}
+			{% elseif isEcommerceThumbnailLocked and photo.ecommerce.item_type == 'full_resolution' %}
+				data:image/gif;base64,R0lGODlhAQABAAAAACw=
+			{% elseif photo.attachment.isNotRealAttachment == 1 %}
 				{{ photo.attachment.url }}
 			{% else %}
 				{{ get_attachment(photo.attachment.id, width, height, photo.attachment.cropPosition, settings.thumbnail.cropQuality|default('100')) }}
@@ -284,6 +373,9 @@
 			{% endif %}
 			{% if settings.area.grid == 2 or settings.area.grid == 3 or settings.area.grid == 4 %}
 				{% set imgClassStr = imgClassStr ~ ' ggNotInitImg' %}
+			{% endif %}
+			{% if isEcommerceThumbnailPlaceholder %}
+				{% set imgClassStr = imgClassStr ~ ' gg-ecommerce-placeholder-img' %}
 			{% endif %}
 			src="{{ imgSrcStr }}"
 			class="{{ imgClassStr }}"
@@ -345,7 +437,17 @@
 		{% endblock %}
 	{% endset %}
 
-	{% set prepareImgUrl = photo.attachment.url ~ "?gid=" ~ gallery.id  %}
+	{% set prepareImgUrl %}
+			{% if isEcommerceThumbnailLocked %}
+				{{ photo.ecommerce.checkout_url }}
+		{% elseif isEcommercePopupRestrict %}
+			{{ ecommerceRestrictedPreviewUrl|trim }}
+		{% elseif photo.ecommerce is defined and not isEcommerceLocked and ecommerceProtectedDisplayUrl|trim is not empty %}
+			{{ ecommerceProtectedDisplayUrl|trim }}
+		{% else %}
+			{{ modern_image_url(photo.attachment.url) ~ "?gid=" ~ gallery.id }}
+		{% endif %}
+	{% endset %}
 
 	{% set var_figcaption_wrap %}
 		{% block figcaption_wrap %}
@@ -423,6 +525,7 @@
 									{#  #}
 								{% endif %}
 								{{ _self.iconAttributesData(settings, photo) }}
+								{{ _self.ecommerceRestrictData(photo, isEcommercePopupPanel, gallery) }}
 						>
 							{#Watch the video {{ photo.attachment.caption }}#}
 						</a>
@@ -460,6 +563,7 @@
 							data-rel="prettyPhoto[pp_gal]"
 								{% endif %}
 								{{ _self.iconAttributesData(settings, photo) }}
+								{{ _self.ecommerceRestrictData(photo, isEcommercePopupPanel, gallery) }}
 							>Open in pop-up window</a>
 					{% endif %}
 				</div>
@@ -548,6 +652,35 @@
 				 {% endif %}">
 
 				<img {{ var_image_attributes }} />
+				{% if isEcommerceThumbnailLocked and photo.ecommerce.item_description is defined and photo.ecommerce.item_description is not empty %}
+					<span class="gg-thumbnail-description-help" tabindex="0" aria-label="{{ photo.ecommerce.item_description|e }}" data-tooltip="{{ photo.ecommerce.item_description|e }}">?</span>
+				{% endif %}
+				{% if isEcommerceThumbnailLocked %}
+					<span class="gg-ecommerce-lock-overlay"
+						{{ _self.ecommerceRestrictData(photo, true, gallery) }}
+						style="
+							{% if photo.ecommerce.style.thumbnail_overlay_bg is defined %}--gg-ecommerce-thumbnail-overlay-bg: {{ photo.ecommerce.style.thumbnail_overlay_bg }};{% endif %}
+							{% if photo.ecommerce.style.thumbnail_title_color is defined %}--gg-ecommerce-thumbnail-title-color: {{ photo.ecommerce.style.thumbnail_title_color }};{% endif %}
+							{% if photo.ecommerce.style.thumbnail_title_font_size is defined %}--gg-ecommerce-thumbnail-title-size: {{ photo.ecommerce.style.thumbnail_title_font_size }}px;{% endif %}
+							{% if photo.ecommerce.style.thumbnail_text_color is defined %}--gg-ecommerce-thumbnail-text-color: {{ photo.ecommerce.style.thumbnail_text_color }};{% endif %}
+							{% if photo.ecommerce.style.thumbnail_text_font_size is defined %}--gg-ecommerce-thumbnail-text-size: {{ photo.ecommerce.style.thumbnail_text_font_size }}px;{% endif %}
+							{% if photo.ecommerce.style.thumbnail_buy_button_bg is defined %}--gg-ecommerce-thumbnail-buy-bg: {{ photo.ecommerce.style.thumbnail_buy_button_bg }};{% endif %}
+							{% if photo.ecommerce.style.thumbnail_buy_button_color is defined %}--gg-ecommerce-thumbnail-buy-color: {{ photo.ecommerce.style.thumbnail_buy_button_color }};{% endif %}
+							{% if photo.ecommerce.style.thumbnail_login_button_bg is defined %}--gg-ecommerce-thumbnail-login-bg: {{ photo.ecommerce.style.thumbnail_login_button_bg }};{% endif %}
+							{% if photo.ecommerce.style.thumbnail_login_button_color is defined %}--gg-ecommerce-thumbnail-login-color: {{ photo.ecommerce.style.thumbnail_login_button_color }};{% endif %}
+							{% if photo.ecommerce.style.thumbnail_button_font_size is defined %}--gg-ecommerce-thumbnail-button-size: {{ photo.ecommerce.style.thumbnail_button_font_size }}px;{% endif %}
+						">
+						{% if isEcommerceThumbnailPlaceholder and photo.ecommerce.item_name is defined and photo.ecommerce.item_name is not empty %}
+							<span class="gg-ecommerce-placeholder-description">{{ photo.ecommerce.item_name }}</span>
+						{% else %}
+							<span class="gg-ecommerce-lock-title">{{ photo.ecommerce.item_name }}</span>
+							<span class="gg-ecommerce-lock-price">{{ photo.ecommerce.price_label }}</span>
+						{% endif %}
+						<span class="gg-ecommerce-lock-button">{{ photo.ecommerce.restrict_thumbnail_button_label|default(translate('Buy')) }}</span>
+						<span class="gg-ecommerce-login-separator">{{ photo.ecommerce.restrict_login_or_label }}</span>
+						<button type="button" class="gg-ecommerce-access-login">{{ photo.ecommerce.restrict_login_button_label }}</button>
+					</span>
+				{% endif %}
 			</div>
 			{% block mosaicLastImageNumberWrapper %}
 			{% endblock %}

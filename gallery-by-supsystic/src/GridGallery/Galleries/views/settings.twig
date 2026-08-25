@@ -41,9 +41,9 @@
    takes over, showing these as still "on" would be misleading even if
    their own stored value is still 'true' from before the switch. #}
 {% set galleryFeatureStatuses = [
+    { 'label': translate('Popup'), 'enabled': popupEnabled, 'alwaysAvailable': true, 'anchor': 'gg-anl-popup' },
     { 'label': translate('Gallery Loader'), 'enabled': settings.preload.enabled|default('true') == 'true', 'alwaysAvailable': true, 'anchor': 'gg-anl-preloader' },
     { 'label': translate('Horizontal Scroll'), 'enabled': settings.horizontalScroll.enabled|default('false') == 'true', 'alwaysAvailable': true, 'anchor': 'gg-anl-horiz-scroll' },
-    { 'label': translate('Popup'), 'enabled': popupEnabled, 'alwaysAvailable': true, 'proLabel': true, 'anchor': 'gg-anl-popup' },
     { 'label': translate('Slideshow'), 'enabled': popupEnabled and settings.box.slideshow|default('false') == 'true', 'alwaysAvailable': true, 'proLabel': true, 'anchor': 'gg-anl-popup' },
     { 'label': translate('Categories'), 'enabled': settings.categories.enabled|default('false') == 'true', 'anchor': 'useCats', 'presetSeeded': true },
     { 'label': translate('Posts'), 'enabled': settings.posts.enable|default(0) == 1, 'anchor': 'sgg-posts-layout-enable', 'presetSeeded': true },
@@ -59,6 +59,8 @@
     { 'label': translate('Captions'), 'enabled': settings.thumbnail.overlay.enabled|default('true') == 'true' and settings.captionBuilder.enabled|default(0) != 1, 'anchor': 'useCaptions', 'presetSeeded': true },
     { 'label': translate('EXIF data'), 'enabled': settings.exif.enabled|default(0) == 1, 'anchor': 'ggExifDataTable' },
     { 'label': translate('Custom Attributes'), 'enabled': settings.attributes.enabled|default('false') == 'true', 'anchor': 'gg-anl-attributes' },
+    { 'label': translate('CDN'), 'enabled': settings.cdn.enabled|default('false') == 'true', 'anchor': 'useCdnRow' },
+    { 'label': translate('Optimization'), 'enabled': settings.optimization.enabled|default('false') == 'true', 'anchor': 'useOptimizationRow' },
 ] %}
 
 {# license.isActive() only exists on the Pro build's license module, and
@@ -187,6 +189,31 @@
                     <span class="gg-info-label">{{ translate('Categories used') }}</span>
                     <span class="gg-info-value">{{ galleryCategoriesList|length }}</span>
                 </div>
+                <div class="gg-info-item">
+                    <span class="gg-info-label">{{ translate('Ecommerce') }}</span>
+                    <span class="gg-info-value gg-info-value-inline">
+                        {% if galleryEcommerceSummary %}
+                            <span class="gg-info-summary-text">{{ galleryEcommerceSummary.name }}</span>
+                            <a class="gg-info-open-link" href="{{ galleryEcommerceSummary.edit_url }}" title="{{ translate('Edit Ecommerce item') }}">
+                                <i class="fa fa-pencil"></i>
+                            </a>
+                        {% else %}
+                            <i class="fa fa-times gg-info-empty-icon" title="{{ translate('No Ecommerce item') }}"></i>
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="gg-info-item">
+                    <span class="gg-info-label">{{ translate('Groups') }}</span>
+                    <span class="gg-info-value gg-info-value-inline">
+                        {% if galleryGroupSummary is defined and galleryGroupSummary is not empty %}
+                            {% for group in galleryGroupSummary|slice(0, 2) %}
+                                <a class="gg-info-chip-link" href="{{ group.edit_url }}" title="{{ group.name }}">{{ group.name|slice(0, 5) }}</a>
+                            {% endfor %}
+                        {% else %}
+                            <i class="fa fa-times gg-info-empty-icon" title="{{ translate('No groups') }}"></i>
+                        {% endif %}
+                    </span>
+                </div>
                 <div class="gg-info-dates">
                     <div class="gg-info-item">
                         <span class="gg-info-label">{{ translate('Created') }}</span>
@@ -275,6 +302,7 @@
 
 {% block content %}
     {% import '@core/form.twig' as form %}
+    {% import '@gallerygroups/_admin-ui.twig' as groupsUi %}
     {% import _self as f %}
 
     <div class="settings-wrap" data-leave-confirm="{{ translate('Your changes not saved. You really want to leave without saving?') }}" data-gallery-id="{{ gallery.id }}" data-collapsed-sections="{{ (settings.ui.collapsedSections|default({}))|json_encode|e }}">
@@ -329,7 +357,7 @@
                                     {{ translate('Number of Columns') }}
         							{{ form.show_tooltip('columns') }}
         							<br />
-        							<label><a href="http://supsystic.com/fixed-columns-gallery-example/" style="color: #0074a2; font-size: 10px; text-decoration: none;">More Info</a> </label>
+        							<label><a href="https://supsystic.com/fixed-columns-gallery-example/" style="color: #0074a2; font-size: 10px; text-decoration: none;">More Info</a> </label>
                                 </label>
                             </th>
                             <td>
@@ -354,6 +382,25 @@
     					{{ form.row(translate('Gallery Name:'),
                         form.input('text', 'title', gallery.title, { 'style': { 'width': '232px;' } })
                         , 'title', null, 'gallery-name-row') }}
+
+                        {% if galleryGroups is defined and galleryGroups is not empty %}
+                            {{ form.row(translate('Gallery Groups'),
+                                groupsUi.ajax_select(
+                                    'gg-gallery-groups-select',
+                                    'gallery_group_ids[]',
+                                    'gallery_group',
+                                    selectedGalleryGroupChoices|default([]),
+                                    {
+                                        'action': 'sg_gallerygroups_search_groups',
+                                        'nonce': _wpnonce,
+                                        'multiple': true,
+                                        'activeOnly': 1,
+                                        'placeholder': translate('Search gallery groups...'),
+                                        'emptyText': translate('No groups found')
+                                    }
+                                ),
+                                'gallery-groups', null, 'gallery-groups-row') }}
+                        {% endif %}
 
 						{{ form.row(environment.translate('Gallery alignment'),
 							form.select('area[position]', ['Left', 'Center', 'Right'], settings.area.position|default(1), { 'style': 'width: 100px;' }), 'gallery-align') }}
@@ -486,205 +533,21 @@
 			{% endblock %}
             </div>
             <div data-tab="settings">
-
-            {% block preload %}
-                <table class="form-table" name="preload" id="gg-anl-preloader">
-                    <thead>
-                        {% set preloadEnabled = settings.preload.enabled|default('true') == 'true' %}
-                        {{ form.row(translate('Gallery Loader'),
-                            form.radio('preload[enabled]', 'true', {'id':'preload-enable'}|merge(preloadEnabled ? {'checked':'checked'} : {})) ~
-                            f.label(translate('Enable'), 'preload-enable') ~
-                            form.radio('preload[enabled]', 'false', {'id':'preload-disable'}|merge(preloadEnabled ? {} : {'checked':'checked'})) ~
-                            f.label(translate('Disable'), 'preload-disable'), 'preload', true) }}
-                    </thead>
-                {% if not environment.isPro() %}
-                    <tbody>
-                        <tr id="preload-background">
-                            <th scope="row">
-                                <label style="margin: 0 !important;">
-                                    {{ translate('Background color') }}
-                                    <span class="gg-feature-status-pro-badge">PRO</span>
-                                </label>
-                            </th>
-                            <td>
-                                {{ form.text('preload[background]', "#0073AA", {'class':'gg-color-picker', 'id': 'preloadColor-free'}) }}
-                            </td>
-                        </tr>
-                        {% set piconImg %}
-                            <div class="gallery-loading">
-                                <div class="blocks">
-                                    <div class="block"></div>
-                                    <div class="block"></div>
-                                    <div class="block"></div>
-                                    <div class="block"></div>
-                                </div>
-                            </div>
-                        {% endset %}
-
-                        <tr>
-                            <th scope="row">
-                                <label style="margin: 0 !important;">
-                                    {{ translate('Choose Icon') }}
-                                    <span class="gg-feature-status-pro-badge">PRO</span>
-                                    {{ form.show_tooltip('chooseIconPro') }}
-                                </label>
-                            </th>
-                            <td>
-                                {{ form.button('buttons-preload-icon', 'Choose Icon', {'class': 'button button-primary', 'id': 'choosePreicon-free'}) }}
-                                {{ piconImg }}
-                            </td>
-                        </tr>
-                    </tbody>
-                {% endif %}
-                </table>
-            {% endblock %}
-            </div>
-
-            <div data-tab="settings">
-
-			{% block horizontalScroll %}
-				<table class="form-table" id="gg-anl-horiz-scroll">
-					<thead>
-					{% set horizontalScrollEnabled = settings.horizontalScroll.enabled|default('false') == 'true' %}
-					{{ form.row(translate('Horizontal Scroll'),
-					form.radio('horizontalScroll[enabled]', 'true', {'id':'horizontal-scroll-enable'}|merge(horizontalScrollEnabled ? {'checked':'checked'} : {})) ~
-					f.label(translate('Enable'), 'horizontal-scroll-enable') ~
-					form.radio('horizontalScroll[enabled]', 'false', {'id':'horizontal-scroll-disable'}|merge(horizontalScrollEnabled ? {} : {'checked':'checked'})) ~
-					f.label(translate('Disable'), 'horizontal-scroll-disable'), 'horizontal-scroll', true) }}
-					</thead>
-					<tbody>
-					{{ form.row(translate('Scroll Bar Color'),
-					form.text('horizontalScroll[color]', settings.horizontalScroll.color, {'class':'gg-color-picker'}), 'horizontal-scroll-color') }}
-
-					{{ form.row(translate('Scroll Bar Transparency'),
-					form.select('horizontalScroll[transparency]',
-					{
-						'0': '0%',
-						'10': '10%',
-						'20': '20%',
-						'30': '30%',
-						'40': '40%',
-						'50': '50%',
-						'60': '60%',
-						'70': '70%',
-						'80': '80%',
-						'90': '90%',
-						'100': '100%',
-					},
-					settings.horizontalScroll.transparency|default('60'), {'style': 'width: auto'}),
-					'horizontal-scroll-transparency') }}
-
-					{{ form.row(translate('Mouse Wheel Scroll Step'),
-						form.text(
-							'horizontalScroll[mouseWheelStep]',
-							settings.horizontalScroll.mouseWheelStep | default(20),
-							{}
-						),
-						'hscroll-mouse-wheel'
-					) }}
-
-					{{ form.row(translate('Touch Scroll Step'),
-						form.text(
-							'horizontalScroll[touchStep]',
-							settings.horizontalScroll.touchStep | default(200),
-							{}
-						),
-						'hscroll-touch-gest'
-					) }}
-
-					{{ form.row(translate('Responsive Mode'),
-						form.select('horizontalScroll[responsiveMode]',
-							{
-								'0': translate('None'),
-								'1': translate('One by One'),
-							},
-							settings.horizontalScroll.responsiveMode | default('0'),
-							{'style': 'width: auto'}
-						),
-						'hScrollResponsiveMode'
-					) }}
-
-					{% block horizontalScrollAfter %}
-					{% endblock %}
-					</tbody>
-				</table>
-
-			{% endblock %}
-            </div>
-
-            <div data-tab="settings">
-
-			{% block lazyload %}
-				<table class="form-table" name="lazyload" id="gg-anl-lazyload">
-					<thead>
-					{# Enable/Disable LazyLoad #}
-                    {% if (environment.isPro()) %}
-                        {{ form.row(translate('Lazy Load'),
-						form.radio('lazyload[enabled]', '1', {'id':'lazyLoadEnabled'}| merge(settings.lazyload.enabled == '1' ? {'checked':'checked'} : {})) ~
-						f.label(translate('Enable'), 'lazyLoadEnabled') ~
-						form.radio('lazyload[enabled]', '0', {'id':'lazyLoadDisabled'}|merge(settings.lazyload.enabled == '1' ? {} : {'checked':'checked'})) ~
-						f.label(translate('Disable'), 'lazyLoadDisabled'), 'sgg-t-lazyload-enable',	true, 'sggLazyLoadEnableRow')}}
-                    {% endif %}
-                    {% if (environment.isPro() == false) %}
-                        {{ form.getProPanelRow(translate('Lazy Load'), 'utm_source=plugin&utm_medium=caption_settings_type&utm_campaign=gallery', 'sggLazyLoadEnableRow', tooltips['sgg-t-lazyload-enable']|default(null)) }}
-                    {% endif %}
-                    </thead>
-					<tbody>
-                        {% if environment.isPro() %}
-						{{ form.row(
-                            translate('Hide loader'),
-                            form.checkbox(
-                                'lazyload[hideLoader]',
-                                'true',
-                                settings.lazyload.hideLoader == 'true' ? {'checked':'checked'} : {}
-                            ),
-                            'lazyload-hideLoader'
-                        ) }}
-                        {{ form.row(
-                        	translate('Animation effect'),
-                            form.select(
-                               'lazyload[animationEffect]',
-                                {
-                                    'show':translate('show'),
-                                    'fadeIn':translate('fade'),
-                                    'slideDown':translate('slide')
-                                },
-                                settings.lazyload.animationEffect|default('0')
-                            ))
-                        }}
-                        {{ form.row(
-                        	translate('Effect duration'),
-                            form.select(
-                               'lazyload[effectDuration]',
-                                {
-                                	'400':translate('default'),
-                                    '0':translate('none'),
-                                    '200':translate('fast'),
-                                    '600':translate('slow'),
-                                    '2000':translate('very slow'),
-                                },
-                                settings.lazyload.effectDuration|default('400')
-                            ))
-                        }}
-                        {% endif %}
-						<input type="hidden" value="{{ pluginUrl ~ '/assets/img/loading.gif' }}" name="lazyload[defaultImgUrl]"/>
-						<input type="hidden" value="{{ pluginUrl ~ '/assets/img/leer.png' }}" name="lazyload[leerImgUrl]"/>
-					</tbody>
-				</table>
-			{% endblock %}
-            </div>
-
-            <div data-tab="settings">
             {% block popup %}
-                {# The whole Popup feature is PRO, but we don't gate/hide these
-                   fields behind a "Read more" panel like other PRO sections -
-                   the settings stay visible and usable, just labeled. #}
+                {# The popup itself is FREE (base Colorbox theme only - see
+                   GridGallery_Galleries_Module::FREE_POPUP_THEME, which enforces
+                   that on render). What stays PRO is the styling around it:
+                   the other themes, the popup border, slideshow, custom size
+                   and image-fit mode. Those keep the badge below; the theme
+                   picker doesn't, because picking the one Free theme from the
+                   dialog is a legitimate Free action - the locked themes are
+                   badged inside #themeDialog instead. #}
                 {% set proBadge = environment.isPro() == false ? ' <span class="gg-feature-status-pro-badge">PRO</span>' : '' %}
                 <table class="form-table" id="gg-anl-popup">
                     <thead>
                         {# Enable/Disable popup #}
                         {% set popUpEnabled = settings.box.enabled|default('true') == 'true' %}
-                        {{ form.row(translate('Pop-up Image') ~ proBadge,
+                        {{ form.row(translate('Pop-up Image'),
                             form.radio(
                                 'box[enabled]',
                                 'true',
@@ -707,7 +570,7 @@
                     </thead>
                     <tbody>
                         {# Select popup theme #}
-                        {{ form.row(translate('Popup box theme') ~ proBadge,
+                        {{ form.row(translate('Popup box theme'),
                             form.button(
                                 'chooseTheme',
                                 translate('Choose theme'),
@@ -1064,6 +927,195 @@
 				) }}
                 
             {% endblock %}
+            </div>
+
+            <div data-tab="settings">
+
+            {% block preload %}
+                <table class="form-table" name="preload" id="gg-anl-preloader">
+                    <thead>
+                        {% set preloadEnabled = settings.preload.enabled|default('true') == 'true' %}
+                        {{ form.row(translate('Gallery Loader'),
+                            form.radio('preload[enabled]', 'true', {'id':'preload-enable'}|merge(preloadEnabled ? {'checked':'checked'} : {})) ~
+                            f.label(translate('Enable'), 'preload-enable') ~
+                            form.radio('preload[enabled]', 'false', {'id':'preload-disable'}|merge(preloadEnabled ? {} : {'checked':'checked'})) ~
+                            f.label(translate('Disable'), 'preload-disable'), 'preload', true) }}
+                    </thead>
+                {% if not environment.isPro() %}
+                    <tbody>
+                        <tr id="preload-background">
+                            <th scope="row">
+                                <label style="margin: 0 !important;">
+                                    {{ translate('Background color') }}
+                                    <span class="gg-feature-status-pro-badge">PRO</span>
+                                </label>
+                            </th>
+                            <td>
+                                {{ form.text('preload[background]', "#0073AA", {'class':'gg-color-picker', 'id': 'preloadColor-free'}) }}
+                            </td>
+                        </tr>
+                        {% set piconImg %}
+                            <div class="gallery-loading">
+                                <div class="blocks">
+                                    <div class="block"></div>
+                                    <div class="block"></div>
+                                    <div class="block"></div>
+                                    <div class="block"></div>
+                                </div>
+                            </div>
+                        {% endset %}
+
+                        <tr>
+                            <th scope="row">
+                                <label style="margin: 0 !important;">
+                                    {{ translate('Choose Icon') }}
+                                    <span class="gg-feature-status-pro-badge">PRO</span>
+                                    {{ form.show_tooltip('chooseIconPro') }}
+                                </label>
+                            </th>
+                            <td>
+                                {{ form.button('buttons-preload-icon', 'Choose Icon', {'class': 'button button-primary', 'id': 'choosePreicon-free'}) }}
+                                {{ piconImg }}
+                            </td>
+                        </tr>
+                    </tbody>
+                {% endif %}
+                </table>
+            {% endblock %}
+            </div>
+
+            <div data-tab="settings">
+
+			{% block horizontalScroll %}
+				<table class="form-table" id="gg-anl-horiz-scroll">
+					<thead>
+					{% set horizontalScrollEnabled = settings.horizontalScroll.enabled|default('false') == 'true' %}
+					{{ form.row(translate('Horizontal Scroll'),
+					form.radio('horizontalScroll[enabled]', 'true', {'id':'horizontal-scroll-enable'}|merge(horizontalScrollEnabled ? {'checked':'checked'} : {})) ~
+					f.label(translate('Enable'), 'horizontal-scroll-enable') ~
+					form.radio('horizontalScroll[enabled]', 'false', {'id':'horizontal-scroll-disable'}|merge(horizontalScrollEnabled ? {} : {'checked':'checked'})) ~
+					f.label(translate('Disable'), 'horizontal-scroll-disable'), 'horizontal-scroll', true) }}
+					</thead>
+					<tbody>
+					{{ form.row(translate('Scroll Bar Color'),
+					form.text('horizontalScroll[color]', settings.horizontalScroll.color, {'class':'gg-color-picker'}), 'horizontal-scroll-color') }}
+
+					{{ form.row(translate('Scroll Bar Transparency'),
+					form.select('horizontalScroll[transparency]',
+					{
+						'0': '0%',
+						'10': '10%',
+						'20': '20%',
+						'30': '30%',
+						'40': '40%',
+						'50': '50%',
+						'60': '60%',
+						'70': '70%',
+						'80': '80%',
+						'90': '90%',
+						'100': '100%',
+					},
+					settings.horizontalScroll.transparency|default('60'), {'style': 'width: auto'}),
+					'horizontal-scroll-transparency') }}
+
+					{{ form.row(translate('Mouse Wheel Scroll Step'),
+						form.text(
+							'horizontalScroll[mouseWheelStep]',
+							settings.horizontalScroll.mouseWheelStep | default(20),
+							{}
+						),
+						'hscroll-mouse-wheel'
+					) }}
+
+					{{ form.row(translate('Touch Scroll Step'),
+						form.text(
+							'horizontalScroll[touchStep]',
+							settings.horizontalScroll.touchStep | default(200),
+							{}
+						),
+						'hscroll-touch-gest'
+					) }}
+
+					{{ form.row(translate('Responsive Mode'),
+						form.select('horizontalScroll[responsiveMode]',
+							{
+								'0': translate('None'),
+								'1': translate('One by One'),
+							},
+							settings.horizontalScroll.responsiveMode | default('0'),
+							{'style': 'width: auto'}
+						),
+						'hScrollResponsiveMode'
+					) }}
+
+					{% block horizontalScrollAfter %}
+					{% endblock %}
+					</tbody>
+				</table>
+
+			{% endblock %}
+            </div>
+
+            <div data-tab="settings">
+
+			{% block lazyload %}
+				<table class="form-table" name="lazyload" id="gg-anl-lazyload">
+					<thead>
+					{# Enable/Disable LazyLoad #}
+                    {% if (environment.isPro()) %}
+                        {{ form.row(translate('Lazy Load'),
+						form.radio('lazyload[enabled]', '1', {'id':'lazyLoadEnabled'}| merge(settings.lazyload.enabled == '1' ? {'checked':'checked'} : {})) ~
+						f.label(translate('Enable'), 'lazyLoadEnabled') ~
+						form.radio('lazyload[enabled]', '0', {'id':'lazyLoadDisabled'}|merge(settings.lazyload.enabled == '1' ? {} : {'checked':'checked'})) ~
+						f.label(translate('Disable'), 'lazyLoadDisabled'), 'sgg-t-lazyload-enable',	true, 'sggLazyLoadEnableRow')}}
+                    {% endif %}
+                    {% if (environment.isPro() == false) %}
+                        {{ form.getProPanelRow(translate('Lazy Load'), 'utm_source=plugin&utm_medium=caption_settings_type&utm_campaign=gallery', 'sggLazyLoadEnableRow', tooltips['sgg-t-lazyload-enable']|default(null)) }}
+                    {% endif %}
+                    </thead>
+					<tbody>
+                        {% if environment.isPro() %}
+						{{ form.row(
+                            translate('Hide loader'),
+                            form.checkbox(
+                                'lazyload[hideLoader]',
+                                'true',
+                                settings.lazyload.hideLoader == 'true' ? {'checked':'checked'} : {}
+                            ),
+                            'lazyload-hideLoader'
+                        ) }}
+                        {{ form.row(
+                        	translate('Animation effect'),
+                            form.select(
+                               'lazyload[animationEffect]',
+                                {
+                                    'show':translate('show'),
+                                    'fadeIn':translate('fade'),
+                                    'slideDown':translate('slide')
+                                },
+                                settings.lazyload.animationEffect|default('0')
+                            ))
+                        }}
+                        {{ form.row(
+                        	translate('Effect duration'),
+                            form.select(
+                               'lazyload[effectDuration]',
+                                {
+                                	'400':translate('default'),
+                                    '0':translate('none'),
+                                    '200':translate('fast'),
+                                    '600':translate('slow'),
+                                    '2000':translate('very slow'),
+                                },
+                                settings.lazyload.effectDuration|default('400')
+                            ))
+                        }}
+                        {% endif %}
+						<input type="hidden" value="{{ pluginUrl ~ '/assets/img/loading.gif' }}" name="lazyload[defaultImgUrl]"/>
+						<input type="hidden" value="{{ pluginUrl ~ '/assets/img/leer.png' }}" name="lazyload[leerImgUrl]"/>
+					</tbody>
+				</table>
+			{% endblock %}
             </div>
 
             <div data-tab="settings">
@@ -1965,6 +2017,233 @@
 
         </div>
 
+        {# =================================================================
+           Delivery & optimization. Both used to be a separate top-level admin
+           page driving every gallery at once; they are per-gallery options
+           now. Storage is unchanged (gg_cdn / gg_image_optimize keyed by
+           gallery_id), so a gallery optimized or transferred under the old
+           page shows its existing stats here straight away. Credentials stay
+           global, in Advanced Settings.
+           ================================================================= #}
+        <div data-tab="settings">
+
+            {% set optProUtm = 'utm_source=plugin&utm_medium=optimization&utm_campaign=gallery' %}
+            {% set ecommerceDeliveryDisabled = hasEcommerceRestrictions|default(false) %}
+            {% set ecommerceDeliveryNotice = translate('E-commerce restrictions are active for this gallery, so CDN and image optimization are disabled. E-commerce uses protected previews and gated downloads to avoid leaking restricted originals.') %}
+            {% set optShots %}
+                {% for shot in ['01'] %}
+                    <img src="{{ SGG_PLUGIN_URL }}/src/GridGallery/Overview/assets/img/optimization/{{ shot }}.png"
+                         style="max-width:99%;display:block;border-radius:4px;border:1px solid #eaeaea;margin-bottom:8px;" />
+                {% endfor %}
+            {% endset %}
+            {% set imageOptimizationUpsellImage %}
+                <img src="{{ SGG_PLUGIN_URL }}/src/GridGallery/Overview/assets/img/optimization/image_optimization.png"
+                     style="max-width:99%;display:block;border-radius:4px;border:1px solid #eaeaea;margin-bottom:8px;" />
+            {% endset %}
+
+            {% block cdn %}
+                {% set cdnEnabled = ecommerceDeliveryDisabled ? false : settings.cdn.enabled|default('false') == 'true' %}
+                <table class="form-table" name="cdn" id="gg-anl-cdn">
+                    {% if environment.isPro() %}
+                        <thead>
+                            {{ form.row(translate('CDN'),
+                                form.radio('cdn[enabled]', 'true', {'id':'cdn-enable'}|merge(cdnEnabled ? {'checked':'checked'} : {})|merge(ecommerceDeliveryDisabled ? {'disabled':'disabled'} : {})) ~
+                                f.label(translate('Enable'), 'cdn-enable') ~
+                                form.radio('cdn[enabled]', 'false', {'id':'cdn-disable'}|merge(cdnEnabled ? {} : {'checked':'checked'})|merge(ecommerceDeliveryDisabled ? {'disabled':'disabled'} : {})) ~
+                                f.label(translate('Disable'), 'cdn-disable'),
+                                'sgg-t-cdn-enable', true, 'useCdnRow') }}
+                            {% if ecommerceDeliveryDisabled %}
+                                <tr>
+                                    <th scope="row"></th>
+                                    <td><p class="gg-svc-hint gg-ecommerce-delivery-warning">{{ ecommerceDeliveryNotice }}</p></td>
+                                </tr>
+                            {% endif %}
+                        </thead>
+                        <tbody{{ cdnEnabled ? '' : ' style="display: none;"' }}>
+                            {{ form.row(translate('Auto-transfer on change'),
+                                form.checkbox('cdn[auto]', '1', settings.cdn.auto|default('0') == '1' ? {'checked':'checked'} : {}),
+                                'sgg-t-cdn-auto') }}
+
+                            <tr>
+                                <th scope="row">
+                                    <label>{{ translate('This gallery on CDN') }}</label>
+                                </th>
+                                <td>
+                                    {% if cdnStats %}
+                                        <div class="gg-svc-stats">
+                                            <span><b>{{ cdnStats.size_mb }}</b> {{ translate('Mb') }}</span>
+                                            <span>{{ translate('via') }} <b>{{ cdnStats.service_name|default('CDN') }}</b></span>
+                                            <span>{{ translate('last transfer') }} <b>{{ cdnStats.last_date|default('—') }}</b></span>
+                                        </div>
+                                    {% else %}
+                                        <div class="gg-svc-stats is-empty">{{ translate('Not transferred yet.') }}</div>
+                                    {% endif %}
+
+                                    {% if servicesReady.keycdn|default(false) %}
+                                        <button type="button" class="button button-primary gg-svc-run" id="gg-cdn-run"
+                                                data-gallery-id="{{ gallery.id }}">
+                                            <i class="fa fa-cloud-upload"></i>
+                                            {{ translate('Transfer to CDN now') }}
+                                        </button>
+                                    {% else %}
+                                        <p class="gg-svc-hint">
+                                            {{ translate('Add your CDN credentials in') }}
+                                            <a href="{{ environment.generateUrl('settings') }}">{{ translate('Advanced Settings') }}</a>
+                                            {{ translate('to enable transfers.') }}
+                                        </p>
+                                    {% endif %}
+                                    <span class="gg-svc-progress" id="gg-cdn-progress"></span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    {% else %}
+                        {% set cdnProDescription %}
+                            <p>{{ translate('Push the images in this gallery to a Content Delivery Network so they are served from a location close to each visitor. Transfers can run automatically whenever you add or replace images.') }}</p>
+                            {{ optShots }}
+                        {% endset %}
+                        <thead>
+                            {{ form.getProPanelRow(translate('CDN'), optProUtm, 'useCdnRow', cdnProDescription) }}
+                        </thead>
+                    {% endif %}
+                </table>
+            {% endblock %}
+
+            {% block optimization %}
+                {% set optEnabled = ecommerceDeliveryDisabled ? false : settings.optimization.enabled|default('false') == 'true' %}
+                {% set optEngine = settings.optimization.engine|default('tinypng') %}
+                {% set optFrontendFormat = settings.optimization.frontend_format|default(settings.optimization.serve_avif|default('0') == '1' ? 'avif' : (settings.optimization.serve_webp|default('0') == '1' ? 'webp' : 'original')) %}
+                <table class="form-table" name="optimization" id="gg-anl-optimization">
+                    {% if environment.isPro() %}
+                        <thead>
+                            {{ form.row(translate('Image Optimization'),
+                                form.radio('optimization[enabled]', 'true', {'id':'opt-enable'}|merge(optEnabled ? {'checked':'checked'} : {})|merge(ecommerceDeliveryDisabled ? {'disabled':'disabled'} : {})) ~
+                                f.label(translate('Enable'), 'opt-enable') ~
+                                form.radio('optimization[enabled]', 'false', {'id':'opt-disable'}|merge(optEnabled ? {} : {'checked':'checked'})|merge(ecommerceDeliveryDisabled ? {'disabled':'disabled'} : {})) ~
+                                f.label(translate('Disable'), 'opt-disable'),
+                                'sgg-t-optimize-enable', true, 'useOptimizationRow') }}
+                            {% if ecommerceDeliveryDisabled %}
+                                <tr>
+                                    <th scope="row"></th>
+                                    <td><p class="gg-svc-hint gg-ecommerce-delivery-warning">{{ ecommerceDeliveryNotice }}</p></td>
+                                </tr>
+                            {% endif %}
+                        </thead>
+                        <tbody{{ optEnabled ? '' : ' style="display: none;"' }}>
+                            {{ form.row(translate('Compress with'),
+                                form.select('optimization[engine]', {
+                                    'tinypng': translate('TinyPNG service'),
+                                    'server': translate('This server (GD / Imagick)'),
+                                }, optEngine, {'style': 'width: auto', 'id': 'gg-opt-engine'}),
+                                'sgg-t-optimize-engine') }}
+
+                            {# Server-engine only: TinyPNG resizes and re-encodes on its
+                               own side, so these would be silently ignored there. #}
+                            <tr class="gg-opt-server-only">
+                                <th scope="row">
+                                    <label for="gg-opt-max-width">{{ translate('Max width') }}</label>
+                                    {{ form.show_tooltip('sgg-t-optimize-max-size') }}
+                                </th>
+                                <td>
+                                    {{ form.input('number', 'optimization[max_width]', settings.optimization.max_width|default(''), {'id': 'gg-opt-max-width', 'min': '0', 'style': {'width': '110px'}, 'placeholder': translate('auto')}) }}
+                                    {{ form.span('', 'pixels') }}
+                                </td>
+                            </tr>
+                            <tr class="gg-opt-server-only">
+                                <th scope="row">
+                                    <label for="gg-opt-max-height">{{ translate('Max height') }}</label>
+                                </th>
+                                <td>
+                                    {{ form.input('number', 'optimization[max_height]', settings.optimization.max_height|default(''), {'id': 'gg-opt-max-height', 'min': '0', 'style': {'width': '110px'}, 'placeholder': translate('auto')}) }}
+                                    {{ form.span('', 'pixels') }}
+                                    <p class="gg-svc-hint">{{ translate('Leave either field empty to keep the original proportions.') }}</p>
+                                </td>
+                            </tr>
+                            <tr class="gg-opt-server-only">
+                                <th scope="row">
+                                    <label for="gg-opt-quality">{{ translate('Compression level') }}</label>
+                                    {{ form.show_tooltip('sgg-t-optimize-quality') }}
+                                </th>
+                                <td>
+                                    {{ form.input('number', 'optimization[quality]', settings.optimization.quality|default(100), {'id': 'gg-opt-quality', 'min': '1', 'max': '100', 'style': {'width': '110px'}}) }}
+                                    {{ form.span('', '%') }}
+                                    <p class="gg-svc-hint">{{ translate('100 keeps the image untouched. 85-95 usually looks identical at a fraction of the weight.') }}</p>
+                                </td>
+                            </tr>
+                            <tr class="gg-opt-server-only">
+                                <th scope="row">
+                                    <label>{{ translate('Replace original image') }}</label>
+                                    {{ form.show_tooltip('sgg-t-optimize-replace') }}
+                                </th>
+                                <td>
+                                    {{ form.checkbox('optimization[replace_original]', '1', settings.optimization.replace_original|default('0') == '1' ? {'checked':'checked'} : {}) }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">
+                                    <label for="gg-opt-frontend-format">{{ translate('Show on frontend as') }}</label>
+                                    {{ form.show_tooltip('sgg-t-optimize-serve') }}
+                                </th>
+                                <td>
+                                    {{ form.select('optimization[frontend_format]', {
+                                        'original': translate('Original format'),
+                                        'webp': 'WebP',
+                                        'avif': 'AVIF',
+                                    }, optFrontendFormat, {'style': 'width: auto', 'id': 'gg-opt-frontend-format'}) }}
+                                    <p class="gg-svc-hint">{{ translate('This controls the format visitors receive for gallery thumbnails and popup images. If the browser cannot display the selected format, the original image is used.') }}</p>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th scope="row">
+                                    <label>{{ translate('This gallery') }}</label>
+                                </th>
+                                <td>
+                                    {% if optimizeStats %}
+                                        <div class="gg-svc-stats">
+                                            <span><b>{{ optimizeStats.percent }}%</b> {{ translate('smaller') }}</span>
+                                            <span>{{ optimizeStats.optimized_mb }} / {{ optimizeStats.size_mb }} {{ translate('Mb') }}</span>
+                                            <span>{{ translate('via') }} <b>{{ optimizeStats.service_name|default('—') }}</b></span>
+                                            <span>{{ translate('last run') }} <b>{{ optimizeStats.last_date|default('—') }}</b></span>
+                                        </div>
+                                    {% else %}
+                                        <div class="gg-svc-stats is-empty">{{ translate('Not optimized yet.') }}</div>
+                                    {% endif %}
+
+                                    <button type="button" class="button button-primary gg-svc-run" id="gg-opt-run"
+                                            data-gallery-id="{{ gallery.id }}">
+                                        <i class="fa fa-compress"></i>
+                                        {{ translate('Optimize now') }}
+                                    </button>
+                                    <span class="gg-svc-progress" id="gg-opt-progress"></span>
+
+                                    {% if not servicesReady.tinypng|default(false) %}
+                                        <p class="gg-svc-hint gg-opt-tinypng-only">
+                                            {{ translate('TinyPNG needs an API key in') }}
+                                            <a href="{{ environment.generateUrl('settings') }}">{{ translate('Advanced Settings') }}</a>.
+                                        </p>
+                                    {% endif %}
+                                    {% if not servicesReady.server|default(false) %}
+                                        <p class="gg-svc-hint gg-opt-server-only">
+                                            {{ translate('This server has neither GD nor Imagick available.') }}
+                                        </p>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </tbody>
+                    {% else %}
+                        {% set optProDescription %}
+                            <p>{{ translate('Compress every image in this gallery - through TinyPNG or directly on your own server - resize oversized photos, and generate modern WebP and AVIF versions to serve on the frontend.') }}</p>
+                            {{ imageOptimizationUpsellImage }}
+                        {% endset %}
+                        <thead>
+                            {{ form.getProPanelRow(translate('Image Optimization'), optProUtm, 'useOptimizationRow', optProDescription) }}
+                        </thead>
+                    {% endif %}
+                </table>
+            {% endblock %}
+
+        </div>
+
 
         {% block form %}
         {% endblock %}
@@ -2008,72 +2287,130 @@
             </div>
         </div>
 
-        <div id="themeDialog" title="{{ translate('Select "Big image" theme') }}">
-            <h1>
-                {{ translate('Select a theme') }}
-            </h1>
-			<div class="popupPlacementTypeWrapper">
-				{% set popupPlacementType = (settings.popup.placementType == null ? 0 : settings.popup.placementType) %}
-				<h4>{{ translate('How to fit image in lightbox') }}</h4>
-				{{(
-					form.radio(
-						'popup[placementType]',
-						'0',
-						{'id':'popupPlacementTypeFts', 'class':'popupPlacementTypeRadio'}|merge(popupPlacementType == 0 ? {'checked':'checked'} : {})
-					) ~
-					form.label(
-						translate('Fit To Screen'),
-						'popupPlacementTypeFts'
-					) ~ '<br/>' ~
-					form.radio(
-						'popup[placementType]',
-						'1',
-						{'id':'popupPlacementTypeFw', 'class':'popupPlacementTypeRadio'}|merge(popupPlacementType == 1 ? {'checked':'checked'} : {})
-					) ~
-					form.label(
-						translate('Fit Width'),
-						'popupPlacementTypeFw'
-					) ~ '<br/>' ~
-					form.radio(
-						'popup[placementType]',
-						'2',
-						{'id':'popupPlacementTypeSo', 'class':'popupPlacementTypeRadio'}|merge(popupPlacementType == 2 ? {'checked':'checked'} : {})
-					) ~
-					form.label(
-						translate('Show Original'),
-						'popupPlacementTypeSo'
-					)
-					~ '<br/>'
-				) | raw }}
-			</div>
-            <div class="gg-theme-grid">
-                {% set bigImageThemes = {
-                'theme_1': 'Theme 1',
-                'theme_2': 'Theme 2',
-                'theme_3': 'Theme 3',
-                'theme_4': 'Theme 4',
-                'theme_5': 'Theme 5',
-                'theme_6': 'Theme 6',
-                'theme_7': 'Theme 7',
+        {# ---------------------------------------------------------------
+           Popup / lightbox style picker.
+
+           The base Colorbox theme is FREE; every other theme and the
+           image-fit modes are PRO. `freePopupTheme` must stay in sync with
+           GridGallery_Galleries_Module::FREE_POPUP_THEME, which is what
+           actually enforces this on the frontend - if they drift, this
+           dialog starts advertising a theme the gallery won't render.
+        --------------------------------------------------------------- #}
+        {% set freePopupTheme = 'theme_1' %}
+        {% set isProBuild = environment.isPro() %}
+        {% set themeProUrl = getProUrl('?utm_source=plugin&utm_medium=popup_theme&utm_campaign=gallery') %}
+
+        {# Highlight the theme that ACTUALLY renders, not the one in the DB. A
+           gallery created before the popup went Free (or under a lapsed
+           licence) can still have a locked theme stored - Free renders
+           freePopupTheme for it regardless, so marking the locked card as
+           "selected" would be another settings-page-lies bug. The stored value
+           itself is left alone so it comes back intact if they go PRO. #}
+        {% set effectiveTheme = isProBuild ? settings.box.theme|default(freePopupTheme) : freePopupTheme %}
+
+        {# Notes describe what each style actually does on screen - taken from
+           the themes' own CSS (backdrop colour, caption placement, arrow style,
+           counter visibility) and from the prettyPhoto/photobox engines behind
+           theme_6 / theme_1_pro. Keep them factual: they are the only thing a
+           user has to go on before picking. #}
+        {% set popupThemes = {
+            'theme_1': { 'name': translate('Theme 1'), 'note': translate('Dimmed backdrop, caption under the photo') },
+            'theme_2': { 'name': translate('Theme 2'), 'note': translate('Light backdrop, small icon controls') },
+            'theme_3': { 'name': translate('Theme 3'), 'note': translate('Dark backdrop, arrows at the sides') },
+            'theme_4': { 'name': translate('Theme 4'), 'note': translate('Light backdrop, wide arrow zones') },
+            'theme_5': { 'name': translate('Theme 5'), 'note': translate('Dark backdrop with slideshow controls') },
+            'theme_6': { 'name': translate('Theme 6'), 'note': translate('Thumbnail strip, rotate and link buttons') },
+            'theme_7': { 'name': translate('Theme 7'), 'note': translate('Solid black, no counter, fits Linked images') },
+            'theme_1_pro': { 'name': translate('Fullscreen'), 'note': translate('Fills the whole screen, edge to edge') },
+        } %}
+
+        <div id="themeDialog" title="{{ translate('Popup style') }}">
+            <div class="gg-pth">
+
+                <div class="gg-pth-head">
+                    <div class="gg-pth-head-copy">
+                        <h2>{{ translate('Choose how a photo opens') }}</h2>
+                        <p>{{ translate('This is what visitors see after clicking an image in your gallery.') }}</p>
+                    </div>
+                    {% if not isProBuild %}
+                        <a class="gg-pth-head-cta" href="{{ themeProUrl }}" target="_blank" rel="noopener">
+                            <i class="fa fa-star"></i>
+                            {{ translate('Unlock all styles') }}
+                        </a>
+                    {% endif %}
+                </div>
+
+                <div class="gg-pth-grid">
+                    {% for value, theme in popupThemes %}
+                        {% set locked = (not isProBuild) and value != freePopupTheme %}
+                        {% set active = (value == effectiveTheme) and not locked %}
+                        {% set cardClass = 'gg-pth-card' ~ (locked ? ' is-locked' : '') ~ (active ? ' is-active' : '') %}
+
+                        {% if locked %}
+                            <a class="{{ cardClass }}" href="{{ themeProUrl }}" target="_blank" rel="noopener"
+                               data-val="{{ value }}" data-name="{{ theme.name }}" data-locked="1"
+                               title="{{ translate('Available in PRO') }}">
+                        {% else %}
+                            <button type="button" class="{{ cardClass }}"
+                                    data-val="{{ value }}" data-name="{{ theme.name }}" data-locked="0">
+                        {% endif %}
+
+                            <span class="gg-pth-shot">
+                                <img src="{{ environment.getModule('colorbox').getThemeScreenshotUrl(value) }}"
+                                     alt="{{ theme.name }}" loading="lazy">
+                                <span class="gg-pth-veil">
+                                    <span class="gg-pth-veil-txt">
+                                        {{ locked ? translate('Unlock in PRO') : translate('Use this style') }}
+                                    </span>
+                                </span>
+                                <span class="gg-pth-check" aria-hidden="true"><i class="fa fa-check"></i></span>
+                            </span>
+
+                            <span class="gg-pth-foot">
+                                <span class="gg-pth-name">{{ theme.name }}</span>
+                                {% if locked %}
+                                    <span class="gg-pth-tag is-pro">{{ translate('PRO') }}</span>
+                                {% elseif not isProBuild %}
+                                    <span class="gg-pth-tag is-free">{{ translate('FREE') }}</span>
+                                {% endif %}
+                            </span>
+                            {% if theme.note %}
+                                <span class="gg-pth-note">{{ theme.note }}</span>
+                            {% endif %}
+
+                        {% if locked %}</a>{% else %}</button>{% endif %}
+                    {% endfor %}
+                </div>
+
+                {% set popupPlacementType = (settings.popup.placementType == null ? 0 : settings.popup.placementType) %}
+                {% set fitOptions = {
+                    '0': { 'id': 'popupPlacementTypeFts', 'label': translate('Fit to screen') },
+                    '1': { 'id': 'popupPlacementTypeFw',  'label': translate('Fit width') },
+                    '2': { 'id': 'popupPlacementTypeSo',  'label': translate('Show original') },
                 } %}
 
-                {% if environment.isPro() %}
-                    {% set bigImageThemes = bigImageThemes|merge({'theme_1_pro': 'Fullscreen popup'}) %}
-                {% endif %}
-
-                {% for value, name in bigImageThemes %}
-                    <div class="{{ 'grid-gallery-caption' ~ (value == settings.box.theme ? ' gg-active' : '') }}">
-                        <img data-name="{{ name }}" data-val="{{ value }}" class="theme dialog-image"
-                             src="{{ environment.getModule('colorbox').getThemeScreenshotUrl(value) }}" alt="{{ name }}"
-                             title="{{ name }}"/>
-                        <div class="select-element">
-                            <h3>{{ translate('Select') }}</h3>
-                        </div>
-						<div class="gg-selected-theme">
-							<div class="gg-selected-theme-txt">{{ translate('Selected ' ~ name) }}</div>
-						</div>
+                <div class="popupPlacementTypeWrapper gg-pth-fit{{ isProBuild ? '' : ' is-locked' }}">
+                    <div class="gg-pth-fit-head">
+                        <h4>{{ translate('How the image fits the screen') }}</h4>
+                        {% if not isProBuild %}
+                            <a class="gg-pth-tag is-pro gg-pth-tag-link" href="{{ themeProUrl }}" target="_blank" rel="noopener">{{ translate('PRO') }}</a>
+                        {% endif %}
                     </div>
-                {% endfor %}
+                    <div class="gg-pth-fit-opts">
+                        {% for value, opt in fitOptions %}
+                            <span class="gg-pth-fit-opt">
+                                {{ form.radio(
+                                    'popup[placementType]',
+                                    value,
+                                    {'id': opt.id, 'class': 'popupPlacementTypeRadio'}
+                                        |merge(popupPlacementType == value ? {'checked':'checked'} : {})
+                                        |merge(isProBuild ? {} : {'disabled':'disabled'})
+                                ) }}
+                                {{ form.label(opt.label, opt.id) }}
+                            </span>
+                        {% endfor %}
+                    </div>
+                </div>
 
             </div>
         </div>

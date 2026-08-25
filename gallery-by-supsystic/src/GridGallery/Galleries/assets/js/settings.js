@@ -577,7 +577,11 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
     $('#themeDialog').dialog({
       autoOpen: false,
       modal: true,
-      width: 1150,
+      // dialogClass lands on the .ui-dialog WRAPPER, which is the only
+      // reliable hook for restyling jQuery UI's own titlebar/buttonpane for
+      // just this dialog (#themeDialog itself is the content node inside it).
+      dialogClass: 'gg-pth-dialog',
+      width: Math.min(1080, Math.max(320, $(window).width() - 80)),
       buttons: {
         // Select: function () {
         //     var selected = $('#bigImageThemeSelect').val(),
@@ -620,17 +624,35 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
     };
 
     Controller.prototype.initThemeSelect = function () {
-      var $theme = $('#bigImageTheme'),
-        self = this;
+      var self = this;
 
-      $('.theme').on('click', function () {
-        var $this = $(this),
-          themeCode = $this.data('val');
-        $('#themeDialog .grid-gallery-caption').removeClass('gg-active');
-        $this.parent().addClass('gg-active');
-        $theme.val(themeCode);
-        $('.themeName').text($this.data('name'));
-        self.togglePopupTheme($this.data('val'));
+      // Delegated: jQuery UI relocates #themeDialog to be a direct child of
+      // <body> when the dialog initializes, so anything bound straight to the
+      // cards would have to be re-bound after that move.
+      $(document).on('click', '#themeDialog .gg-pth-card', function (event) {
+        var $card = $(this);
+
+        // Locked cards are rendered as <a href="{pricing}"> rather than
+        // <button>, so letting the click through IS the upsell - just flag it
+        // visually on the way out and never touch the stored theme.
+        if (String($card.data('locked')) === '1') {
+          $card.addClass('gg-pth-nudge');
+          setTimeout(function () {
+            $card.removeClass('gg-pth-nudge');
+          }, 500);
+          return;
+        }
+
+        event.preventDefault();
+
+        var themeCode = $card.data('val');
+
+        $('#themeDialog .gg-pth-card').removeClass('is-active');
+        $card.addClass('is-active');
+
+        $('#bigImageTheme').val(themeCode);
+        $('.themeName').text($card.data('name'));
+        self.togglePopupTheme(themeCode);
         // change visibility for placement wrapper
         self.changeThemeDialogFitImageVisibility();
       });
@@ -4261,3 +4283,120 @@ var transparencyConvert = {
     });
   };
 })(jQuery);
+
+/* =====================================================================
+   Per-gallery CDN + image optimization (Settings page).
+
+   Self-contained on purpose: these two sections replaced a separate
+   admin page, and keeping their wiring in one block here makes them easy
+   to lift out again rather than threading more state through the very
+   large Controller prototype above.
+   ===================================================================== */
+(function ($) {
+  'use strict';
+
+  $(function () {
+    var $engine = $('#gg-opt-engine');
+
+    if (!$engine.length && !$('#gg-cdn-run').length) {
+      return;
+    }
+
+    /* ---- show the body only while the option is on ------------------ */
+    function bindSectionToggle(enableSelector, disableSelector, tableSelector) {
+      var $table = $(tableSelector);
+
+      if (!$table.length) {
+        return;
+      }
+
+      $(enableSelector).on('change', function () {
+        $table.find('tbody').show();
+      });
+
+      $(disableSelector).on('change', function () {
+        $table.find('tbody').hide();
+      });
+    }
+
+    // Initial visibility is rendered server-side, so these only handle changes.
+    bindSectionToggle('#cdn-enable', '#cdn-disable', '#gg-anl-cdn');
+    bindSectionToggle('#opt-enable', '#opt-disable', '#gg-anl-optimization');
+
+    /* ---- engine-dependent rows -------------------------------------- */
+    function syncEngineRows() {
+      var isServer = $engine.val() === 'server';
+
+      // Rows only the server engine honours. TinyPNG resizes and re-encodes
+      // on its own side, so showing them under TinyPNG would promise control
+      // the run does not actually have.
+      $('.gg-opt-server-only').toggle(isServer);
+      $('.gg-opt-tinypng-only').toggle(!isServer);
+    }
+
+    if ($engine.length) {
+      $engine.on('change', syncEngineRows);
+      syncEngineRows();
+    }
+
+    /* ---- batch runner ----------------------------------------------- */
+    function runBatches($button, $progress, action, galleryId) {
+      var offset = 0;
+
+      $button.prop('disabled', true);
+
+      function step() {
+        $.post(window.wp.ajax.settings.url, {
+          action: 'grid-gallery',
+          _wpnonce: SupsysticGallery.nonce,
+          route: { module: 'optimization', action: action },
+          gallery_id: galleryId,
+          offset: offset,
+        })
+          .done(function (response) {
+            if (!response || !response.success) {
+              $progress.text((response && response.message) || 'Failed.').addClass('is-error');
+              $button.prop('disabled', false);
+              return;
+            }
+
+            var total = parseInt(response.total, 10) || 0,
+              processed = parseInt(response.processed, 10) || 0,
+              pct = total ? Math.round((processed / total) * 100) : 100;
+
+            $progress.removeClass('is-error').text(processed + ' / ' + total + ' (' + pct + '%)');
+
+            if (response.finished) {
+              $progress.text(response.percent > 0 ? processed + ' / ' + total + ' — ' + response.percent + '% smaller, ' + response.saved + ' Mb saved' : processed + ' / ' + total + ' — ' + response.saved + ' Mb');
+              $button.prop('disabled', false);
+              // The stats row above is rendered server-side, so show the fresh
+              // numbers rather than leaving a stale "Not optimized yet".
+              window.setTimeout(function () {
+                window.location.reload();
+              }, 1200);
+              return;
+            }
+
+            offset = processed;
+            step();
+          })
+          .fail(function () {
+            $progress.text('Request failed.').addClass('is-error');
+            $button.prop('disabled', false);
+          });
+      }
+
+      step();
+    }
+
+    $('#gg-opt-run').on('click', function () {
+      var $btn = $(this);
+      runBatches($btn, $('#gg-opt-progress'), 'runGalleryOptimize', $btn.data('gallery-id'));
+    });
+
+    $('#gg-cdn-run').on('click', function () {
+      var $btn = $(this);
+      runBatches($btn, $('#gg-cdn-progress'), 'runGalleryCdn', $btn.data('gallery-id'));
+    });
+  });
+})(window.jQuery);

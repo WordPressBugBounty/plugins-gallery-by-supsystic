@@ -295,7 +295,7 @@
     }
 
     function currentTileFromEvent(event) {
-      return $(event.currentTarget).closest('.gg-tile');
+      return $(event.currentTarget).closest('.gg-tile, [data-entity]');
     }
 
     // The server exposes a few attachment fields under a different key than
@@ -363,6 +363,9 @@
       },
       link: function (info) {
         return !!info.attachment.external_link;
+      },
+      ecommerce: function (info) {
+        return !!info.ecommerceItem;
       },
     };
 
@@ -832,6 +835,162 @@
       $d.dialog('open');
     }
 
+    // E-commerce (Pro) - image-specific item.additional settings
+    function ecommerceDialog() {
+      return dialog('ggImageEcommerceDialog', { width: 560 });
+    }
+
+    function normalizeDimensionValue(value) {
+      value = parseInt(value, 10);
+      return isNaN(value) || value < 0 ? 0 : value;
+    }
+
+    function isChecked($input) {
+      var $box = $input.closest('.icheckbox_minimal');
+      if ($box.length) {
+        return $box.hasClass('checked');
+      }
+
+      return $input.is(':checked');
+    }
+
+    function setChecked($input, checked) {
+      checked = !!checked;
+      $input.prop('checked', checked);
+      if (typeof $.fn.iCheck === 'function') {
+        $input.iCheck(checked ? 'check' : 'uncheck').iCheck('update');
+      } else {
+        $input.closest('.icheckbox_minimal').toggleClass('checked', checked);
+      }
+    }
+
+    function renderProResolutionRow(dimension) {
+      dimension = dimension || {};
+      return $('<div class="gg-ecommerce-image-pro-row">')
+        .append(
+          $('<label>')
+            .text('Width ')
+            .append($('<input type="number" min="0" class="gg-ecommerce-pro-width">').val(normalizeDimensionValue(dimension.width)))
+        )
+        .append(
+          $('<label>')
+            .text('Height ')
+            .append($('<input type="number" min="0" class="gg-ecommerce-pro-height">').val(normalizeDimensionValue(dimension.height)))
+        )
+        .append($('<button type="button" class="button gg-ecommerce-remove-resolution">').text('Remove'));
+    }
+
+    function collectEcommerceAdditional($d) {
+      var additional = $.extend(true, {}, $d.data('additional') || {}),
+        pro = [];
+
+      $d.find('.gg-ecommerce-image-pro-row').each(function () {
+        var width = normalizeDimensionValue($(this).find('.gg-ecommerce-pro-width').val()),
+          height = normalizeDimensionValue($(this).find('.gg-ecommerce-pro-height').val());
+        if (width > 0 || height > 0) {
+          pro.push({ width: width, height: height });
+        }
+      });
+
+      additional.show_original_without_watermark = isChecked($d.find('#ggEcommerceOriginalNoWatermark')) ? 1 : 0;
+      additional.show_resolution_sidebar_in_popup = 0;
+      additional.img_resolution_free = {
+        width: normalizeDimensionValue($d.find('#ggEcommerceFreeWidth').val()),
+        height: normalizeDimensionValue($d.find('#ggEcommerceFreeHeight').val()),
+      };
+      additional.img_resolution_pro = pro;
+
+      return additional;
+    }
+
+    function updateEcommerceJsonPreview($d) {
+      $d.find('#ggEcommerceAdditionalPreview').val(JSON.stringify(collectEcommerceAdditional($d), null, 2));
+    }
+
+    function populateEcommerceDialog($d, response) {
+      var additional = response.additional || {},
+        item = response.item || null,
+        $state = $d.find('.gg-ecommerce-image-item-state'),
+        $proRows = $d.find('#ggEcommerceProResolutions').empty();
+
+      $d.data('additional', $.extend(true, {}, additional));
+      setChecked($d.find('#ggEcommerceOriginalNoWatermark'), !!parseInt(additional.show_original_without_watermark, 10));
+      $d.find('#ggEcommerceFreeWidth').val((additional.img_resolution_free && additional.img_resolution_free.width) || 0);
+      $d.find('#ggEcommerceFreeHeight').val((additional.img_resolution_free && additional.img_resolution_free.height) || 0);
+
+      $.each(additional.img_resolution_pro || [], function (i, dimension) {
+        $proRows.append(renderProResolutionRow(dimension));
+      });
+      if (!$proRows.children().length) {
+        $proRows.append(renderProResolutionRow({ width: 0, height: 0 }));
+      }
+
+      $state.empty();
+      if (item) {
+        $('<p>')
+          .append($('<strong>').text('Item #' + item.id + ': '))
+          .append(document.createTextNode(item.name || ''))
+          .append(' ')
+          .append($('<a target="_blank">').attr('href', item.edit_url).text('Open full item settings'))
+          .appendTo($state);
+      } else {
+        $('<p class="description">')
+          .text('No E-commerce Item exists for this image yet. Saving creates an inactive draft item for this gallery image.')
+          .appendTo($state);
+      }
+
+      updateEcommerceJsonPreview($d);
+    }
+
+    function openEcommerceDialog($tile) {
+      var info = $tile.data('entity-info'),
+        $d = ecommerceDialog(),
+        post = app.Ajax.Post({ module: 'ecommerce', action: 'getImageSettings' }, { photo_id: info.id, gallery_id: state.galleryId });
+
+      app.Loader.show('Loading...');
+      post.send(function (response) {
+        app.Loader.hide();
+        if (response.error) {
+          $.jGrowl(response.message || 'Unable to load e-commerce settings.');
+          return;
+        }
+        populateEcommerceDialog($d, response);
+        $d.data('tile', $tile).dialog('open');
+      });
+    }
+
+    function saveEcommerceDialog($tile, $d) {
+      var info = $tile.data('entity-info'),
+        additional = collectEcommerceAdditional($d),
+        post = app.Ajax.Post(
+          { module: 'ecommerce', action: 'saveImageSettings' },
+          {
+            photo_id: info.id,
+            gallery_id: state.galleryId,
+            show_original_without_watermark: additional.show_original_without_watermark,
+            show_resolution_sidebar_in_popup: additional.show_resolution_sidebar_in_popup,
+            img_resolution_free: additional.img_resolution_free,
+            img_resolution_pro: additional.img_resolution_pro,
+          }
+        );
+
+      app.Loader.show('Saving...');
+      post.send(function (response) {
+        app.Loader.hide();
+        if (response.error) {
+          $.jGrowl(response.message || 'Unable to save e-commerce settings.');
+          return;
+        }
+        info.ecommerceItem = response.item;
+        info.ecommerceAdditional = response.additional;
+        $tile.data('entity-info', info);
+        populateEcommerceDialog($d, response);
+        applyFilledIndicators($tile);
+        $.jGrowl(response.message || 'E-commerce image settings saved.');
+        $d.dialog('close');
+      });
+    }
+
     // Effect (reuses the existing shared #effectDialog, incl. Pro's block overrides)
     var effectTile = null;
 
@@ -868,6 +1027,7 @@
       hover: openHoverPicker,
       categories: openCategoriesDialog,
       video: openVideoDialog,
+      ecommerce: openEcommerceDialog,
       copy: function ($tile) {
         openTransferDialog($tile, 'copy');
       },
@@ -940,8 +1100,44 @@
         case 'ggImageTransferDialog':
           applyTransfer();
           break;
+        case 'ggImageEcommerceDialog':
+          saveEcommerceDialog($tile, $dlg);
+          return;
       }
       $dlg.dialog('close');
+    });
+
+    $(document).on('input change', '#ggImageEcommerceDialog input', function () {
+      updateEcommerceJsonPreview(ecommerceDialog());
+    });
+
+    $(document).on('ifChecked ifUnchecked ifChanged', '#ggImageEcommerceDialog input[type="checkbox"]', function () {
+      window.setTimeout(function () {
+        updateEcommerceJsonPreview(ecommerceDialog());
+      }, 0);
+    });
+
+    $(document).on('click', '#ggEcommerceAddResolution', function () {
+      var $d = ecommerceDialog();
+      $d.find('#ggEcommerceProResolutions').append(renderProResolutionRow({ width: 0, height: 0 }));
+      updateEcommerceJsonPreview($d);
+    });
+
+    $(document).on('click', '.gg-ecommerce-remove-resolution', function () {
+      var $d = ecommerceDialog();
+      $(this).closest('.gg-ecommerce-image-pro-row').remove();
+      if (!$d.find('.gg-ecommerce-image-pro-row').length) {
+        $d.find('#ggEcommerceProResolutions').append(renderProResolutionRow({ width: 0, height: 0 }));
+      }
+      updateEcommerceJsonPreview($d);
+    });
+
+    $(document).on('click', '.gg-ecommerce-toggle-json', function () {
+      var $button = $(this),
+        $target = $($button.data('target')),
+        isOpen = !$target.is(':visible');
+      $target.toggle(isOpen);
+      $button.text(isOpen ? $button.data('hide-label') || 'Hide JSON' : $button.data('show-label') || 'Show JSON');
     });
 
     $(document).on('click', '.gg-dialog-close', function () {

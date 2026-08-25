@@ -35,12 +35,21 @@
 							<span class="gg-sps-sticky-link">{{ translate('Galleries') }}</span>
                         </a>
                     </li>
-                    <li class="supsystic-sticky{% if (request.query.module == 'optimization') %} active{% endif %}">
-                        <a href="{{ environment.generateUrl('optimization') }}">
-                            <i class="fa fa-compress"></i>
-							<span class="gg-sps-sticky-link">{{ translate('Image Optimize') }}</span>
+                    <li class="supsystic-sticky {% if request.query.module == 'gallerygroups' %} active{% endif %}">
+                        <a href="{{ environment.generateUrl('gallerygroups') }}">
+                            <i class="fa fa-folder-open"></i>
+							<span class="gg-sps-sticky-link">{{ translate('Gallery Groups') }}</span>
                         </a>
                     </li>
+                    <li class="supsystic-sticky {% if request.query.module == 'ecommerce' %} active{% endif %}">
+                        <a href="{{ environment.generateUrl('ecommerce') }}">
+                            <i class="fa fa-shopping-cart"></i>
+							<span class="gg-sps-sticky-link">{{ translate('Ecommerce') }}</span>
+                        </a>
+                    </li>
+                    {# Image Optimize / CDN are per-gallery options now - see the
+                       matching sections at the bottom of a gallery's settings.
+                       Their credentials live in Advanced Settings. #}
 
                     <li class="supsystic-sticky {% if request.query.module == 'settings' %} active{% endif %}">
                         <a href="{{ environment.generateUrl('settings') }}">

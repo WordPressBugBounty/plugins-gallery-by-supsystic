@@ -1,0 +1,264 @@
+.gg-ecommerce-promo {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(360px, 1.05fr);
+  gap: 28px;
+  align-items: center;
+  margin: 18px 0 24px;
+  padding: 28px;
+  border: 1px solid #dbe6ec;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 12px 28px rgba(31, 52, 66, 0.08);
+}
+
+.gg-ecommerce-promo-kicker {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  margin-bottom: 12px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: #e9f8f8;
+  color: #047471;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 24px;
+  text-transform: uppercase;
+}
+
+.gg-ecommerce-promo h1 {
+  max-width: 680px;
+  margin: 0 0 14px;
+  color: #1f3442;
+  font-size: 30px;
+  line-height: 1.2;
+}
+
+.gg-ecommerce-promo p {
+  max-width: 700px;
+  margin: 0;
+  color: #536575;
+  font-size: 14px;
+  line-height: 1.65;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+}
+
+.supsystic-item .gg-ecommerce-promo p,
+.supsystic-item .gg-ecommerce-promo-panel-copy,
+.supsystic-item .gg-ecommerce-promo-payment-label,
+.supsystic-item .gg-ecommerce-promo-features p {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+.gg-ecommerce-promo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.gg-ecommerce-promo-actions .button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gg-ecommerce-promo-media {
+  min-width: 0;
+  width: 100%;
+  max-width: 500px;
+  justify-self: end;
+}
+
+.gg-ecommerce-promo-preview {
+  position: relative;
+  overflow: hidden;
+  max-width: 500px;
+  min-height: 320px;
+  border: 1px solid #cde9ea;
+  border-radius: 8px;
+  background: #f7fcfc;
+}
+
+.gg-ecommerce-promo-gif {
+  display: block;
+  width: 100%;
+  height: 320px;
+  object-fit: cover;
+}
+
+.gg-ecommerce-promo-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  width: 240px;
+  padding: 20px;
+  border: 1px solid rgba(31, 52, 66, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 12px 30px rgba(31, 52, 66, 0.16);
+  text-align: center;
+  transform: translate(-50%, -50%);
+}
+
+.gg-ecommerce-promo-example-badge {
+  display: inline-flex;
+  align-items: center;
+  position: absolute;
+  right: 12px;
+  top: -12px;
+  min-height: 23px;
+  padding: 0 10px;
+  border: 1px solid #b91c1c;
+  border-radius: 999px;
+  background: #dc2626;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 23px;
+  box-shadow: 0 8px 16px rgba(185, 28, 28, 0.24);
+  text-transform: uppercase;
+}
+
+.gg-ecommerce-promo-panel-kicker {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: #e9f8f8;
+  color: #047471;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 22px;
+  text-transform: uppercase;
+}
+
+.gg-ecommerce-promo-panel strong {
+  color: #1f3442;
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+.gg-ecommerce-promo-panel-copy {
+  color: #536575;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.gg-ecommerce-promo-panel-price {
+  align-items: baseline;
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+  color: #536575;
+  font-size: 12px;
+}
+
+.gg-ecommerce-promo-panel-price b {
+  color: #1f3442;
+  font-size: 26px;
+  line-height: 1;
+}
+
+.gg-ecommerce-promo-panel button {
+  width: 100%;
+  min-height: 34px;
+  border: 0;
+  border-radius: 4px;
+  background: #047471;
+  color: #fff;
+  cursor: default;
+  font-weight: 700;
+}
+
+.gg-ecommerce-promo-payment-label {
+  color: #6b7b88;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.gg-ecommerce-promo-payment-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+
+.gg-ecommerce-promo-payment-badges small {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 22px;
+  padding: 0 9px;
+  border: 1px solid #dbe6ec;
+  border-radius: 999px;
+  background: #f7fcfc;
+  color: #1f3442;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 22px;
+}
+
+.gg-ecommerce-promo-features {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.gg-ecommerce-promo-features article {
+  min-height: 160px;
+  padding: 22px;
+  border: 1px solid #dbe6ec;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 12px 28px rgba(31, 52, 66, 0.08);
+}
+
+.gg-ecommerce-promo-features i {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  margin-bottom: 14px;
+  border-radius: 8px;
+  background: #e9f8f8;
+  color: #047471;
+  font-size: 18px;
+}
+
+.gg-ecommerce-promo-features h3 {
+  margin: 0 0 8px;
+  color: #1f3442;
+  font-size: 16px;
+}
+
+.gg-ecommerce-promo-features p {
+  margin: 0;
+  color: #536575;
+  font-size: 13px;
+  line-height: 1.55;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+}
+
+@media (max-width: 1100px) {
+  .gg-ecommerce-promo {
+    grid-template-columns: 1fr;
+  }
+
+  .gg-ecommerce-promo-features {
+    grid-template-columns: 1fr;
+  }
+}

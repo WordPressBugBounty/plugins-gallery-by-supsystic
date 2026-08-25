@@ -188,8 +188,27 @@ return [
     'hscroll-mouse-wheel' => __('You may increase or decrease the mouse scrolling speed for those, who use desktop PC\'s or laptops by changing value of scroll step', 'sgg'),
     'hscroll-touch-gest' => __('You may increase or decrease the gesture scrolling speed for those, who use the devices with touchscreen by changing value of scroll step', 'sgg'),
     'hScrollResponsiveMode' => __('If this option is enabled, images automatically adjust to the screen size of the mobile device.', 'sgg'),
+    'gallery-groups' => __('Use groups to organize galleries for navigation and bulk placement. This does not change e-commerce access.', 'sgg'),
     // custom buttons
     'custom-buttons-preview' => __('Here you may find a great number of presets to customize your gallery buttons. ', 'sgg') . '<a target=\'_blank\' href=\'https://supsystic.com/documentation/custom-buttons/\'>https://supsystic.com/documentation/custom-buttons/</a>',
+    // Per-gallery CDN / image optimization (moved here from the standalone
+    // Optimization page - credentials still live in Advanced Settings).
+    'sgg-t-cdn-enable' =>
+      __('Serve this gallery from a Content Delivery Network, so images load from a server near each visitor instead of from your host. Your CDN credentials are set once in Advanced Settings. Disabled automatically when active E-commerce restrictions cover this gallery, because restricted previews and gated downloads must stay under plugin control.', 'sgg'),
+    'sgg-t-cdn-auto' =>
+      __('Re-upload to the CDN automatically whenever images in this gallery are added, replaced or removed, so the CDN copy never goes stale. Not available while E-commerce restrictions are active for this gallery.', 'sgg'),
+    'sgg-t-optimize-enable' =>
+      __('Compress the images in this gallery to cut page weight without a visible change in quality. Disabled automatically when active E-commerce restrictions cover this gallery, so protected preview files and paid downloads are generated only by the E-commerce workflow.', 'sgg'),
+    'sgg-t-optimize-engine' =>
+      __('TinyPNG sends images to their service and needs an API key. This server compresses locally with GD or Imagick - no key, no upload limit, and it also unlocks resizing and WebP/AVIF conversion.', 'sgg'),
+    'sgg-t-optimize-max-size' =>
+      __('Shrink active gallery files larger than this, including the full-size popup source when originals are optimized. Fill in only one field to cap that side and keep the original proportions; leave both empty to keep the current dimensions. Images smaller than the limit are never enlarged.', 'sgg'),
+    'sgg-t-optimize-quality' =>
+      __('How hard to compress. 100 re-encodes without discarding detail; 85-95 is usually indistinguishable from the original at a fraction of the file size.', 'sgg'),
+    'sgg-t-optimize-replace' =>
+      __('Overwrite the original files with no way back. Leave this off to keep an untouched copy so you can restore the gallery later.', 'sgg'),
+    'sgg-t-optimize-serve' =>
+      __('Choose the image format visitors receive on the frontend. The plugin uses it for gallery thumbnails and popup images, then falls back to the original format when the browser cannot display the selected format. E-commerce galleries serve their own protected WebP previews instead, so this setting is ignored while restrictions are active.', 'sgg'),
   ],
   'tooltips_icon' => [
     'icon' => 'question',

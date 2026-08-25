@@ -235,12 +235,21 @@
                 {% endif %}
                 {% if(environment.isPro() == false) %}
                     <a href="#" class="gg-option-links">{{ translate('Attributes') }}</a>
-                    <a href="http://supsystic.com/plugins/photo-gallery?utm_source=plugin&utm_medium=images_caption_attributes&utm_campaign=gallery" target="_blank">
+                    <a href="https://supsystic.com/plugins/photo-gallery?utm_source=plugin&utm_medium=images_caption_attributes&utm_campaign=gallery" target="_blank">
                         {{ nonProMsg|raw }}
                     </a>
                     </br>
                 {% endif %}
                 <a href="#gg-meta" class="gg-option-links metadata-image">{{ translate('Meta') }}</a></br>
+                {% if(environment.isPro() == true) %}
+                    <a href="#gg-ecommerce" class="gg-option-links option-link" data-gg-option="ecommerce">{{ translate('E-commerce') }}</a></br>
+                {% else %}
+                    <a href="#" class="gg-option-links">{{ translate('E-commerce') }}</a>
+                    <a href="https://supsystic.com/plugins/photo-gallery?utm_source=plugin&utm_medium=ecommerce_image_settings&utm_campaign=gallery" target="_blank">
+                        {{ nonProMsg|raw }}
+                    </a>
+                    </br>
+                {% endif %}
                 <a href="#gg-replace" class="gg-option-links replace-image" data-image-id="{{ image.id }}" data-attachment-id="{{ image.attachment.id }}">{{ translate('Replace') }}</a></br>
                 <a href="#gg-delete" id="delete-image-{{ image.id }}" class="gg-option-links">{{ translate('Delete') }}</a>
             </div></br>
@@ -251,7 +260,7 @@
                 {% if environment.isPro() == false %}
                     <span style="color:red" class="description">
                         <textarea name="" disabled rows="5" placeholder="Description">{{ image.attachment.captionDescription }}</textarea>
-                        <a href="http://supsystic.com/plugins/photo-gallery?utm_source=plugin&utm_medium=images_caption_description&utm_campaign=gallery" target="_blank">
+                        <a href="https://supsystic.com/plugins/photo-gallery?utm_source=plugin&utm_medium=images_caption_description&utm_campaign=gallery" target="_blank">
                             {{ nonProMsg|raw }}
                         </a>
                     </span>
@@ -284,6 +293,11 @@
                     <div class="gg-wraper-option-links" style="float: left">
                         <a href="#gg-categories" class="gg-option-links option-link">{{ translate('Categories') }}</a></br>
                         <a href="#gg-video" class="gg-option-links option-link">{{ translate('Video') }}</a></br>
+                        {% if(environment.isPro() == true) %}
+                            <a href="#gg-ecommerce" class="gg-option-links option-link" data-gg-option="ecommerce">{{ translate('E-commerce') }}</a></br>
+                        {% else %}
+                            <a href="https://supsystic.com/plugins/photo-gallery?utm_source=plugin&utm_medium=ecommerce_image_settings&utm_campaign=gallery" target="_blank" class="gg-option-links">{{ translate('E-commerce') }} {{ nonProMsg|raw }}</a></br>
+                        {% endif %}
                         <a href="#gg-link" class="gg-option-links option-link">{{ translate('Link') }}</a></br>
                         <a href="#gg-rotate" class="gg-option-links option-link">{{ translate('Rotate') }}</a></br>
                         <a href="#gg-crop" class="gg-option-links option-link">{{ translate('Crop') }}</a></br>
@@ -306,7 +320,7 @@
                         <input type="text" name="link" value="{{ image.attachment.external_link }}" style="width: 100%;" placeholder="{{ translate('http://example.com/') }}"/></br>
                         {% if environment.isPro() == false %}
                             <span style="color: #4ae8ea;" class="description">
-                            </br><a style="color: #4ae8ea;" href="http://supsystic.com/plugins/photo-gallery?utm_source=plugin&utm_medium=video&utm_campaign=gallery" target="_blank">
+                            </br><a style="color: #4ae8ea;" href="https://supsystic.com/plugins/photo-gallery?utm_source=plugin&utm_medium=video&utm_campaign=gallery" target="_blank">
                                     {{ nonProMsg|raw }}
                                 </a>
                             </span>
@@ -340,7 +354,7 @@
                         >
                         {% if environment.isPro() == false %}
                             <span style="color:red" class="description">
-                                </br><a href="http://supsystic.com/plugins/photo-gallery?utm_source=plugin&utm_medium=video&utm_campaign=gallery" target="_blank">
+                                </br><a href="https://supsystic.com/plugins/photo-gallery?utm_source=plugin&utm_medium=video&utm_campaign=gallery" target="_blank">
                                     {{ nonProMsg|raw }}
                                 </a>
                             </span>
@@ -350,7 +364,7 @@
                         {% if environment.isPro() == false %}
                             <input type="text" disabled placeholder="Categories" style="width: 70%;">
                             <span style="color:red" class="description">
-                                </br><a href="http://supsystic.com/plugins/photo-gallery?utm_source=plugin&utm_medium=imagescategories&utm_campaign=gallery" target="_blank">
+                                </br><a href="https://supsystic.com/plugins/photo-gallery?utm_source=plugin&utm_medium=imagescategories&utm_campaign=gallery" target="_blank">
                                     {{ nonProMsg|raw }}
                                 </a>
                             </span>
@@ -362,7 +376,7 @@
                         {% if environment.isPro() == false %}
                             <button class="button disabled" disabled>{{ translate('Choose images') }}</button>
                             <span style="color:red" class="description">
-                                </br><a href="http://supsystic.com/plugins/photo-gallery?utm_source=plugin&utm_medium=linked_images&utm_campaign=gallery" target="_blank">
+                                </br><a href="https://supsystic.com/plugins/photo-gallery?utm_source=plugin&utm_medium=linked_images&utm_campaign=gallery" target="_blank">
                                     {{ nonProMsg|raw }}
                                 </a>
                             </span>
@@ -375,7 +389,7 @@
                         {% if environment.isPro() == false %}
                             <button class="button disabled" disabled="disabled">{{ translate('Choose image') }}</button>
                             <span class="description">
-                                </br><a href="http://supsystic.com/plugins/photo-gallery?utm_source=plugin&utm_medium=hover_caption_image_bg&utm_campaign=gallery" target="_blank">
+                                </br><a href="https://supsystic.com/plugins/photo-gallery?utm_source=plugin&utm_medium=hover_caption_image_bg&utm_campaign=gallery" target="_blank">
                                     {{ nonProMsg|raw }}
                                 </a>
                             </span>

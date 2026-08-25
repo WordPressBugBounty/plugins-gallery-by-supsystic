@@ -220,7 +220,7 @@ class GridGallery_Colorbox_Module extends GridGallery_Core_Module
   public function getThemeScreenshotUrl($themeName)
   {
     $default = 'http://placehold.it/262x213&text=No+image';
-    $filename = $themeName . '.jpg';
+    $filename = $themeName . '.webp';
     $url = $this->getLocationUrl() . '/images/';
 
     if (!is_file(dirname(__FILE__) . '/images/' . $filename)) {

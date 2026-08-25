@@ -18,6 +18,9 @@
             <div class="supXs12">
                 <div class="gg-table-toolbar">
                     <div class="gg-table-toolbar-left">
+                        <a class="button button-primary gg-add-gallery-button" href="{{ environment.generateUrl('galleries', 'showPresets') }}">
+                            <i class="fa fa-fw fa-plus"></i>{{ environment.translate('Add new gallery') }}
+                        </a>
                         <button class="button group_button" id="delete-group" disabled>
                             <i class="fa fa-fw fa-trash"></i>{{ environment.translate('Delete selected') }}
                         </button>
@@ -63,6 +66,9 @@
                             <th scope="col" class="gg-sortable" data-sort-key="type">
                                 {{ translate('Type') }} <i class="fa fa-sort gg-sort-icon"></i>
                             </th>
+                            <th scope="col" class="gg-sortable" data-sort-key="gallery_group">
+                                {{ translate('Group') }} <i class="fa fa-sort gg-sort-icon"></i>
+                            </th>
                             <th scope="col" class="gg-sortable" data-sort-key="images">
                                 {{ translate('Images') }} <i class="fa fa-sort gg-sort-icon"></i>
                             </th>
@@ -93,13 +99,13 @@
             {% if data.pro and environment.isPro() == false %}
                 <a class="button button-primary inPro"
                     {% if data.title == 'Categories' %}
-                        href="http://supsystic.com/plugins/photo-gallery/" target="_blank">
+                        href="https://supsystic.com/plugins/photo-gallery/" target="_blank">
                     {% endif %}
                     {% if data.title == 'Icons' %}
-                        href="http://supsystic.com/plugins/photo-gallery/" target="_blank">
+                        href="https://supsystic.com/plugins/photo-gallery/" target="_blank">
                     {% endif %}
                     {% if data.title == 'Pagination' %}
-                        href="http://supsystic.com/plugins/photo-gallery/" target="_blank">
+                        href="https://supsystic.com/plugins/photo-gallery/" target="_blank">
                     {% endif %}
                     Available in PRO
                 </a>

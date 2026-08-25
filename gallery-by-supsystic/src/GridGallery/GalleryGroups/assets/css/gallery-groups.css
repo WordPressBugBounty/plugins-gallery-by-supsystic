@@ -1,0 +1,82 @@
+.gg-settings-note {
+  margin: 10px 0;
+  padding: 12px;
+  background: #fff;
+  border-left: 4px solid #2bc4c6;
+}
+
+.gg-ajax-select {
+  max-width: 560px;
+  position: relative;
+}
+
+.gg-ajax-selected {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.gg-ajax-chip {
+  align-items: center;
+  background: #f3f4f5;
+  border: 1px solid #c3c4c7;
+  border-radius: 4px;
+  display: inline-flex;
+  gap: 6px;
+  max-width: 100%;
+  padding: 4px 8px;
+}
+
+.gg-ajax-chip-remove {
+  background: transparent;
+  border: 0;
+  color: #646970;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+}
+
+.gg-ajax-search {
+  width: 100%;
+}
+
+.gg-ajax-results {
+  background: #fff;
+  border: 1px solid #c3c4c7;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  display: none;
+  left: 0;
+  margin-top: 4px;
+  max-height: 220px;
+  overflow: auto;
+  position: absolute;
+  right: 0;
+  z-index: 10000;
+}
+
+.gg-ajax-results:not(:empty) {
+  display: block;
+}
+
+.gg-ajax-result {
+  background: #fff;
+  border: 0;
+  border-bottom: 1px solid #f0f0f1;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: block;
+  padding: 8px 10px;
+  text-align: left;
+  width: 100%;
+}
+
+.gg-ajax-result:hover,
+.gg-ajax-result:focus {
+  background: #f6f7f7;
+}
+
+.gg-ajax-result-empty {
+  color: #646970;
+  cursor: default;
+}

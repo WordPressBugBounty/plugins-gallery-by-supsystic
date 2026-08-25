@@ -98,6 +98,12 @@
         {{ t.pro_option('fa-video-camera', translate('Video'), 'video', 'video', translate('Open a YouTube or Vimeo video in the popup instead of the image.')) }}
     {% endif %}
 
+    {% if environment.isPro() %}
+        {{ t.option('fa-shopping-cart', translate('E-commerce'), 'ecommerce') }}
+    {% else %}
+        {{ t.pro_option('fa-shopping-cart', translate('E-commerce'), 'ecommerce', 'ecommerce_image_settings', translate('Configure image-specific e-commerce options for this gallery image.')) }}
+    {% endif %}
+
     {{ t.option('fa-copy', translate('Copy to'), 'copy') }}
     {{ t.option('fa-arrows', translate('Move to'), 'move') }}
     {{ t.option('fa-repeat', translate('Rotate'), 'rotate') }}

@@ -161,6 +161,47 @@ class GridGallery_Optimization_Model_ImageOptimize extends RscSgg_Mvc_Model
     return count($requirements) > 0 ? $requirements : false;
   }
 
+  /**
+   * Per-gallery optimize stats for the gallery settings page, already
+   * formatted for display. Returns null when the gallery was never optimized,
+   * which the template renders as "not optimized yet" rather than as zeroes.
+   *
+   * @param int $galleryId
+   * @return array|null
+   */
+  public function getStatsByGalleryId($galleryId)
+  {
+    $galleryId = (int) $galleryId;
+    if (!$galleryId) {
+      return null;
+    }
+
+    $query = $this->getQueryBuilder()
+      ->select('gallery_id, photo_count, can_restore, last_optimize_date, service_code, size, optimized_size')
+      ->from($this->table)
+      ->where('gallery_id', '=', $galleryId);
+
+    $row = $this->db->get_row($query->build());
+    if (!$row) {
+      return null;
+    }
+
+    $size = (int) $row->size;
+    $optimized = (int) $row->optimized_size;
+
+    return [
+      'photo_count' => (int) $row->photo_count,
+      'can_restore' => (int) $row->can_restore,
+      'last_date' => $row->last_optimize_date ? date('d.m.Y', strtotime($row->last_optimize_date)) : null,
+      'service_code' => $row->service_code,
+      'service_name' => GridGallery_Optimization_Model_Optimization::getSeviceNameByCode($row->service_code),
+      'size_mb' => GridGallery_Optimization_Model_Optimization::getSizeInMb($size),
+      'optimized_mb' => GridGallery_Optimization_Model_Optimization::getSizeInMb($optimized),
+      'saved_mb' => GridGallery_Optimization_Model_Optimization::getSizeInMb(max(0, $size - $optimized)),
+      'percent' => $size > 0 ? GridGallery_Optimization_Model_Optimization::calcOptimizePercent($size, $optimized) : 0,
+    ];
+  }
+
   public function getInfoByGalleryId($galleryId)
   {
     $galleryId = (int) $galleryId;

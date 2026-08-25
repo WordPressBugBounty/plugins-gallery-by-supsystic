@@ -29,7 +29,14 @@ class GridGallery_Optimization_Model_Cdn extends RscSgg_Mvc_Model
 
   public function getCurrentServerName()
   {
-    return sanitize_text_field($_SERVER['HTTP_HOST']);
+    // Not every caller is an HTTP request any more - the settings page and the
+    // auto-CDN cron event both read these settings, and WP-CLI has no
+    // HTTP_HOST at all.
+    if (!empty($_SERVER['HTTP_HOST'])) {
+      return sanitize_text_field($_SERVER['HTTP_HOST']);
+    }
+
+    return function_exists('wp_parse_url') ? (string) wp_parse_url(site_url(), PHP_URL_HOST) : '';
   }
 
   public function getServiceSettings()
@@ -130,6 +137,35 @@ class GridGallery_Optimization_Model_Cdn extends RscSgg_Mvc_Model
     $querySel = $this->getQueryBuilder()->select('gallery_id')->from($this->table)->where('gallery_id', '=', (int) $galleryId);
     $records = $this->db->get_results($querySel->build());
     return count($records) ? true : false;
+  }
+
+  /**
+   * Per-gallery transfer stats for the gallery settings page. Null when this
+   * gallery has never been pushed to the CDN.
+   *
+   * @param int $galleryId
+   * @return array|null
+   */
+  public function getStatsByGalleryId($galleryId)
+  {
+    $galleryId = (int) $galleryId;
+    if (!$galleryId) {
+      return null;
+    }
+
+    $query = $this->getQueryBuilder()->select('gallery_id, last_transfer_date, service_code, size')->from($this->table)->where('gallery_id', '=', $galleryId);
+
+    $row = $this->db->get_row($query->build());
+    if (!$row) {
+      return null;
+    }
+
+    return [
+      'last_date' => $row->last_transfer_date ? date('d.m.Y', strtotime($row->last_transfer_date)) : null,
+      'service_code' => $row->service_code,
+      'service_name' => self::getTransferServiceNameByCode($row->service_code),
+      'size_mb' => number_format(((int) $row->size) / 1048576, 2),
+    ];
   }
 
   public function getServiceCodeByGalleryId($galleryId)

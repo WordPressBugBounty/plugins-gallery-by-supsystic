@@ -218,7 +218,7 @@ class RscSgg_Mvc_Module
 
     $prefix = $this->namespace;
     $path = $this->location;
-    $module = ucfirst($this->getModuleName());
+    $module = basename($this->location);
 
     if ($this->overloadController) {
       $prefix = $config->get('pro_modules_prefix');

@@ -53,7 +53,7 @@ class SupsysticGallery
       'shortcode_name' => 'supsystic-gallery',
       'db_prefix' => 'sg_',
       'hooks_prefix' => 'sg_',
-      'page_url' => 'http://supsystic.com/plugins/photo-gallery/',
+      'page_url' => 'https://supsystic.com/plugins/photo-gallery/',
       'ajax_url' => admin_url('admin-ajax.php'),
       'admin_url' => admin_url(),
       'uploads_rw' => true,

@@ -71,6 +71,79 @@
                     </div>
                 </div>
             </div>
+
+            {# Credentials for the image-optimization and CDN services. They used
+               to be edited on the standalone Optimization page; the storage
+               behind them is unchanged (same wp_options rows, same shape), so
+               existing configurations carry over with nothing to re-enter. #}
+            {% block serviceSettings %}
+                {% if environment.isPro() %}
+                    <div class="settings sgg-svc">
+                        <div class="sgg-svc-head">
+                            <h3>{{ environment.translate('Image Optimization & CDN') }}</h3>
+                            <p>{{ environment.translate('Connect the services once here - every gallery then uses these credentials.') }}</p>
+                        </div>
+
+                        <div class="setting">
+                            <div class="setting-description">
+                                <label for="sgg-svc-tinypng">{{ environment.translate('TinyPNG API key') }}</label>
+                                {{ h.showTooltip('Used to compress gallery images through TinyPNG. Get a free key at tinypng.com/developers - the free tier covers 500 images a month.', 'top', true) }}
+                            </div>
+                            <div class="setting-control">
+                                <input type="text" id="sgg-svc-tinypng" name="services[tinypng][auth_key]"
+                                       value="{{ services.tinypng.auth_key|default('') }}" autocomplete="off">
+                            </div>
+                        </div>
+
+                        <div class="setting">
+                            <div class="setting-description">
+                                <label for="sgg-svc-zone">{{ environment.translate('CDN zone name') }}</label>
+                                {{ h.showTooltip('The KeyCDN zone your gallery images are pushed to.', 'top', true) }}
+                            </div>
+                            <div class="setting-control">
+                                <input type="text" id="sgg-svc-zone" name="services[keycdn][zone_name]"
+                                       value="{{ services.keycdn.zone_name|default('') }}" autocomplete="off">
+                            </div>
+                        </div>
+
+                        <div class="setting">
+                            <div class="setting-description">
+                                <label for="sgg-svc-user">{{ environment.translate('CDN FTP user') }}</label>
+                            </div>
+                            <div class="setting-control">
+                                <input type="text" id="sgg-svc-user" name="services[keycdn][u_name]"
+                                       value="{{ services.keycdn.u_name|default('') }}" autocomplete="off">
+                            </div>
+                        </div>
+
+                        <div class="setting">
+                            <div class="setting-description">
+                                <label for="sgg-svc-pass">{{ environment.translate('CDN FTP password') }}</label>
+                                {{ h.showTooltip('Stored encrypted. Leave this blank to keep the password you already saved.', 'top', true) }}
+                            </div>
+                            <div class="setting-control">
+                                <input type="password" id="sgg-svc-pass" name="services[keycdn][u_pass]"
+                                       value="" autocomplete="new-password"
+                                       placeholder="{{ services.keycdn.has_password|default(false)
+                                           ? environment.translate('Saved - leave blank to keep it')
+                                           : environment.translate('Not set') }}">
+                            </div>
+                        </div>
+
+                        <div class="setting">
+                            <div class="setting-description">
+                                <label for="sgg-svc-path">{{ environment.translate('CDN base path') }}</label>
+                                {{ h.showTooltip('Optional sub-folder inside the zone to upload into.', 'top', true) }}
+                            </div>
+                            <div class="setting-control">
+                                <input type="text" id="sgg-svc-path" name="services[keycdn][base_ftp_path]"
+                                       value="{{ services.keycdn.base_ftp_path|default('') }}" autocomplete="off">
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endblock %}
+
             {% block afterSettings %}{% endblock %}
         </div>
         {% block afterSettingsList %}{% endblock %}

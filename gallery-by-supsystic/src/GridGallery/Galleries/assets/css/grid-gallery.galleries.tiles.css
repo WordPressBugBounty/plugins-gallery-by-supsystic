@@ -295,7 +295,7 @@
 /* Show Categories mode: images are placed by dragging into a bin, so only
    the Categories option (for manually assigning the tag) stays usable -
    everything else in the flyout is disabled. */
-body.gg-categories-mode .gg-tile-option:not([data-gg-option="categories"]) {
+body.gg-categories-mode .gg-tile-option:not([data-gg-option="categories"]):not([data-gg-option="ecommerce"]) {
   display: none !important;
 }
 

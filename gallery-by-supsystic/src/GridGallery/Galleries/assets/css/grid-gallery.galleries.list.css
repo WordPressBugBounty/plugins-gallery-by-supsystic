@@ -1,5 +1,8 @@
 #gg-galleries {
   margin-top: 10px;
+  max-width: 100%;
+  overflow-x: auto;
+  padding-bottom: 1px;
 }
 
 .gg-table-toolbar {
@@ -11,7 +14,11 @@
   margin-bottom: 10px;
 }
 
-.gg-table-toolbar #delete-group {
+.gg-table-toolbar #delete-group,
+.gg-table-toolbar .gg-add-gallery-button {
+  align-items: center;
+  display: inline-flex;
+  gap: 4px;
   margin-top: 0;
 }
 
@@ -51,6 +58,31 @@
   white-space: nowrap;
 }
 
+.gg-galleries-table thead .gg-col-check .icheckbox_minimal {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #fff;
+  border-radius: 3px;
+  background: #fff !important;
+  box-sizing: border-box;
+}
+
+.gg-galleries-table thead .gg-col-check .icheckbox_minimal.checked {
+  background: #fff !important;
+}
+
+.gg-galleries-table thead .gg-col-check .icheckbox_minimal.checked:after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 5px;
+  height: 9px;
+  border: solid #263546;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
 .gg-galleries-table tbody td {
   padding: 10px;
   border-bottom: 1px solid #f0f0f0;
@@ -74,6 +106,11 @@
 
 .gg-col-count {
   text-align: center;
+}
+
+.gg-col-group {
+  max-width: 180px;
+  overflow-wrap: anywhere;
 }
 
 .gg-sortable {
