@@ -1991,6 +1991,10 @@ div.image-meta-list {
 .ggSettingsDisplNone {
   display: none !important;
 }
+#sggMosaicPreviewSizeRow,
+#sggMosaicResponsiveColumnsRow {
+  display: none;
+}
 .ggSettingsTop0 {
   top: 0 !important;
 }

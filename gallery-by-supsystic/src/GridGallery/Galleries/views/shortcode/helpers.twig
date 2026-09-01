@@ -386,6 +386,14 @@
 			data-description="{% if photo.attachment.description is not empty %}{{ photo.attachment.description }}{% else %}{{ photo.attachment.title }}{% endif %}"
 			data-caption="{% if photo.attachment.caption is not empty %}{{ photo.attachment.caption|e }}{% else %}{{ photo.attachment.title|e }}{% endif %}"
 			data-title="{{ photo.attachment.title }}"
+			{% if photo.attachment.width is defined and photo.attachment.width is not empty %}
+				data-gg-original-width="{{ photo.attachment.width }}"
+				width="{{ photo.attachment.width }}"
+			{% endif %}
+			{% if photo.attachment.height is defined and photo.attachment.height is not empty %}
+				data-gg-original-height="{{ photo.attachment.height }}"
+				height="{{ photo.attachment.height }}"
+			{% endif %}
 			style="{{ imageAttributesStyleSizeVar }}"
 		{% endblock %}
 	{% endset %}

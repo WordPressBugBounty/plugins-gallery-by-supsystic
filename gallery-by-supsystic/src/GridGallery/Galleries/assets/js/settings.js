@@ -1051,10 +1051,36 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
       $inputShowMore = $('#show-more-disable').closest('.iradio_minimal'),
       $mosaicLayout = $('#sggMosaicLayout'),
       $mosaicCountColumnsRow = $('#sggMosaicCountColumnsRow'),
+      $mosaicResponsiveColumnsRow = $('#sggMosaicResponsiveColumnsRow'),
+      $mosaicPreviewSizeRow = $('#sggMosaicPreviewSizeRow'),
       $sggLazyLoadEnableRow = $('#sggLazyLoadEnableRow'),
       $mosaicImageCountTextWr = $('#gg-mosaic-image-count-text-wrapper'),
       $imageCountWrapper = $('#gg-mosaic-image-count-wrapper');
 
+    function setInputDefault(name, value) {
+      var $input = $('input').filter(function () {
+        return this.name === name;
+      });
+      if ($input.length && !$input.val()) {
+        $input.val(value);
+      }
+    }
+
+    function setMosaicResponsiveColumnsDefaults() {
+      var mosaicCountColumns = parseInt($mosaicCountColumnsRow.find('input').val(), 10);
+      if (isNaN(mosaicCountColumns) || mosaicCountColumns < 2) {
+        mosaicCountColumns = 8;
+      }
+
+      setInputDefault('mosaic[responsiveColumns][desktop][width]', 1200);
+      setInputDefault('mosaic[responsiveColumns][desktop][columns]', mosaicCountColumns);
+      setInputDefault('mosaic[responsiveColumns][tablet][width]', 768);
+      setInputDefault('mosaic[responsiveColumns][tablet][columns]', 5);
+      setInputDefault('mosaic[responsiveColumns][mobile][width]', 320);
+      setInputDefault('mosaic[responsiveColumns][mobile][columns]', 3);
+    }
+
+    setMosaicResponsiveColumnsDefaults();
     $mosaicImageCountTextWr.show();
     function mosaicLayoutToggle() {
       if ($toggle.find('option:selected').val() == 4) {
@@ -1070,11 +1096,15 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
           $('#mosaicShowHiddenImages').iCheck('uncheck');
           $('#mosaic-show-hidden-images-row').removeClass('ggSettingsDisplNone');
           $('#mosaic-display-all-images-row').removeClass('ggSettingsDisplNone');
+          $mosaicPreviewSizeRow.show();
+          $mosaicResponsiveColumnsRow.show();
           //Show load more button and sections
           $loadMoreContent.show();
           $afterLoadMoreContentSeparator.show();
         } else {
           $mosaicCountColumnsRow.hide();
+          $mosaicPreviewSizeRow.show();
+          $mosaicResponsiveColumnsRow.hide();
           $sggLazyLoadEnableRow.show();
           $mosaicImageCountTextWr.show();
           $imageCountWrapper.show();
@@ -1083,6 +1113,8 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
         }
       } else {
         $sggLazyLoadEnableRow.show();
+        $mosaicPreviewSizeRow.hide();
+        $mosaicResponsiveColumnsRow.hide();
         $mosaicImageCountTextWr.hide();
         $imageCountWrapper.hide();
         //Show load more button and sections
@@ -1116,9 +1148,13 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
         var selectedTypeVal = $(this).find('option:selected').val(),
           $mosaicLayoutRow = $('#sggMosaicLayoutRow'),
           $mosaicCountColumnsRow = $('#sggMosaicCountColumnsRow'),
+          $mosaicResponsiveColumnsRow = $('#sggMosaicResponsiveColumnsRow'),
+          $mosaicPreviewSizeRow = $('#sggMosaicPreviewSizeRow'),
           $alwaysShowObj = $('#display-first-photo-row');
         $mosaicLayoutRow.hide();
         $mosaicCountColumnsRow.hide();
+        $mosaicResponsiveColumnsRow.hide();
+        $mosaicPreviewSizeRow.hide();
         $alwaysShowObj.show();
         var $pagesRow = $('#usePages');
 
@@ -1156,6 +1192,8 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
             // Strict use of images order
             $mosaicLayoutRow.show();
             $mosaicCountColumnsRow.show();
+            $mosaicResponsiveColumnsRow.show();
+            $mosaicPreviewSizeRow.show();
             $optionsHeightRow.hide();
             $optionsHeightRow.find('input, select').prop('disabled', true);
             $optionsWidthRow.find('option[name="percents"]').show();

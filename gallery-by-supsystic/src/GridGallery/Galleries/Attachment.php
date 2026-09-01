@@ -122,7 +122,7 @@ class GridGallery_Galleries_Attachment
       return $url;
     }
 
-    if ($url = $this->crop($attachment, $width, $height, $cropQuality)) {
+    if ($url = $this->crop($attachment, $width, $height, $cropPosition, $cropQuality)) {
       $this->_setCache('_sgg_attach', $cacheParams, $url);
       return $url;
     }

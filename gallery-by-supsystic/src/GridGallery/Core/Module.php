@@ -105,9 +105,30 @@ class GridGallery_Core_Module extends RscSgg_Mvc_Module
   //Clear gallery cache after update
   private function cleanGalleryCache()
   {
-    $cachePath = $this->getConfig()->get('plugin_cache_tables');
-    if ($cachePath) {
+    $this->cleanCacheDirectory($this->getConfig()->get('plugin_cache_tables'), false);
+    $this->cleanCacheDirectory($this->getConfig()->get('plugin_cache_twig'), true);
+  }
+
+  private function cleanCacheDirectory($cachePath, $recursive = false)
+  {
+    if (!$cachePath || !is_dir($cachePath) || !is_writable($cachePath)) {
+      return;
+    }
+
+    if (!$recursive) {
       array_map('unlink', glob("$cachePath/*"));
+      return;
+    }
+
+    $iterator = new RecursiveIteratorIterator(
+      new RecursiveDirectoryIterator($cachePath, FilesystemIterator::SKIP_DOTS),
+      RecursiveIteratorIterator::CHILD_FIRST
+    );
+
+    foreach ($iterator as $file) {
+      if ($file->isFile() && is_writable($file->getPathname())) {
+        unlink($file->getPathname());
+      }
     }
   }
 }

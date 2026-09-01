@@ -215,7 +215,7 @@
           var imageOriginalSize = self.getOriginalImageSizes($img.get(0)),
             elWidth = imageOriginalSize.width,
             elHeight = imageOriginalSize.height,
-            aspectRatio = elWidth / elHeight,
+            aspectRatio = elWidth > 0 && elHeight > 0 ? elWidth / elHeight : 1,
             height = width / aspectRatio;
 
           if (isFixedColumn && $img.attr('data-gg-remote-image') == 1) {
@@ -1905,15 +1905,26 @@
   Gallery.prototype.getOriginalImageSizes = function (img) {
     var tempImage = new Image(),
       width,
-      height;
+      height,
+      $img = img ? $(img) : $(),
+      attrWidth = parseFloat($img.attr('data-gg-original-width') || $img.attr('width')),
+      attrHeight = parseFloat($img.attr('data-gg-original-height') || $img.attr('height'));
 
     if ('naturalWidth' in tempImage && 'naturalHeight' in tempImage) {
-      width = img.naturalWidth;
-      height = img.naturalHeight;
-    } else {
+      width = img ? img.naturalWidth : 0;
+      height = img ? img.naturalHeight : 0;
+    } else if (img) {
       tempImage.src = img.src;
       width = tempImage.width;
       height = tempImage.height;
+    }
+
+    if ((!width || isNaN(width)) && attrWidth > 0) {
+      width = attrWidth;
+    }
+
+    if ((!height || isNaN(height)) && attrHeight > 0) {
+      height = attrHeight;
     }
 
     return {
@@ -2624,7 +2635,11 @@
     }
 
     var returnData = null,
-      boundRect = null;
+      boundRect = null,
+      attrWidth = $image && $image.length ? parseFloat($image.attr('data-gg-original-width') || $image.attr('width')) : null,
+      attrHeight = $image && $image.length ? parseFloat($image.attr('data-gg-original-height') || $image.attr('height')) : null,
+      cssWidth = null,
+      cssHeight = null;
     if ($image && $image.length && $image[0].getBoundingClientRect) {
       boundRect = $image[0].getBoundingClientRect();
     }
@@ -2635,11 +2650,29 @@
       } else {
         returnData = parseFloat($image.css('height'));
       }
+      if ((!returnData || isNaN(returnData)) && attrWidth > 0 && attrHeight > 0) {
+        cssWidth = boundRect && boundRect.width ? boundRect.width : parseFloat($image.css('width'));
+        if ((!cssWidth || isNaN(cssWidth)) && $image.parent().length) {
+          cssWidth = parseFloat($image.parent().css('width'));
+        }
+        if (cssWidth > 0) {
+          returnData = (cssWidth * attrHeight) / attrWidth;
+        }
+      }
     } else if (returnType == 'w') {
       if (boundRect && boundRect.width) {
         returnData = boundRect.width;
       } else {
         returnData = parseFloat($image.css('width'));
+      }
+      if ((!returnData || isNaN(returnData)) && attrWidth > 0 && attrHeight > 0) {
+        cssHeight = boundRect && boundRect.height ? boundRect.height : parseFloat($image.css('height'));
+        if ((!cssHeight || isNaN(cssHeight)) && $image.parent().length) {
+          cssHeight = parseFloat($image.parent().css('height'));
+        }
+        if (cssHeight > 0) {
+          returnData = (cssHeight * attrWidth) / attrHeight;
+        }
       }
     }
 
@@ -2647,7 +2680,36 @@
   };
 
   Gallery.prototype.lazyLoadTriggerHandler = function () {
+    $(window).trigger('scroll');
     $(document).trigger('scroll');
+
+    if (this.$container && this.$container.length) {
+      this.$container.trigger('scroll');
+      this.$container.find('.grid-gallery-photos, .slimScrollDiv').trigger('scroll');
+    }
+  };
+
+  Gallery.prototype.lazyLoadStableRefresh = function (waitTime) {
+    var self = this,
+      galleryType = this.$container.data('gridType'),
+      baseDelay = parseInt(waitTime, 10);
+
+    if (isNaN(baseDelay) || baseDelay < 0) {
+      baseDelay = 400;
+    }
+
+    $.each([0, 120, baseDelay + 80, baseDelay + 450, 1600], function (index, delay) {
+      setTimeout(function () {
+        self.lazyLoadTriggerHandler();
+
+        if (galleryType == 4) {
+          $(document).trigger('ggMosaicResizedEvent');
+          $(window).trigger('resize');
+        } else if (self.wookmark) {
+          self.wookmark.trigger('refreshWookmark');
+        }
+      }, delay);
+    });
   };
   Gallery.prototype.lazyLoadDistanceRefresh = function (waitTime) {
     var self = this,
@@ -2722,7 +2784,12 @@
 		}*/
     var showMoreCategory = this.$container.find('.showMoreCategory'),
       effect = this.$container.data('lazyload-effect'),
-      duration = this.$container.data('lazyload-effect-duration');
+      duration = this.$container.data('lazyload-effect-duration'),
+      $lazyImages = this.$container.find('.ggLazyImg');
+
+    if (!$lazyImages.length) {
+      return;
+    }
 
     if (typeof effect == 'undefined') {
       effect = 'show';
@@ -2731,9 +2798,10 @@
     var waitTime = effect == 'fadeIn' ? 200 : duration;
 
     self.ggLazyTimeOut = null;
-    this.$container.find('.ggLazyImg').ggLazyLoad({
+    $lazyImages.ggLazyLoad({
       data_attribute: 'gg-real-image-href',
       threshold: 50,
+      failure_limit: $lazyImages.length,
       effect: effect,
       effectspeed: duration,
       skip_invisible: showMoreCategory.length > 0,
@@ -2750,6 +2818,74 @@
           }, waitTime + 20); //460); // animation transition time + 20ms
         }
       },
+    });
+
+    self.lazyLoadStableRefresh(waitTime);
+  };
+
+  Gallery.prototype.refreshLayoutAfterImageLoad = function () {
+    var galleryType = this.$container.data('gridType');
+
+    if (!this.$container || !this.$container.length || !this.$container.is(':visible')) {
+      return;
+    }
+
+    this.setImagesHeight();
+    this.resizeHorizontalElements();
+
+    if (galleryType == 4) {
+      $(document).trigger('ggMosaicResizedEvent');
+      $(window).trigger('resize');
+    } else if (this.wookmark) {
+      this.wookmark.trigger('refreshWookmark');
+    } else {
+      this.initWookmark();
+    }
+
+    if (typeof this.setCaptionOnHoverImage == 'function') {
+      this.setCaptionOnHoverImage();
+    }
+
+    this.setIconsPosition();
+    this.lazyLoadTriggerHandler();
+  };
+
+  Gallery.prototype.initImageLoadLayoutRefresh = function () {
+    var self = this,
+      $images = this.$container.find('img.ggImg, figure.grid-gallery-caption img'),
+      refreshTimer = null;
+
+    if (this.imageLoadLayoutRefreshInitialized || !$images.length) {
+      return;
+    }
+
+    this.imageLoadLayoutRefreshInitialized = true;
+
+    function hasPendingLayoutWork() {
+      return (
+        $images.filter(function () {
+          return !this.complete || !this.naturalWidth || !this.naturalHeight;
+        }).length > 0 ||
+        self.$container.find('img.ggNotInitImg').length > 0 ||
+        (self.$container.data('gridType') == 4 && self.$container.height() < 1)
+      );
+    }
+
+    function refresh() {
+      clearTimeout(refreshTimer);
+      refreshTimer = setTimeout(function () {
+        self.refreshLayoutAfterImageLoad();
+      }, 60);
+    }
+
+    $images.off('.sggLayoutReady').one('load.sggLayoutReady error.sggLayoutReady', refresh);
+
+    $.each([0, 150, 400, 900, 1800, 3600, 6000], function (index, delay) {
+      setTimeout(function () {
+        if (hasPendingLayoutWork()) {
+          refresh();
+        }
+      }, delay);
     });
   };
 
@@ -2799,6 +2935,7 @@
     this.initControll();
     this.showGalleryParts();
     this.initLazyLoad();
+    this.initImageLoadLayoutRefresh();
 
     this.initSocialSharing();
 
