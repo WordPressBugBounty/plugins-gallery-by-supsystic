@@ -302,7 +302,7 @@
     // the one the save dialogs POST them as (e.g. 'link' is reserved by
     // WordPress, so the server stores/returns it as 'external_link').
     var ATTACHMENT_FIELD_ALIASES = { link: 'external_link', hoverCaptionImageInp: 'hoverCaptionImage' },
-      NON_ATTACHMENT_FIELDS = { attachment_id: true, gallery_id: true, replace_attachment_id: true };
+      NON_ATTACHMENT_FIELDS = { attachment_id: true, gallery_id: true, image_id: true, replace_attachment_id: true };
 
     // Keeps the tile's cached entity-info in sync with what was just saved,
     // so reopening the same option's dialog without a full page reload shows
@@ -524,11 +524,12 @@
 
     // Replace
     function openReplace($tile) {
-      var frame = window.wp.media({ title: 'Replace image', button: { text: 'Replace' }, multiple: false });
+      var info = $tile.data('entity-info'),
+        frame = window.wp.media({ title: 'Replace image', button: { text: 'Replace' }, multiple: false });
 
       frame.on('select', function () {
         var attachment = frame.state().get('selection').first().toJSON();
-        updateAttachment($tile, { replace_attachment_id: attachment.id }, 'Image replaced.', function () {
+        updateAttachment($tile, { image_id: info.id, replace_attachment_id: attachment.id }, 'Image replaced.', function () {
           fetchAndRender();
         });
       });
