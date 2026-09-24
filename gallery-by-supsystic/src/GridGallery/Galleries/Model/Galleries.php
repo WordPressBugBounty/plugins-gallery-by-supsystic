@@ -899,6 +899,28 @@ class GridGallery_Galleries_Model_Galleries extends GridGallery_Core_BaseModel
   }
 
   /**
+   * Returns galleries as id => label pairs for populating select dropdowns
+   * (classic widget, Elementor widget, Gutenberg block).
+   *
+   * @return array
+   */
+  public function getOptionsForSelect()
+  {
+    $options = [];
+
+    foreach ((array) $this->getList() as $gallery) {
+      if (empty($gallery->id)) {
+        continue;
+      }
+
+      $title = !empty($gallery->title) ? wp_strip_all_tags($gallery->title) : sprintf('Gallery #%d', $gallery->id);
+      $options[(int) $gallery->id] = sprintf('%s (ID: %d)', $title, (int) $gallery->id);
+    }
+
+    return $options;
+  }
+
+  /**
    * Adds the empty gallery to the database
    * @param string $title
    * @return bool TRUE on success, FALSE otherwise

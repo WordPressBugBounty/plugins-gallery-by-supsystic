@@ -35,6 +35,12 @@ class GridGallery_Installer_Module extends GridGallery_Core_Module
       if ($lastVersion !== false) {
         // Skip show welcome page if user updates plugin.
         update_option($config->get('db_prefix') . 'welcome_page_was_showed', 1);
+
+        // Same idea for the one-time Overview landing (see
+        // SupsysticGallery::resolveDefaultModule()): an existing site
+        // updating to a newer version should land straight on Galleries,
+        // not see the "welcome aboard" Overview page again.
+        update_option('sg_default_page_visited', 1);
       }
 
       if (false === $config->get('plugin_db_update')) {

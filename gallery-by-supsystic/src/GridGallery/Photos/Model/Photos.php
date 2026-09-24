@@ -503,6 +503,10 @@ class GridGallery_Photos_Model_Photos extends RscSgg_Mvc_Model
 
     $photo->attachment = wp_prepare_attachment_for_js($photo->attachment_id);
 
+    if (is_array($photo->attachment) && (empty($photo->attachment['width']) || empty($photo->attachment['height']))) {
+      $this->backfillAttachmentDimensions($photo->attachment_id, $photo->attachment);
+    }
+
     $cropPosition = get_post_meta($photo->attachment_id, 'cropPosition');
     $captionEffect = get_post_meta($photo->attachment_id, 'captionEffect');
 
@@ -530,6 +534,51 @@ class GridGallery_Photos_Model_Photos extends RscSgg_Mvc_Model
 
     return $photo;
   }
+
+  /**
+   * Older attachments can be missing width/height in their cached
+   * _wp_attachment_metadata (metadata generation failed at upload time, the
+   * file was swapped out without regenerating it, or it predates whatever
+   * process normally fills this in) - wp_prepare_attachment_for_js() then
+   * omits 'width'/'height' entirely. The gallery templates use those two
+   * values to set each <img>'s width/height attributes so the browser (and
+   * this plugin's own JS masonry/columns layout, which reads them as a
+   * fallback when the image hasn't finished loading yet) knows the photo's
+   * real aspect ratio up front; without them, that JS falls back to
+   * assuming a 1:1 square, stretching non-square photos into whatever
+   * shape a square is expected to be under the gallery's thumbnail frame
+   * settings (e.g. a round border becomes an oval instead of a circle) -
+   * and only for these specific older photos, since freshly uploaded ones
+   * always get complete metadata. Read the real dimensions from the file on
+   * disk once and persist them, so this self-heals permanently instead of
+   * re-reading the file on every page load.
+   *
+   * @param int $attachmentId
+   * @param array $attachment Passed by reference, updated in place.
+   */
+  protected function backfillAttachmentDimensions($attachmentId, &$attachment)
+  {
+    $file = get_attached_file($attachmentId);
+    if (!$file || !is_file($file)) {
+      return;
+    }
+
+    $size = @getimagesize($file);
+    if (!$size || empty($size[0]) || empty($size[1])) {
+      return;
+    }
+
+    $attachment['width'] = $size[0];
+    $attachment['height'] = $size[1];
+
+    $metadata = wp_get_attachment_metadata($attachmentId);
+    if (is_array($metadata) && (empty($metadata['width']) || empty($metadata['height']))) {
+      $metadata['width'] = $size[0];
+      $metadata['height'] = $size[1];
+      wp_update_attachment_metadata($attachmentId, $metadata);
+    }
+  }
+
   public function media_sideload_image($file, $post_id, $desc = null)
   {
     if (!empty($file)) {

@@ -60,6 +60,26 @@ class GridGallery_GalleryGroups_Model_Groups extends GridGallery_Core_BaseModel
     return $this->db->get_results("SELECT * FROM `{$this->table}` WHERE active = 1 ORDER BY name ASC");
   }
 
+  /**
+   * @return array id => label pairs for populating select dropdowns
+   * (classic widget, Elementor widget, Gutenberg block).
+   */
+  public function getOptionsForSelect()
+  {
+    $options = [];
+
+    foreach ((array) $this->getAll() as $group) {
+      if (empty($group->group_id)) {
+        continue;
+      }
+
+      $title = !empty($group->name) ? wp_strip_all_tags($group->name) : sprintf('Group #%d', $group->group_id);
+      $options[(int) $group->group_id] = sprintf('%s (ID: %d)', $title, (int) $group->group_id);
+    }
+
+    return $options;
+  }
+
   public function getById($groupId)
   {
     return $this->db->get_row($this->db->prepare("SELECT * FROM `{$this->table}` WHERE group_id = %d", (int) $groupId));

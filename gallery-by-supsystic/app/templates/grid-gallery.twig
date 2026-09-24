@@ -15,7 +15,7 @@
             </div>
         {% endblock %}
         <section class="supsystic-content">
-            <nav class="supsystic-navigation" style="top: 0px;">
+            <nav class="supsystic-navigation supsystic-sticky supsystic-sticky-active">
                 <ul>
                     <li class="supsystic-sticky {% if request.query.module == 'overview' %} active{% endif %}">
                         <a href="{{ environment.generateUrl('overview') }}">

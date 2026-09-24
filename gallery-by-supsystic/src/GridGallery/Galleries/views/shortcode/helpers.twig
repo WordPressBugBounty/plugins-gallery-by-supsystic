@@ -324,6 +324,50 @@
 		{% set width = null %}
 	{% endif %}
 
+	{# The <img width>/<height> attributes below must describe the file this
+	   template actually points `src` at (built from `width`/`height` above via
+	   get_attachment()), not the original upload's own dimensions - those
+	   regularly differ (e.g. Vertical/grid==1 asks get_attachment() to crop to
+	   a fixed `width` and auto-scale height to match the original photo's
+	   aspect ratio; the file it hands back is correctly proportioned, but
+	   photo.attachment.width/height still describe the full original photo).
+	   A browser uses these attributes as an intrinsic aspect-ratio hint before
+	   the image itself has loaded (so does this plugin's own masonry/columns
+	   JS, via data-gg-original-width/height) - if they name the original's
+	   1280x720 while the real file is a proportionally-scaled 215x121 crop,
+	   whichever one of width/height an author style leaves unconstrained ends
+	   up needing to fall back to attribute-derived sizing, and does so using
+	   the wrong (original, not the served file's) ratio, stretching the
+	   photo's thumbnail to a mismatched box. Re-derive both dimensions from
+	   whichever of width/height get_attachment() was actually given, scaling
+	   the other one by the original photo's own aspect ratio the same way
+	   get_attachment()'s crop does - only falling back to the original
+	   attachment size outright when neither was fixed here (grid types that
+	   intentionally request the full-size image).
+
+	   Mosaic (grid==4) is excluded on purpose: its tiles aren't sized from
+	   area.photo_width/height at all (that pair is Pro's own mosaic layout
+	   settings' business, not this crop), so width/height above are stale
+	   leftovers here, not the dimensions of whatever get_attachment() actually
+	   returned - substituting them in produced tiny, unrelated boxes (e.g. a
+	   real ~750x520 photo tagged as 100x69). Original-attachment dimensions
+	   are what this used before and are the correct fallback for it. #}
+	{% set imgAttrWidth = photo.attachment.width|default(null) %}
+	{% set imgAttrHeight = photo.attachment.height|default(null) %}
+
+	{% if settings.area.grid != 4 %}
+		{% if width is not empty and height is not empty %}
+			{% set imgAttrWidth = width %}
+			{% set imgAttrHeight = height %}
+		{% elseif width is not empty and photo.attachment.width is not empty and photo.attachment.height is not empty %}
+			{% set imgAttrWidth = width %}
+			{% set imgAttrHeight = (width * photo.attachment.height / photo.attachment.width)|round %}
+		{% elseif height is not empty and photo.attachment.width is not empty and photo.attachment.height is not empty %}
+			{% set imgAttrHeight = height %}
+			{% set imgAttrWidth = (height * photo.attachment.width / photo.attachment.height)|round %}
+		{% endif %}
+	{% endif %}
+
 	{% set previewImgUrl %}
 		{% block previewImageUrlVar %}
 			{% if isEcommerceThumbnailPlaceholder %}
@@ -386,13 +430,13 @@
 			data-description="{% if photo.attachment.description is not empty %}{{ photo.attachment.description }}{% else %}{{ photo.attachment.title }}{% endif %}"
 			data-caption="{% if photo.attachment.caption is not empty %}{{ photo.attachment.caption|e }}{% else %}{{ photo.attachment.title|e }}{% endif %}"
 			data-title="{{ photo.attachment.title }}"
-			{% if photo.attachment.width is defined and photo.attachment.width is not empty %}
-				data-gg-original-width="{{ photo.attachment.width }}"
-				width="{{ photo.attachment.width }}"
+			{% if imgAttrWidth is not empty %}
+				data-gg-original-width="{{ imgAttrWidth }}"
+				width="{{ imgAttrWidth }}"
 			{% endif %}
-			{% if photo.attachment.height is defined and photo.attachment.height is not empty %}
-				data-gg-original-height="{{ photo.attachment.height }}"
-				height="{{ photo.attachment.height }}"
+			{% if imgAttrHeight is not empty %}
+				data-gg-original-height="{{ imgAttrHeight }}"
+				height="{{ imgAttrHeight }}"
 			{% endif %}
 			style="{{ imageAttributesStyleSizeVar }}"
 		{% endblock %}

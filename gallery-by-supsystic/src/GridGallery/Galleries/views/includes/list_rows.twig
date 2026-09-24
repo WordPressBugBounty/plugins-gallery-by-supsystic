@@ -80,4 +80,12 @@
             </a>
         </td>
     </tr>
+{% else %}
+    <tr class="gg-empty-row">
+        <td colspan="11">
+            <i class="fa fa-picture-o" aria-hidden="true"></i>
+            <strong>{{ translate('No galleries found') }}</strong>
+            <span>{{ translate('Try another search or create a new gallery.') }}</span>
+        </td>
+    </tr>
 {% endfor %}

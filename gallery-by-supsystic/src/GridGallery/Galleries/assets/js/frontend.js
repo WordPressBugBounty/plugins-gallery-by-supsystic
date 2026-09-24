@@ -190,7 +190,17 @@
       width = ((this.$container.width() - spacing) / 100) * parseInt(width);
 
       $.each(this.$container.find('img'), function () {
-        aspectRatio = $(this).width() / $(this).height();
+        // $(this).width()/.height() here read whatever box the image
+        // currently occupies pre-resize, which for an image the browser
+        // hasn't finished loading yet collapses to 0 or an unrelated
+        // placeholder size rather than the photo's real proportions -
+        // getOriginalImageSizes() reads the actual loaded pixels (or the
+        // width/height attributes as a reliable fallback) instead, so every
+        // tile in the row gets a correctly-proportioned height alongside
+        // its shared column width, instead of some multiple of the right
+        // answer (or the raw un-scaled attribute value).
+        var sizes = self.getOriginalImageSizes(this),
+          aspectRatio = sizes.width > 0 && sizes.height > 0 ? sizes.width / sizes.height : $(this).width() / $(this).height();
         $(this).width(width);
         $(this).height(width / aspectRatio);
       });
@@ -3142,6 +3152,33 @@
   $(document).on('ggFirInitialize', function () {
     contentLoaded();
   });
+
+  // Elementor's editor preview iframe (widgets with is_reload_preview_required)
+  // reloads the whole preview document without re-firing a jQuery-visible
+  // document ready/ajaxComplete cycle for this script, so a gallery dropped
+  // there stays stuck un-initialized. Watch for .grid-gallery containers
+  // showing up anywhere in the DOM and initialize them same as
+  // contentLoaded() does elsewhere - it already skips anything with the
+  // "initialized" class, so this is a no-op on normal pages.
+  if (typeof MutationObserver !== 'undefined' && document.body) {
+    var ggObserver = new MutationObserver(function (mutations) {
+      var found = false;
+      mutations.forEach(function (mutation) {
+        Array.prototype.forEach.call(mutation.addedNodes || [], function (node) {
+          if (node.nodeType !== 1) {
+            return;
+          }
+          if ((node.classList && node.classList.contains('grid-gallery')) || $(node).find('.grid-gallery').length) {
+            found = true;
+          }
+        });
+      });
+      if (found) {
+        contentLoaded();
+      }
+    });
+    ggObserver.observe(document.body, { childList: true, subtree: true });
+  }
 
   (function initThumbnailDescriptionTooltip() {
     var $tooltip = $('<div class="gg-thumbnail-description-tooltip" role="tooltip">').appendTo('body').hide();

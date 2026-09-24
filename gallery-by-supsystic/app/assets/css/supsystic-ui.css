@@ -64,55 +64,142 @@
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
+  z-index: 20;
+  padding: 8px 6px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 12px 0 0 12px;
+  background: linear-gradient(180deg, #26384c 0%, #1d2b3c 100%);
+  box-shadow: 0 14px 34px rgba(23, 39, 55, .16);
 }
 
-.supsystic-navigation ul {
+.supsystic-plugin .supsystic-navigation ul {
+  display: flex;
+  margin: 0;
   padding: 0;
-  margin: 0;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.supsystic-navigation ul li {
+.supsystic-plugin .supsystic-navigation ul li,
+.supsystic-plugin .supsystic-navigation ul li:hover,
+.supsystic-plugin .supsystic-navigation ul li.active {
+  margin: 0;
+  padding: 0;
+  border-radius: 9px;
+  background: transparent;
+}
+
+.supsystic-plugin .supsystic-navigation ul li a {
+  position: relative;
+  display: flex;
+  box-sizing: border-box;
+  min-height: 62px;
+  padding: 8px 3px 7px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 5px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  color: #c9d5e2;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.2;
   text-align: center;
-  background-color: transparent;
-  margin: 0;
-  padding: 10px 0;
-
-  -webkit-transition: background 500ms;
-  -moz-transition: background 500ms;
-  -ms-transition: background 500ms;
-  -o-transition: background 500ms;
-  transition: background 500ms;
-}
-
-.supsystic-navigation ul li:hover,
-.supsystic-navigation ul li.active {
-  background-color: #fff;
-}
-
-.supsystic-navigation ul li:hover a i,
-.supsystic-navigation ul li.active a i {
-  color: #4ae8ea;
-}
-
-.supsystic-navigation ul li a {
-  color: #28282a;
   text-decoration: none;
-  font-weight: 400;
-  -moz-box-shadow: none;
-  -webkit-box-shadow: none;
   box-shadow: none;
-  font-size: 13px;
+  transition: color .16s ease, background-color .16s ease, border-color .16s ease, transform .16s ease, box-shadow .16s ease;
 }
 
-.supsystic-navigation ul li a i {
+.supsystic-plugin .supsystic-navigation ul li a:hover,
+.supsystic-plugin .supsystic-navigation ul li a:focus-visible {
+  border-color: rgba(74, 232, 234, .2);
+  background: rgba(255, 255, 255, .08);
+  color: #fff;
+  outline: 0;
+  transform: translateY(-1px);
+}
+
+.supsystic-plugin .supsystic-navigation ul li.active a {
+  border-color: rgba(74, 232, 234, .3);
+  background: linear-gradient(145deg, rgba(74, 232, 234, .22), rgba(55, 125, 255, .16));
+  color: #fff;
+  box-shadow: inset 3px 0 0 #4ae8ea, 0 8px 18px rgba(7, 19, 31, .2);
+}
+
+.supsystic-plugin .supsystic-navigation ul li a span {
   display: block;
-  color: #6d6d71;
-  font-size: 1.8em;
-  margin-bottom: 5px;
+  max-width: 100%;
+  white-space: normal;
 }
 
-.supsystic-navigation ul li.supsystic-pro {
-  background-color: #e74c3c;
+.supsystic-plugin .supsystic-navigation ul li a i {
+  display: inline-flex !important;
+  width: 30px;
+  height: 30px;
+  margin: 0 auto !important;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .07);
+  color: #fff;
+  font-size: 17px !important;
+  line-height: 1 !important;
+  transition: color .16s ease, background-color .16s ease, transform .16s ease;
+}
+
+.supsystic-plugin .supsystic-navigation ul li a i:before {
+  display: block;
+  line-height: 1;
+}
+
+.supsystic-plugin .supsystic-navigation ul li a:hover i,
+.supsystic-plugin .supsystic-navigation ul li a:focus-visible i,
+.supsystic-plugin .supsystic-navigation ul li.active a i {
+  background: rgba(74, 232, 234, .14);
+  color: #7ff8ef;
+}
+
+.supsystic-plugin .supsystic-navigation ul li a:hover i,
+.supsystic-plugin .supsystic-navigation ul li a:focus-visible i {
+  transform: scale(1.06);
+}
+
+@media screen and (max-width: 810px) {
+  .supsystic-plugin .supsystic-content .supsystic-container {
+    margin-left: 40px;
+  }
+
+  .supsystic-plugin .supsystic-content .supsystic-navigation {
+    width: 40px;
+    padding: 6px 4px;
+    border-radius: 9px 0 0 9px;
+  }
+
+  .supsystic-plugin .supsystic-content .supsystic-navigation span {
+    display: none;
+  }
+
+  .supsystic-plugin .supsystic-navigation ul {
+    gap: 4px;
+  }
+
+  .supsystic-plugin .supsystic-navigation ul li a {
+    min-height: 42px;
+    padding: 5px 2px;
+  }
+
+  .supsystic-plugin .supsystic-navigation ul li a i {
+    width: 28px;
+    height: 28px;
+    font-size: 15px !important;
+  }
+
+  .supsystic-breadcrumbs,
+  .supsystic-footer-wrapper {
+    margin-left: 40px;
+  }
 }
 
 .supsystic-bar {

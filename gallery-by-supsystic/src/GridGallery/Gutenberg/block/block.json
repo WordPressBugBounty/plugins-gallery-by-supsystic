@@ -1,0 +1,18 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 2,
+  "name": "supsystic-gallery/gallery",
+  "title": "Photo Gallery by Supsystic",
+  "description": "Insert one of your galleries. Appears on the published page; no live preview here in the editor.",
+  "category": "widgets",
+  "icon": "format-gallery",
+  "keywords": ["gallery", "photo gallery", "images", "supsystic"],
+  "textdomain": "sgg",
+  "attributes": {
+    "galleryId": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "editorScript": "supsystic-gallery-gutenberg-block"
+}

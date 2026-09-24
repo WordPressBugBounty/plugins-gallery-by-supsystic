@@ -98,6 +98,30 @@
   border-bottom: none;
 }
 
+.gg-galleries-table .gg-empty-row td {
+  padding: 48px 20px !important;
+  color: #7f8c8d !important;
+  text-align: center;
+}
+
+.gg-galleries-table .gg-empty-row i,
+.gg-galleries-table .gg-empty-row strong,
+.gg-galleries-table .gg-empty-row span {
+  display: block;
+}
+
+.gg-galleries-table .gg-empty-row i {
+  margin-bottom: 10px;
+  color: #9fb0bf;
+  font-size: 30px;
+}
+
+.gg-galleries-table .gg-empty-row strong {
+  margin-bottom: 4px;
+  color: #405266;
+  font-size: 15px;
+}
+
 .gg-col-check,
 .gg-col-id {
   width: 40px;

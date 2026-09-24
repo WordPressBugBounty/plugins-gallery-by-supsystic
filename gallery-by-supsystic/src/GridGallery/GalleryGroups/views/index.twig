@@ -36,6 +36,7 @@
                     <th>{{ translate('Active') }}</th>
                     <th>{{ translate('Created At') }}</th>
                     <th>{{ translate('Updated At') }}</th>
+                    <th>{{ translate('Shortcode') }}</th>
                     <th>{{ translate('Actions') }}</th>
                 </tr>
             </thead>
@@ -48,6 +49,9 @@
                         <td>{{ group.created_at }}</td>
                         <td>{{ group.updated_at }}</td>
                         <td>
+                            <input type="text" id="group-shortcode-{{ group.group_id }}" readonly class="ggCopyTextCode shortcode" value="[supsystic-gallery-group id='{{ group.group_id }}']">
+                        </td>
+                        <td>
                             <a class="button" href="{{ environment.generateUrl('gallerygroups', 'edit', {'group_id': group.group_id}) }}">
                                 <i class="fa fa-pencil"></i> {{ translate('Edit') }}
                             </a>
@@ -58,7 +62,7 @@
                     </tr>
                 {% else %}
                     <tr>
-                        <td colspan="6">{{ translate('No gallery groups found.') }}</td>
+                        <td colspan="7">{{ translate('No gallery groups found.') }}</td>
                     </tr>
                 {% endfor %}
             </tbody>

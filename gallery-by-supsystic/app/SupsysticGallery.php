@@ -36,7 +36,7 @@ class SupsysticGallery
     $environment->configure([
       'optimizations' => 0,
       'environment' => $this->getPluginEnvironment(),
-      'default_module' => 'overview',
+      'default_module' => $this->resolveDefaultModule(),
       'lang_domain' => 'sgg',
       'lang_path' => plugin_basename(dirname(__FILE__)) . '/langs',
       'plugin_prefix' => 'GridGallery',
@@ -238,6 +238,31 @@ class SupsysticGallery
     }
 
     return $environment;
+  }
+
+  /**
+   * Decides which module renders when the plugin's own menu link is opened
+   * with no ?module= in the URL. On a brand new install this shows the
+   * Overview page exactly once (welcome aboard); every visit after that
+   * lands straight on the Galleries list.
+   *
+   * @return string
+   */
+  private function resolveDefaultModule()
+  {
+    $isDefaultLanding = is_admin() && isset($_GET['page']) && $_GET['page'] === 'supsystic-gallery' && !isset($_GET['module']);
+
+    if (!$isDefaultLanding || get_option('sg_default_page_visited', false)) {
+      return 'galleries';
+    }
+
+    // GridGallery_Installer_Module marks 'sg_default_page_visited' for us
+    // (see its onInit()) whenever it detects this is an existing site
+    // upgrading rather than a genuinely fresh install, so reaching this
+    // point with the option still unset means: show the welcome once.
+    update_option('sg_default_page_visited', 1);
+
+    return 'overview';
   }
 
   /**
