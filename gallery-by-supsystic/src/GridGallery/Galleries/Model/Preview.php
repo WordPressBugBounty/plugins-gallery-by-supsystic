@@ -29,7 +29,8 @@ class GridGallery_Galleries_Model_Preview
       throw new RuntimeException('Unable to create preview post.');
     }
 
-    $post['post_content'] = $content;
+    // Filter even for users with unfiltered_html: the preview only ever needs a gallery shortcode.
+    $post['post_content'] = wp_kses_post($content);
     $post['post_status'] = 'draft';
 
     if (1 >= wp_update_post($post)) {

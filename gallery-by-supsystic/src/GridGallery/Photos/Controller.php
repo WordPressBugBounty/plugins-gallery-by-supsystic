@@ -11,7 +11,7 @@ class GridGallery_Photos_Controller extends GridGallery_Core_BaseController
 
   public function requireNonces()
   {
-    return ['addAction', 'addFolderAction', 'deleteAction', 'moveAction', 'updateTitleAction', 'updateAttachmentAction', 'updatePositionAction'];
+    return ['addAction', 'addFolderAction', 'deleteAction', 'moveAction', 'updateTitleAction', 'updateAttachmentAction', 'updatePositionAction', 'rotatePhotoAction'];
   }
   /**
    * {@inheritdoc}

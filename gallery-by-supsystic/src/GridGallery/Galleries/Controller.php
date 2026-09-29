@@ -38,6 +38,10 @@ class GridGallery_Galleries_Controller extends GridGallery_Core_BaseController
       'cloneAction',
       'createDefaultGallerySettingsAction',
       'removeDefaultGallerySettingsAction',
+      // Preview writes the preview post; the notice actions update options.
+      'previewAction',
+      'checkReviewNoticeAction',
+      'checkNoticeButtonAction',
     ];
   }
 
@@ -168,7 +172,13 @@ class GridGallery_Galleries_Controller extends GridGallery_Core_BaseController
   public function previewAction(RscSgg_Http_Request $request)
   {
     $this->saveEvent('galleries.preview');
-    $galleryId = $request->query->get('gallery_id');
+    // The id is placed into a shortcode that is saved as post content: accept an existing gallery id only.
+    $galleryId = absint($request->query->get('gallery_id'));
+    if (!$galleryId || !$this->getModel('galleries')->getById($galleryId)) {
+      return $this->response('error.twig', [
+        'message' => $this->translate('The gallery does not exist'),
+      ]);
+    }
     $shortcode = $this->getEnvironment()->getConfig()->get('shortcode_name', 'grid-gallery');
 
     try {

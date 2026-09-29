@@ -4,7 +4,7 @@ Donate link: https://supsystic.com/plugins/gallery
 Tags: gallery, image-gallery, photo gallery, album-gallery, gallery-plugin
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.21.0
+Stable tag: 1.21.1
 License: GNU General Public License v2.0 or later
 
 Create responsive WordPress photo galleries, album galleries, gallery groups, lightbox galleries, optimized image galleries, and professional image experiences without custom code.
@@ -276,6 +276,9 @@ Upgrade to Photo Gallery Pro by Supsystic when you need advanced gallery layouts
 == Changelog ==
 
 = 2026 =
+
+= 1.21.1 — September 29, 2026 =
+* General security hardening and code improvements.
 
 = 1.21.0 — September 23, 2026 =
 

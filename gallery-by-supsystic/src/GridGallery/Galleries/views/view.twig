@@ -28,7 +28,7 @@
 		            </li>
 		            <li>
 		                <a target="_blank"
-		                   href="{{ environment.generateUrl('galleries', 'preview', { 'gallery_id': gallery.id }) }}"
+		                   href="{{ environment.generateUrl('galleries', 'preview', { 'gallery_id': gallery.id, '_wpnonce': _wpnonce }) }}"
 		                   class="button" data-button="preview">
 		                    <i class="fa fa-fw fa-eye"></i>
 		                    {{ translate('Preview') }}

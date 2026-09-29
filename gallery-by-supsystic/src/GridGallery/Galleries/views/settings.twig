@@ -141,7 +141,7 @@
 
                         <li>
                             <a class="button button-primary" id="btnPreviewWindow" target="_blank"
-                               href="{{ environment.generateUrl('galleries', 'preview', { 'gallery_id': gallery.id }) }}">
+                               href="{{ environment.generateUrl('galleries', 'preview', { 'gallery_id': gallery.id, '_wpnonce': _wpnonce }) }}">
                                 <i class="fa fa-fw fa-eye"></i>
                                 {{ translate('Preview') }}
                             </a>

@@ -58,7 +58,7 @@
                 <i class="fa fa-bars"></i>
                 {{ translate('Images list') }}
             </a>
-            <a href="{{ environment.generateUrl('galleries', 'preview', { 'gallery_id': gallery.id }) }}"
+            <a href="{{ environment.generateUrl('galleries', 'preview', { 'gallery_id': gallery.id, '_wpnonce': _wpnonce }) }}"
                class="button background sggActionButtons">
                 <i class="fa fa-eye"></i>
                 {{ translate('Preview') }}
