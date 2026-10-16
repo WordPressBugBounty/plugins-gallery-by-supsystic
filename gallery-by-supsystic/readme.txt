@@ -1,281 +1,166 @@
-=== Photo Gallery - Responsive Image Galleries by Supsystic ===
-Contributors: supsystic.com
-Donate link: https://supsystic.com/plugins/gallery
-Tags: gallery, image-gallery, photo gallery, album-gallery, gallery-plugin
+=== Photo Gallery by Supsystic – Image Gallery, Masonry, Albums & Lightbox ===
+Contributors: supsysticcom
+Tags: gallery, photo gallery, image gallery, masonry gallery, lightbox
 Tested up to: 7.1
-Requires PHP: 7.4
-Stable tag: 1.21.2
-License: GNU General Public License v2.0 or later
+Requires PHP: 7.3
+Stable tag: 1.21.4
+License: GPLv2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Create responsive WordPress photo galleries, album galleries, gallery groups, lightbox galleries, optimized image galleries, and professional image experiences without custom code.
+Responsive photo and image galleries with masonry, albums and a lightbox. Bulk upload, drag-and-drop ordering, Gutenberg block and Elementor widget.
 
 == Description ==
 
-Photo Gallery by Supsystic helps you build responsive image galleries in WordPress with a clear admin interface, flexible gallery layouts, album-style organization, gallery groups, image settings, shortcode support, and Gutenberg support.
+**Photo Gallery by Supsystic** is a WordPress gallery plugin for responsive photo galleries, image galleries, masonry grids and albums with a built-in lightbox. Add images from the Media Library in bulk, drag them into order, pick a layout and publish the gallery with a block, an Elementor widget or a shortcode. No code required.
 
-Use it for photography portfolios, event galleries, product image galleries, client albums, travel blogs, creative portfolios, private collections, and image-heavy WordPress pages that need to look clean on desktop and mobile.
+Unlimited galleries and images are free.
 
-The free version gives you the essential tools to create, organize, and publish beautiful image galleries. Photo Gallery Pro adds advanced layouts, lightbox controls, watermark, image optimization, CDN support, external imports, visual image editing, ecommerce access restrictions, paid gallery downloads, and priority support.
+**Try it in your browser:** [open a live demo in WordPress Playground](https://playground.wordpress.net/?plugin=gallery-by-supsystic) – no install, no account.
 
-Photo Gallery by Supsystic is built for website owners, photographers, agencies, bloggers, content teams, and WordPress users who want a reliable gallery plugin that is easy to start with and flexible enough for professional workflows.
+= Gallery layouts =
 
-[youtube https://www.youtube.com/watch?v=0ky3s2RXtLk?rel=0]
+* Standard grid with even thumbnails
+* Masonry layout that keeps every photo's proportions
+* Rounded thumbnails
+* Horizontal layout and horizontal scroll galleries
+* Separate column counts for desktop, tablet and mobile
 
-== 📸 Main Features ==
+= Albums with Gallery Groups =
 
-= 📱 Responsive Photo Galleries =
+Gather several galleries into one album that visitors can browse. Gallery Groups work well for portfolios, events, client folders, projects and travel albums.
 
-Create image galleries that adapt to desktop, tablet, and mobile screens. Gallery layouts are built to keep images clean, readable, and easy to browse across different devices.
+= Lightbox =
 
-= 🖼️ Gallery and Album Management =
+Photos open in a responsive lightbox, so visitors can view each image full size without leaving the page.
 
-Create multiple galleries, reuse them on different pages, organize images, update gallery settings later, and manage your gallery list from a simple WordPress admin screen.
+= Fast image management =
 
-= 🗂️ Gallery Groups =
-
-Group related galleries together and display them as organized gallery collections. This is useful for portfolios, events, projects, categories, albums, client galleries, and large photo collections.
-
-= 🧩 WordPress Media Library Support =
-
-Add images from the WordPress Media Library, manage gallery images, reorder photos, edit image data, and prepare galleries without leaving the WordPress admin.
-
-= 🧱 Gutenberg Block and Shortcode Support =
-
-Add galleries to posts, pages, landing pages, widgets, and templates using Gutenberg blocks or shortcodes.
-
-= ⚙️ Flexible Layout Settings =
-
-Control image size, spacing, alignment, borders, radius, shadows, loader behavior, horizontal scroll behavior, and other visual settings depending on the selected gallery type.
-
-= 📝 Captions, Titles, Descriptions, and Image Metadata =
-
-Add titles, captions, descriptions, ALT text, links, and image-level information to make galleries more useful for visitors and better structured for content workflows.
-
-= 🌐 Gallery Examples =
-
-Photo Gallery includes a wide range of gallery layouts and display options. You can see examples of available gallery types on our website:
-[Gallery Examples](https://supsystic.com/gallery-examples/)
-
-== ✅ Free Features ==
-
-* Responsive WordPress photo galleries
-* Unlimited gallery creation and editing
-* Gallery groups for organizing related galleries
-* Gallery list management
-* Image list management
-* WordPress Media Library image selection
-* Bulk image adding
+* Bulk add images from the WordPress Media Library
 * Drag-and-drop image ordering
-* Basic gallery layout controls
-* Image titles, captions, descriptions, ALT text, and links
-* Adjustable image size, spacing, borders, radius, and alignment
-* Mobile-friendly gallery output
-* Gutenberg block support
-* Shortcode support for posts, pages, widgets, and templates
-* Reusable galleries across multiple pages
-* Clean admin interface for everyday gallery management
-* Gallery preview and easy publishing workflow
+* Titles, captions, ALT text and links for every image
+* Borders, corner radius and shadows
+* A loader that shows while the gallery images load
 
-== 🚀 Pro Features ==
+ALT text and captions are saved with each image, which helps your galleries in image search.
 
-Photo Gallery Pro extends the free gallery plugin with advanced tools for professional gallery websites, photographers, agencies, stores, membership-style galleries, and image-heavy WordPress projects.
+= Add galleries anywhere =
 
-= 🎨 Advanced Gallery Layouts =
+* Gutenberg block, Elementor widget and shortcode
+* Works with other page builders through the shortcode
+* One gallery on many pages: edit it once and every copy updates
 
-Unlock more gallery layouts and advanced display options for portfolios, albums, masonry grids, mosaic layouts, horizontal galleries, and presentation-focused image collections.
+= Made for =
 
-= 🔍 Advanced Lightbox and Slidebox Controls =
-
-Customize the popup gallery experience with additional controls, labels, styling options, side panels, captions, image navigation, and display behavior.
-
-= 🛡️ Watermark Protection =
-
-Add watermarks to gallery images to protect previews, client galleries, public portfolios, and restricted images.
-
-= ⚡ Image Optimization =
-
-Optimize gallery images directly from the plugin. Reduce image size, control maximum dimensions, choose frontend image format behavior, and improve gallery loading performance.
-
-= ☁️ CDN Integration =
-
-Connect CDN delivery for optimized gallery assets where appropriate, helping galleries load faster for visitors in different locations.
-
-= 🔄 External Image Import =
-
-Import images from external sources such as Tumblr, Flickr, Google Drive, and FTP where available.
-
-= ✏️ Visual Image Editing =
-
-Use built-in image editing tools for gallery images when you need quick adjustments without leaving WordPress.
-
-= 💬 Extended Captions and Display Styling =
-
-Fine-tune gallery captions, hover effects, image borders, shadows, social sharing, image information, and other advanced display settings.
-
-= 🧑‍💻 Priority Support and Pro Updates =
-
-Pro users receive access to commercial updates and priority support from the Supsystic team.
-
-== 🛒 Ecommerce Features in Pro ==
-
-= 💳 Sell Access to Galleries, Gallery Groups, or Selected Images =
-
-Create ecommerce items and connect them to a full gallery, a gallery group, or selected gallery images. This makes it possible to sell access to an entire photo collection or only specific premium images.
-
-= 🔑 Flexible Access Types =
-
-Choose how visitors unlock paid content. Supported access workflows include access key, email and password, and WordPress user based access.
-
-= 🖱️ Thumbnail and Popup Restriction Modes =
-
-Show restricted access prompts directly on gallery thumbnails or inside the image popup depending on the gallery experience you want to build.
-
-= 🔒 Private Gallery Access =
-
-Create private gallery workflows where visitors see a controlled placeholder until they unlock access.
-
-= ⬇️ Paid Resolution Downloads =
-
-Offer resolution-based downloads for authorized visitors. You can define free preview sizes and paid download sizes for premium gallery content.
-
-= 🎛️ Custom Ecommerce Labels and Design =
-
-Customize ecommerce titles, descriptions, button labels, login text, access messages, resolution labels, colors, typography, and styling for thumbnail and popup restriction views.
-
-= 📦 Checkout and Order Management =
-
-Manage ecommerce orders from the WordPress admin and connect payment workflows depending on your setup.
-
-= ✨ Access After Purchase =
-
-After a successful purchase, visitors can receive access to the protected gallery content according to the selected access type.
-
-= 🎯 Gallery Ecommerce Use Cases =
-
-Use ecommerce galleries for client proofing, paid photo collections, private albums, premium image archives, digital image delivery, stock-style image access, event photography, and protected portfolio content.
-
-== 🎯 Use Cases ==
-
-Photo Gallery by Supsystic works well for:
-
-* Photography portfolios
-* Event photo galleries
-* Wedding galleries
-* Travel blogs
-* Product image galleries
-* Creative portfolios
-* Client proofing galleries
-* Private image collections
-* Paid image access galleries
-* Digital image sales
-* Agency project galleries
+* Photography and artist portfolios
+* Wedding and event galleries
+* Travel and food blogs
+* Product, real estate and venue photos
 * Before and after galleries
-* Real estate galleries
-* Artist portfolios
-* Restaurant and venue galleries
-* Blog image collections
+* Agency and client project galleries
 
-== ⭐ Why Choose Photo Gallery by Supsystic? ==
+= Photo Gallery Pro =
 
-Photo Gallery by Supsystic combines a beginner-friendly gallery builder with professional gallery features. You can start with a simple responsive gallery and grow into advanced workflows such as grouped galleries, optimized image delivery, watermark previews, popup galleries, paid image access, and protected downloads.
+Pro adds professional layouts, effects and tools for selling and protecting photos:
 
-Instead of forcing every user into complex settings from the beginning, the plugin keeps the core gallery workflow simple while making advanced features available when your site needs them.
+* Mosaic layout, category and icon templates and post feed galleries built from your posts and pages
+* Category tabs, filters and search inside a gallery
+* Pagination, Load More and infinite scroll for large galleries
+* Caption Builder, hover captions, hover icons and EXIF data
+* Lightbox slideshow and advanced lightbox styles
+* Video galleries with YouTube and Vimeo
+* Watermark, lazy load, image optimization and CDN delivery
+* Import from Flickr, Tumblr, Google Drive and FTP
+* Visual image editing and social sharing
+* Sell access to galleries and images, paid resolution downloads and private galleries
 
-== ⚡ Performance and Image Optimization ==
+= Learn more =
 
-Image-heavy WordPress pages can become slow if galleries are not handled carefully. Photo Gallery by Supsystic includes performance-focused options and Pro image optimization tools to help reduce file size, manage image dimensions, and improve gallery loading behavior.
+* [Official plugin page](https://supsystic.com/plugins/photo-gallery/)
+* [Pro features](https://supsystic.com/plugins/photo-gallery/#compare)
+* [Pricing](https://supsystic.com/plugins/photo-gallery/#pricing)
+* [Documentation](https://supsystic.com/docs/gallery/)
 
-The plugin is designed to work with modern WordPress themes and common hosting environments while giving site owners more control over how gallery images are prepared and displayed.
+== Installation ==
 
-== 🛒 Ecommerce Gallery Protection ==
-
-The Pro ecommerce module is designed for gallery owners who need more than a simple public image grid.
-
-You can create ecommerce items, connect them to galleries, gallery groups, or selected images, define access type, configure unlock behavior, show restricted thumbnail or popup previews, and provide paid visitors with download options.
-
-This is useful for photographers, private galleries, client image delivery, paid media archives, stock-style image access, and premium gallery content.
-
-== 📖 Documentation and Examples ==
-
-* [Gallery Examples](https://supsystic.com/gallery-examples/)
-* [Getting Started Guide](https://supsystic.com/documentation/gallery-getting-started/)
-* [Ecommerce for WordPress Gallery](https://supsystic.com/documentation/ecommerce-for-wordpress-gallery/)
-* [Full Documentation Hub](https://supsystic.com/docs/gallery/)
-* [Video Tutorial](https://supsystic.com/documentation/gallery-video-tutorial/)
-* [Support and Contact](https://supsystic.com/contact-us/)
-
-== Screenshots ==
-
-1. Display clean, responsive photo galleries that look great on any device.
-2. Use flexible gallery layouts that adapt to different image shapes and sizes.
-3. Show professional photos with captions, icons, and EXIF data. Build your own gallery design.
-4. Add watermark, social sharing, image optimization in modern formats (WebP, AVIF), and CDN support.
-5. Use gallery loader, categories, pagination, Load More, and attribute filtering for large galleries and different use cases.
-6. Display your WordPress posts and pages in a gallery grid design.
-7. Sell access to galleries, gallery groups, or selected images with built-in checkout and flexible access control.
-8. Manage gallery images, titles, captions, links, ordering, and image details from one clean workspace.
-9. Fine-tune gallery layouts, lightbox behavior, styling, performance, and advanced options in a flexible admin panel.
+1. In your dashboard go to Plugins → Add New Plugin and search for "Photo Gallery by Supsystic".
+2. Click Install Now, then Activate.
+3. Open the Photo Gallery menu, create a new gallery and choose a layout.
+4. Add images from the Media Library, drag them into order and save.
+5. Add the gallery to a page with the block, the Elementor widget or the gallery shortcode.
 
 == Frequently Asked Questions ==
 
-= Is Photo Gallery by Supsystic beginner-friendly? =
-Yes. You can create and publish responsive WordPress galleries without writing code, editing theme files, or building custom CSS.
+= Is the free version limited in galleries or images? =
 
-= Can I create multiple galleries? =
-Yes. You can create multiple image galleries, manage them from the gallery list, edit them later, and reuse them across different pages.
+No. You can create unlimited galleries with unlimited images. The free plugin never expires.
 
-= Can I organize galleries into groups? =
-Yes. Gallery Groups help organize related galleries into collections, albums, projects, categories, or client folders.
+= Which gallery layouts are free? =
 
-= Does the plugin work with Gutenberg? =
-Yes. You can add galleries with Gutenberg block support or use shortcodes where needed.
+Standard grid, masonry, rounded and horizontal layouts, horizontal scroll galleries and separate column counts for desktop, tablet and mobile.
 
-= Can I use the plugin with my WordPress theme? =
-Photo Gallery by Supsystic is designed to work with most modern WordPress themes. As with any visual plugin, final appearance can depend on theme CSS and page builder structure.
+= Can I create albums? =
 
-= Does the free version include everything? =
-The free version includes core gallery creation, responsive gallery output, gallery groups, image management, shortcode support, Gutenberg support, and essential admin tools. Pro adds advanced layouts, lightbox controls, watermark, optimization, CDN, imports, ecommerce, paid access, and priority support.
+Yes. Gallery Groups combine several galleries into one album that visitors can browse.
 
-= Can I sell access to gallery images? =
-Yes, with the Pro ecommerce module. You can create paid gallery items and apply access rules to galleries, gallery groups, or selected images.
+= Does it include a lightbox? =
 
-= Can I restrict only selected images? =
-Yes. Ecommerce access rules can be applied to selected images, full galleries, or gallery groups depending on how you configure the item.
+Yes. Images open in a responsive lightbox. Pro adds a slideshow and more lightbox styles and controls.
 
-= Can paid users download images? =
-Yes. Pro ecommerce settings can provide resolution-based download options for authorized users.
+= Can I add many images at once? =
 
-= Does the plugin support watermark? =
-Yes. Pro includes watermark tools, and watermark behavior can be used together with restricted previews and paid access workflows.
+Yes. Select any number of images in the Media Library and add them in one step, then drag them into order.
 
-= Does image optimization replace other optimization plugins? =
-It depends on your site. The Pro image optimization tools are focused on gallery images and gallery workflows. Some sites may still use a broader performance plugin for caching, CSS, JavaScript, or full-site optimization.
+= Are the galleries responsive? =
 
-= Can I use Stripe or PayPal? =
-The Pro ecommerce module includes payment provider workflows such as Stripe and PayPal depending on setup.
+Yes. Galleries adapt to every screen, and you can set different column counts for desktop, tablet and mobile.
 
-= Will this slow down my website? =
-The plugin is built with performance in mind. For image-heavy galleries, using optimized image sizes, compression, and responsible popup settings is recommended.
+= How do I add a gallery to a page or post? =
 
-= Can I edit galleries after publishing? =
-Yes. You can update gallery images, layout settings, groups, labels, and other settings after a gallery has already been published.
+Use the plugin's block in the block editor, the Elementor widget, or paste the gallery shortcode into any page, post or widget area.
 
-= Where can I get help? =
-Use the documentation links above or contact Supsystic support.
+= Does it work with my theme and page builder? =
 
-= How can I report security bugs? =
+The plugin works with modern WordPress themes and has a native Elementor widget. In other page builders, use the shortcode.
 
-You can report security bugs through the Patchstack Vulnerability Disclosure Program. The Patchstack team helps validate, triage, and handle security vulnerabilities.
+= Can I add videos to a gallery? =
 
-[Report a security vulnerability](https://patchstack.com/database/vdp/9e5fb455-a563-42ff-bd88-ba7e56ed6014)
+Video galleries with YouTube and Vimeo items are available in Pro.
 
-== 🚀 Upgrade to Pro ==
+= Can I add a watermark or sell photos? =
 
-Upgrade to Photo Gallery Pro by Supsystic when you need advanced gallery layouts, extended lightbox controls, watermark, image optimization, CDN support, external imports, visual image editing, ecommerce access restrictions, paid gallery downloads, payment provider workflows, and priority support.
+Yes, with Pro: watermark, paid access to galleries or selected images, paid resolution downloads and private galleries.
+
+= Will it slow down my site? =
+
+Use image sizes that match your layout and the gallery stays light. For very large galleries, Pro adds lazy load, pagination, Load More, image optimization and CDN delivery.
+
+= How can I report a security issue? =
+
+Please report security issues through the [Patchstack Vulnerability Disclosure Program](https://patchstack.com/database/vdp/9e5fb455-a563-42ff-bd88-ba7e56ed6014). The Patchstack team validates and triages each report and notifies us.
+
+== Screenshots ==
+
+1. Responsive photo gallery that looks clean on desktop, tablet and mobile.
+2. Gallery layouts that keep images of different shapes and sizes in order.
+3. Photos with captions, hover icons and EXIF data (Pro).
+4. Watermark, social sharing, image optimization in WebP and AVIF and CDN delivery (Pro).
+5. Gallery loader, category tabs, pagination, Load More and attribute filters (all except the loader are Pro).
+6. Gallery grid built from your posts and pages (Pro).
+7. Selling access to galleries, gallery groups or selected images (Pro).
+8. Image management: titles, captions, ALT text, links and ordering in one workspace.
+9. Gallery settings for layout, lightbox, style and performance.
 
 == Changelog ==
 
 = 2026 =
+
+= 1.21.4 — October 16, 2026 =
+
+* Maintenance release with minor stability improvements.
+
+= 1.21.3 — October 15, 2026 =
+
+* General security hardening and code improvements.
 
 = 1.21.2 — October 9, 2026 =
 

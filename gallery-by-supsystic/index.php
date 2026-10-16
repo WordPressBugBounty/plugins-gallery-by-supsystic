@@ -2,8 +2,9 @@
 
 /**
  * Plugin Name: Photo Gallery by Supsystic
- * Description: Easy to use Gallery by Supsystic with professional gallery templates. Show off your best design, photography and creative work
- * Version: 1.21.2
+ * Plugin URI: https://supsystic.com/plugins/photo-gallery/
+ * Description: Responsive photo and image galleries with masonry, albums and a lightbox. Bulk upload, drag-and-drop ordering, Gutenberg block and Elementor widget.
+ * Version: 1.21.4
  * Author: supsystic.com
  * Author URI: https://supsystic.com
  * Text Domain: grid-gallery
@@ -15,5 +16,5 @@ if (!defined('SGG_PLUGIN_URL')) {
   define('SGG_PLUGIN_URL', plugin_dir_url(__FILE__));
 }
 
-$supsysticGallery = new SupsysticGallery('1.21.2');
+$supsysticGallery = new SupsysticGallery('1.21.4');
 $supsysticGallery->run();
