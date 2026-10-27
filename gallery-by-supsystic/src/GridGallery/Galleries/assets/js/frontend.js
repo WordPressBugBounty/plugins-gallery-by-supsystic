@@ -81,15 +81,13 @@
     if (autoInit) {
       // Interval check for init gallery when container becomes visible.
       // This need to properly load gallery from tabs, accordions or any other hidden containers.
-      self.$container.data(
-        'isVisible',
-        setInterval(function () {
-          if (self.$container.is(':visible') || self.$container.hasClass('hidden-item')) {
-            clearInterval(self.$container.data('isVisible'));
-            self.init();
-          }
-        }, 500)
-      );
+      var visibilityInterval = setInterval(function () {
+        if (self.$container.is(':visible') || self.$container.hasClass('hidden-item')) {
+          clearInterval(visibilityInterval);
+          self.init();
+        }
+      }, 500);
+      self.$container.data('isVisible', visibilityInterval);
     }
 
     //Add init flag
@@ -939,6 +937,12 @@
       $images.each(function () {
         var $image = $(this),
           $wrapper = $image.parent();
+
+        // Lazy-load reveal effects animate height from zero. Keep the crop's
+        // calculated height until the image reaches its final display size.
+        if ($image.is(':animated')) {
+          return;
+        }
 
         if ($image.height() < $wrapper.height()) {
           $wrapper.css('height', $image.height());
@@ -2827,6 +2831,9 @@
             self.resizeElementHeight(image, image.closest('figure'));
           }, waitTime + 20); //460); // animation transition time + 20ms
         }
+        image.promise('fx').done(function () {
+          self.refreshLayoutAfterImageLoad();
+        });
       },
     });
 
@@ -3100,7 +3107,10 @@
     if ($galleries.length > 0) {
       $.each($galleries, function (i, el) {
         $promise = $promise.then(function () {
-          return new Gallery(el, true);
+          // Other initialization triggers may have handled this element while queued.
+          if (!$(el).hasClass('initialized')) {
+            return new Gallery(el, true);
+          }
         });
       });
     }

@@ -3,7 +3,7 @@ Contributors: supsysticcom
 Tags: gallery, photo gallery, image gallery, masonry gallery, lightbox
 Tested up to: 7.1
 Requires PHP: 7.3
-Stable tag: 1.21.4
+Stable tag: 1.21.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -153,6 +153,14 @@ Please report security issues through the [Patchstack Vulnerability Disclosure P
 == Changelog ==
 
 = 2026 =
+
+= 1.21.6 — October 26, 2026 =
+
+* Fixed gallery thumbnails being clipped into narrow strips during lazy-load reveal animations while preserving existing image sizing and Mosaic layouts.
+
+= 1.21.5 — October 22, 2026 =
+
+* Fixed lightbox closing unexpectedly and gallery freezes caused by repeated initialization.
 
 = 1.21.4 — October 16, 2026 =
 
