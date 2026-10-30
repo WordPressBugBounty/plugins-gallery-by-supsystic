@@ -147,17 +147,22 @@ class RscSgg_Mvc_Module
 
   public function handle()
   {
-    $action = $this->request->query->get('action', 'index') . 'Action';
+    $action = $this->request->query->get('action', 'index');
+    $action = (is_scalar($action) ? (string) $action : 'index') . 'Action';
     $controller = $this->getController();
-    if (method_exists($controller, $action)) {
-      $requireNonces = $controller->requireNonces();
+    // PHP method names are case-insensitive, so ?action=DELETE would still
+    // reach deleteAction(). Resolve the real method name first and decide on
+    // the nonce with a case-insensitive match, so no casing can skip it.
+    $method = $this->resolveActionMethod($controller, $action);
+    if ($method !== null) {
+      $requireNonces = array_map('strtolower', (array) $controller->requireNonces());
 
-      if (in_array($action, $requireNonces)) {
+      if (in_array(strtolower($method), $requireNonces, true)) {
         $plugMenuSets = $this->getEnvironment()->getConfig()->get('plugin_menu');
         check_admin_referer($plugMenuSets['menu_slug']);
       }
 
-      return call_user_func_array([$controller, $action], [$this->request]);
+      return call_user_func_array([$controller, $method], [$this->request]);
     }
 
     $twig = $this->environment->getTwig();
@@ -168,6 +173,30 @@ class RscSgg_Mvc_Module
         'action' => $action,
       ]),
     );
+  }
+
+  /**
+   * Returns the controller's public method name, with its declared casing,
+   * that matches the requested action case-insensitively.
+   * @param object|null $controller
+   * @param string $action
+   * @return string|null
+   */
+  protected function resolveActionMethod($controller, $action)
+  {
+    if (!is_object($controller)) {
+      return null;
+    }
+
+    $action = strtolower($action);
+
+    foreach (get_class_methods($controller) as $method) {
+      if (strtolower($method) === $action) {
+        return $method;
+      }
+    }
+
+    return null;
   }
 
   /**

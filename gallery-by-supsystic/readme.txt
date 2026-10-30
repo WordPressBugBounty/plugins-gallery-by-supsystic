@@ -3,7 +3,7 @@ Contributors: supsysticcom
 Tags: gallery, photo gallery, image gallery, masonry gallery, lightbox
 Tested up to: 7.1
 Requires PHP: 7.3
-Stable tag: 1.21.6
+Stable tag: 1.21.7
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -153,6 +153,11 @@ Please report security issues through the [Patchstack Vulnerability Disclosure P
 == Changelog ==
 
 = 2026 =
+
+= 1.21.7 — October 30, 2026 =
+
+* Tested up to 7.1.4 - General code improvements.
+* General security fixes and code improvements.
 
 = 1.21.6 — October 26, 2026 =
 

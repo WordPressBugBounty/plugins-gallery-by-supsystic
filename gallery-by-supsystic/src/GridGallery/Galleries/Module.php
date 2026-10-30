@@ -62,6 +62,7 @@ class GridGallery_Galleries_Module extends GridGallery_Core_Module
     $numDefaultFilter = new Twig_SupTwgSgg_SimpleFilter('numDefault', [$this, 'numDefault']);
 
     $httpFilter = new Twig_SupTwgSgg_SimpleFilter('force_http', [$this, 'forceHttpUrl']);
+    $ksesPostFilter = new Twig_SupTwgSgg_SimpleFilter('kses_post', [$this, 'ksesPost'], ['is_safe' => ['html']]);
     $htmlspecialchars_decode = new Twig_SupTwgSgg_SimpleFilter('htmlspecialchars_decode', 'htmlspecialchars_decode');
 
     $function = new Twig_SupTwgSgg_SimpleFunction('translate', [$this->getController(), 'translate']);
@@ -75,6 +76,7 @@ class GridGallery_Galleries_Module extends GridGallery_Core_Module
     $twig->addFilter($unitReplaceFilter);
     $twig->addFilter($numDefaultFilter);
     $twig->addFilter($httpFilter);
+    $twig->addFilter($ksesPostFilter);
     $twig->addFilter($htmlspecialchars_decode);
     $twig->addFunction($function);
     $twig->addFunction($ceilFunction);
@@ -510,6 +512,15 @@ class GridGallery_Galleries_Module extends GridGallery_Core_Module
     // untouched - same string, same type - exactly like default() already
     // did, so nothing changes for every gallery that never hit this bug.
     return is_numeric($value) ? $value : $default;
+  }
+
+  /**
+   * Stored HTML that is printed unescaped on the frontend - strip scripts and
+   * event handlers, including from values saved before this was added.
+   */
+  public function ksesPost($value)
+  {
+    return is_string($value) ? wp_kses_post($value) : '';
   }
 
   public function pregReplace($value, $pattern, $replacement)

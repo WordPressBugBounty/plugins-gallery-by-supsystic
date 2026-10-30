@@ -734,6 +734,9 @@ class GridGallery_Galleries_Controller extends GridGallery_Core_BaseController
    */
   public function deleteAction(RscSgg_Http_Request $request)
   {
+    // Own nonce check, independent of the router's requireNonces() list.
+    check_admin_referer('supsystic-gallery');
+
     $env = $this->getEnvironment();
     $lang = $env->getLang();
     $logger = $env->getLogger();
@@ -978,6 +981,9 @@ class GridGallery_Galleries_Controller extends GridGallery_Core_BaseController
    */
   public function saveSettingsAction(RscSgg_Http_Request $request)
   {
+    // Own nonce check, independent of the router's requireNonces() list.
+    check_admin_referer('supsystic-gallery');
+
     /** @var GridGallery_Galleries_Model_Settings $settings */
     $galleryId = $request->query->get('gallery_id');
     $settings = $this->getModel('settings');
@@ -1015,6 +1021,10 @@ class GridGallery_Galleries_Controller extends GridGallery_Core_BaseController
     $allSettings = $request->post->all();
     $galleryGroupIds = $request->post->get('gallery_group_ids', []);
     unset($allSettings['gallery_group_ids']);
+    // Printed unescaped on the frontend (shortcode/gallery.twig).
+    if (isset($allSettings['socialSharing']['html'])) {
+      $allSettings['socialSharing']['html'] = is_string($allSettings['socialSharing']['html']) ? wp_kses_post($allSettings['socialSharing']['html']) : '';
+    }
     if (isset($allSettings['attributes']) && isset($allSettings['attributes']['order'])) {
       $allSettings['attributes']['order'] = json_decode($allSettings['attributes']['order']);
       $allSettings['attributes']['enable'] = json_decode($allSettings['attributes']['enable']);
