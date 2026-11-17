@@ -1,0 +1,514 @@
+/* Deactivation dialog of the Supsystic plugins (v1) on the Plugins page */
+html.sup-deact-open {
+  overflow: hidden;
+}
+
+.sup-deact {
+  --sup-deact-navy: #263546;
+  --sup-deact-teal: #149b93;
+  --sup-deact-cyan: #4ae8ea;
+  --sup-deact-text: #52627a;
+  --sup-deact-muted: #7a879a;
+  --sup-deact-line: #e2e8f0;
+  --sup-deact-soft: #f4fbfb;
+  position: fixed;
+  inset: 0;
+  z-index: 100100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+  background: rgba(17, 25, 37, .55);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  animation: supDeactFade .18s ease-out both;
+}
+
+.sup-deact[hidden] {
+  display: none;
+}
+
+.sup-deact *,
+.sup-deact *::before,
+.sup-deact *::after {
+  box-sizing: border-box;
+}
+
+.sup-deact__box {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  padding: 26px 28px 0;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 30px 70px -20px rgba(17, 25, 37, .45), 0 2px 6px rgba(17, 25, 37, .08);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--sup-deact-navy);
+  animation: supDeactIn .26s cubic-bezier(.2, .8, .2, 1) both;
+}
+
+.sup-deact__box::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 4px;
+  border-radius: 16px 16px 0 0;
+  background: linear-gradient(90deg, var(--sup-deact-cyan), var(--sup-deact-teal));
+}
+
+.sup-deact__close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--sup-deact-muted);
+  cursor: pointer;
+}
+
+.sup-deact__close:hover,
+.sup-deact__close:focus-visible {
+  background: #f1f5f9;
+  color: var(--sup-deact-navy);
+}
+
+.sup-deact__title {
+  margin: 0 40px 6px 0;
+  padding: 0;
+  font-size: 20px;
+  line-height: 1.3;
+  font-weight: 700;
+  color: var(--sup-deact-navy);
+}
+
+.sup-deact__intro {
+  margin: 0 0 14px;
+  font-size: 14px;
+  color: var(--sup-deact-text);
+}
+
+.sup-deact__group {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  color: var(--sup-deact-muted);
+}
+
+.sup-deact__chips + .sup-deact__group {
+  margin-top: 14px;
+}
+
+/* A moment off: buttons in one row */
+.sup-deact__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.sup-deact__chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  margin: 0;
+  padding: 6px 14px;
+  border: 1px solid var(--sup-deact-line);
+  border-radius: 99px;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--sup-deact-navy);
+  cursor: pointer;
+  transition: border-color .15s ease, background-color .15s ease, color .15s ease;
+}
+
+.sup-deact__chip:hover {
+  border-color: #c5d3e0;
+}
+
+.sup-deact__chip.is-checked {
+  border-color: var(--sup-deact-teal);
+  background: var(--sup-deact-teal);
+  color: #fff;
+}
+
+.sup-deact__chip:focus-within {
+  box-shadow: 0 0 0 3px rgba(20, 155, 147, .3);
+}
+
+.sup-deact__list {
+  display: grid;
+  gap: 5px;
+}
+
+.sup-deact__item {
+  border: 1px solid var(--sup-deact-line);
+  border-radius: 10px;
+  background: #fff;
+  transition: border-color .15s ease, background-color .15s ease, box-shadow .15s ease;
+}
+
+.sup-deact__item:hover {
+  border-color: #c5d3e0;
+}
+
+.sup-deact__item.is-checked {
+  border-color: var(--sup-deact-teal);
+  background: var(--sup-deact-soft);
+  box-shadow: 0 0 0 1px var(--sup-deact-teal);
+}
+
+.sup-deact__option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  padding: 7px 14px;
+  cursor: pointer;
+}
+
+.sup-deact__reason input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  pointer-events: none;
+}
+
+.sup-deact__mark {
+  position: relative;
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #b7c4d3;
+  border-radius: 50%;
+  background: #fff;
+  transition: border-color .15s ease;
+}
+
+.sup-deact__mark::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: var(--sup-deact-teal);
+  transform: scale(0);
+  transition: transform .15s ease;
+}
+
+.sup-deact__option input:checked + .sup-deact__mark {
+  border-color: var(--sup-deact-teal);
+}
+
+.sup-deact__option input:checked + .sup-deact__mark::after {
+  transform: scale(1);
+}
+
+.sup-deact__option input:focus-visible + .sup-deact__mark {
+  box-shadow: 0 0 0 3px rgba(20, 155, 147, .3);
+}
+
+.sup-deact__label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--sup-deact-navy);
+}
+
+.sup-deact__more {
+  padding: 0 14px 12px 44px;
+}
+
+.sup-deact__more[hidden] {
+  display: none;
+}
+
+.sup-deact textarea.sup-deact__details {
+  display: block;
+  width: 100%;
+  min-height: 58px;
+  margin: 0;
+  padding: 9px 11px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: none;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--sup-deact-navy);
+  resize: vertical;
+}
+
+.sup-deact textarea.sup-deact__details:focus {
+  border-color: var(--sup-deact-teal);
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(20, 155, 147, .18);
+}
+
+.sup-deact__help {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--sup-deact-text);
+}
+
+.sup-deact__help a {
+  font-weight: 600;
+  color: var(--sup-deact-teal);
+  text-decoration: none;
+}
+
+.sup-deact__help a:hover,
+.sup-deact__help a:focus {
+  text-decoration: underline;
+}
+
+/* Optional email for a reply (free) / the license email (PRO) */
+.sup-deact__email {
+  margin-top: 16px;
+}
+
+.sup-deact__email-label {
+  display: block;
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sup-deact-navy);
+}
+
+.sup-deact input.sup-deact__email-input {
+  display: block;
+  width: 100%;
+  min-height: 38px;
+  margin: 0;
+  padding: 7px 11px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: none;
+  font-size: 14px;
+  color: var(--sup-deact-navy);
+}
+
+.sup-deact input.sup-deact__email-input:focus {
+  border-color: var(--sup-deact-teal);
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(20, 155, 147, .18);
+}
+
+.sup-deact input.sup-deact__email-input[aria-invalid="true"] {
+  border-color: #d63638;
+  box-shadow: 0 0 0 3px rgba(214, 54, 56, .14);
+}
+
+.sup-deact__email-hint {
+  margin: 5px 0 0;
+  font-size: 12px;
+  color: var(--sup-deact-muted);
+}
+
+.sup-deact__email-error {
+  margin: 5px 0 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #d63638;
+}
+
+.sup-deact__email-error[hidden] {
+  display: none;
+}
+
+.sup-deact__license {
+  margin: 16px 0 0;
+  font-size: 13px;
+  color: var(--sup-deact-text);
+}
+
+.sup-deact__license b {
+  color: var(--sup-deact-navy);
+}
+
+.sup-deact__privacy {
+  display: flex;
+  gap: 8px;
+  margin: 16px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--sup-deact-muted);
+}
+
+.sup-deact__privacy::before {
+  content: "";
+  flex: 0 0 14px;
+  height: 14px;
+  margin-top: 1px;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2 4 5v6c0 5 3.4 9.6 8 11 4.6-1.4 8-6 8-11V5l-8-3Zm-1 14-4-4 1.4-1.4L11 13.2l5.6-5.6L18 9l-7 7Z'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2 4 5v6c0 5 3.4 9.6 8 11 4.6-1.4 8-6 8-11V5l-8-3Zm-1 14-4-4 1.4-1.4L11 13.2l5.6-5.6L18 9l-7 7Z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.sup-deact__foot {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 16px -28px 0;
+  padding: 14px 28px 20px;
+  border-top: 1px solid var(--sup-deact-line);
+  border-radius: 0 0 16px 16px;
+  background: #fff;
+}
+
+.sup-deact__actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.sup-deact__skip {
+  padding: 8px 2px;
+  border: 0;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--sup-deact-muted);
+  cursor: pointer;
+}
+
+.sup-deact__skip:hover,
+.sup-deact__skip:focus-visible {
+  color: var(--sup-deact-navy);
+  text-decoration: underline;
+}
+
+.sup-deact__btn {
+  min-height: 40px;
+  padding: 0 18px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 38px;
+  cursor: pointer;
+  transition: background-color .15s ease, border-color .15s ease, opacity .15s ease;
+}
+
+.sup-deact__btn--ghost {
+  border-color: #cbd5e1;
+  background: #fff;
+  color: var(--sup-deact-navy);
+}
+
+.sup-deact__btn--ghost:hover {
+  border-color: #94a3b8;
+}
+
+.sup-deact__btn--primary {
+  background: var(--sup-deact-navy);
+  color: #fff;
+}
+
+.sup-deact__btn--primary:hover {
+  background: #1a2633;
+}
+
+.sup-deact__btn:focus-visible,
+.sup-deact__skip:focus-visible {
+  outline: 2px solid var(--sup-deact-teal);
+  outline-offset: 2px;
+}
+
+.sup-deact__btn:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+.sup-deact__btn.is-busy {
+  opacity: 1;
+  cursor: progress;
+}
+
+.sup-deact__btn.is-busy::before {
+  content: "";
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin: 0 8px -2px 0;
+  border: 2px solid rgba(255, 255, 255, .35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: supDeactSpin .7s linear infinite;
+}
+
+.sup-deact__skip.is-busy {
+  cursor: progress;
+}
+
+@keyframes supDeactFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes supDeactIn {
+  from { opacity: 0; transform: translateY(12px) scale(.98); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes supDeactSpin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 600px) {
+  .sup-deact {
+    padding: 12px;
+    align-items: flex-end;
+  }
+
+  .sup-deact__box {
+    max-height: calc(100vh - 24px);
+    padding: 24px 18px 0;
+  }
+
+  .sup-deact__more {
+    padding-left: 14px;
+  }
+
+  .sup-deact__foot {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    margin: 14px -18px 0;
+    padding: 12px 18px 16px;
+  }
+
+  .sup-deact__actions {
+    margin-left: 0;
+  }
+
+  .sup-deact__actions .sup-deact__btn {
+    flex: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sup-deact,
+  .sup-deact__box {
+    animation: none;
+  }
+}

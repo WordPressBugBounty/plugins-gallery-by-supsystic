@@ -534,44 +534,6 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
     });
   };
 
-  Controller.prototype.initNoticeDialog = function () {
-    $('#reviewNotice').dialog({
-      modal: true,
-      width: 600,
-      autoOpen: true,
-    });
-  };
-
-  Controller.prototype.showReviewNotice = function () {
-    var self = this;
-
-    $.post(window.wp.ajax.settings.url, {
-      action: 'grid-gallery',
-      _wpnonce: SupsysticGallery.nonce,
-      route: {
-        module: 'galleries',
-        action: 'checkReviewNotice',
-      },
-    }).success(function (response) {
-      if (response.show) {
-        self.initNoticeDialog();
-
-        $.merge($('#reviewNotice [data-statistic-code]').closest('button'), $('#reviewNotice').prev().find('button')).on('click', function () {
-          $.post(window.wp.ajax.settings.url, {
-            action: 'grid-gallery',
-            _wpnonce: SupsysticGallery.nonce,
-            route: {
-              module: 'galleries',
-              action: 'checkNoticeButton',
-            },
-          }).success(function (response) {
-            $('#reviewNotice').dialog('close');
-          });
-        });
-      }
-    });
-  };
-
   Controller.prototype.initThemeDialog = function () {
     var self2 = this;
     $('#themeDialog').dialog({
@@ -989,6 +951,10 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
         marginX = $wrapper.data('margin'),
         iconCount = $icons.length;
 
+      if (isPolaroid) {
+        polaroidPreview($preview, $figure);
+      }
+
       if (iconCount) {
         var $figcaption = $figure.find('figcaption'),
           elementHeight = $figcaption.length ? $figcaption.height() : $figure.height(),
@@ -1010,6 +976,71 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
           $icon.css(marginData);
         });
       }
+    }
+
+    // Gallery.prototype.polaroidCaptionCalculate (frontend.js) in the size of this box: the photo inside the frame,
+    // the caption strip under it and the caption in the middle of the strip, all scaled like the photo. The frontend
+    // sizes a Polaroid card in JS, which never runs for this preview, so without this the photo filled the card and
+    // the caption hung under it.
+    function polaroidPreview($preview, $figure) {
+      var $inner = $preview.find('.gg-detailed-info-preview-inner'),
+        field = function (name) {
+          return $form.find('[name="' + name + '"]');
+        },
+        number = function (name, fallback) {
+          var value = parseInt(field(name).val(), 10);
+          return isNaN(value) || value <= 0 ? fallback : value;
+        },
+        frame = parseInt($inner.data('polaroid-frame-width'), 10) || 20,
+        strip = parseInt($inner.data('polaroid-caption-height'), 10) || 0,
+        // A width in percent has no size of its own here: the usual 240 px stands in for it
+        width = field('area[photo_width_unit]').val() == '1' ? 240 : number('area[photo_width]', 240),
+        height = field('area[photo_height_unit]').val() == '1' ? width : number('area[photo_height]', width),
+        photoW = Math.max(1, width - frame * 2),
+        photoH = (photoW * height) / width,
+        stripH = strip || frame * 2,
+        fullH = frame + photoH + stripH,
+        k = Math.min(1, 150 / width, 156 / fullH),
+        $caption = $figure.find('.caption-with-icons').first(),
+        $colorSource = $caption.length ? $caption : $figure.find('figcaption'),
+        paper = $colorSource.css('background-color'),
+        fontSize = Math.max(9, Math.round(number('thumbnail[overlay][text_size]', 14) * k)),
+        top = (frame + photoH) * k;
+
+      // The same fallback as the frontend: a frame with no color of its own is light grey
+      if (!paper || paper === 'transparent' || /rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*0\s*\)/.test(paper)) {
+        paper = '#ededed';
+      }
+      if (!$caption.length) {
+        $caption = $figure.find('.gg-image-caption').first();
+      }
+
+      $figure.css({ position: 'relative', width: width * k, height: fullH * k, margin: 0, padding: 0, overflow: 'hidden', background: paper, 'border-radius': 0 });
+      $figure.find('.crop').css({ width: '100%', height: top, margin: 0, overflow: 'hidden', 'border-radius': 0 });
+      $figure.find('.crop img').first().css({ display: 'block', width: photoW * k, height: photoH * k, margin: frame * k + 'px auto 0', 'object-fit': 'cover', 'border-radius': 0 });
+      $figure.find('figcaption').css({ position: 'absolute', left: 0, right: 0, top: top, height: stripH * k, padding: 0, background: 'none' });
+      $caption.css({
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        top: top,
+        bottom: 'auto',
+        height: stripH * k,
+        display: 'flex',
+        'align-items': 'center',
+        'justify-content': 'center',
+        margin: 0,
+        padding: '0 6px',
+        'box-sizing': 'border-box',
+        overflow: 'hidden',
+        background: 'none',
+        opacity: 1,
+        transform: 'none',
+        'text-align': 'center',
+        'font-size': fontSize + 'px',
+        'line-height': 1.2,
+      });
+      $caption.find('[style*="font-size"], [style*="padding"]').css({ 'font-size': fontSize + 'px', padding: 0 });
     }
 
     // Listen for change/input anywhere in the form rather than a hand-picked
@@ -1044,7 +1075,8 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
       $ggImageHeightUnit = $('[name="area[photo_height_unit]"]'),
       $mosaicImagesCountRow = $('#mosaic-images-count-row'),
       $horizontalScrollTable = $('#gg-anl-horiz-scroll'),
-      $horizontalScrollDisable = $('#horizontal-scroll-disable');
+      $horizontalScrollDisable = $('#horizontal-scroll-disable'),
+      $justifiedRow = $('#ggJustifiedRow');
 
     var $loadMoreContent = $('#gg-anl-load-more'),
       $afterLoadMoreContentSeparator = $('#gg-anl-load-more').next('.separator').first(),
@@ -1135,6 +1167,7 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
         $mosaicImagesCountRow.hide();
         $responsiveColumnsRow.hide();
         $horizontalScrollTable.show();
+        $justifiedRow.hide();
 
         if (!$optionsHeight.val().length) {
           $optionsHeight.val($optionsWidth.val());
@@ -1176,6 +1209,7 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
             break;
           // Horizontal
           case '2':
+            $justifiedRow.show();
             $optionsWidthRow.hide();
             $optionsHeightRow.find('option[name="percents"]').show();
             $optionsWidthRow.find('input, select').prop('disabled', true);
@@ -1424,8 +1458,8 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
       var anchor = $(this).data('gg-anchor'),
         $anchorEl = anchor ? $('#' + anchor) : $();
 
-      if ($anchorEl.length) {
-        $anchorEl.find('.gg-pro-read-more').first().trigger('click');
+      if ($anchorEl.length && $anchorEl.find('.gg-pro-read-more').length) {
+        $anchorEl.find('.gg-pro-read-more').get(0).click();
       }
     });
   }
@@ -2934,7 +2968,8 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
     // upsell popup.
     initGgProReadMoreDialog();
 
-    if (qs.module === 'galleries' && qs.action === 'settings') {
+    // A Carousel or Slider gallery has an editor of its own (.sgg-sle) without the classic tabs
+    if (qs.module === 'galleries' && qs.action === 'settings' && !$('.sgg-sle').length) {
       // The Posts jqGrid table is rendered by the base layout's separate
       // {% block table %} (outside .settings-wrap), which leaves it out of
       // the same scroll/height container as the other tabs. Move it inside
@@ -2994,8 +3029,6 @@ sggDataSelectorsCache.prototype.getFromArray = function (key) {
 
       controller.savePosts();
       controller.savePages();
-
-      controller.showReviewNotice();
 
       controller.saveButton();
       controller.initCodeTypeSwitcher();

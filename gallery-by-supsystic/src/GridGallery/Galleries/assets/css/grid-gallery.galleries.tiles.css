@@ -167,7 +167,7 @@
 .gg-tile-check {
   flex: none;
   width: 19px;
-  height: 14px;
+  height: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -442,4 +442,130 @@ body.gg-categories-mode .gg-tile-option:not([data-gg-option="categories"]):not([
 .gg-category-caption label {
   color: #eaf6f6;
   margin: 0;
+}
+
+/* Images list toolbar in the look of the Data Tables editor: one rounded bar, outline buttons, no separators.
+   The left margin keeps the room of the side menu, like the breadcrumbs and the content. */
+.supsystic-plugin .sgg-all-img-info-sect {
+  margin: 4px 0 16px 75px;
+  padding: 10px 12px !important;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 16px -8px rgba(15, 23, 42, 0.1);
+}
+.supsystic-plugin .sgg-all-img-info-sect .gg-settings-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.supsystic-plugin .sgg-all-img-info-sect .gg-settings-block {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.supsystic-plugin .sgg-all-img-info-sect .supsystic-bar-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+}
+.supsystic-plugin .sgg-all-img-info-sect .supsystic-bar-controls li {
+  margin: 0;
+}
+.supsystic-plugin .sgg-all-img-info-sect .supsystic-bar-controls li.separator {
+  display: none;
+}
+.supsystic-plugin .sgg-all-img-info-sect .button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  min-height: 34px;
+  margin: 0;
+  padding: 0 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: none;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 32px;
+  text-shadow: none;
+}
+.supsystic-plugin .sgg-all-img-info-sect .button:hover,
+.supsystic-plugin .sgg-all-img-info-sect .button:focus {
+  border-color: #0e8a93;
+  background: #fff;
+  color: #0e8a93;
+}
+.supsystic-plugin .sgg-all-img-info-sect .button[disabled] {
+  opacity: 0.55;
+}
+.supsystic-plugin .sgg-all-img-info-sect .import-to-gallery.button {
+  border-color: transparent;
+  background: linear-gradient(145deg, #26384c 0%, #1d2b3c 100%);
+  color: #fff;
+}
+.supsystic-plugin .sgg-all-img-info-sect .import-to-gallery.button:hover,
+.supsystic-plugin .sgg-all-img-info-sect .import-to-gallery.button:focus {
+  background: #17222e;
+  color: #fff;
+}
+.supsystic-plugin .sgg-all-img-info-sect .button .fa {
+  width: auto;
+  color: inherit;
+}
+.supsystic-plugin .sgg-all-img-info-sect select,
+.supsystic-plugin .sgg-all-img-info-sect input[type='text'] {
+  height: 34px !important;
+  min-height: 34px;
+  margin: 0;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  box-shadow: none;
+  color: #0f172a;
+  font-size: 13px;
+}
+.supsystic-plugin .sgg-all-img-info-sect select:focus,
+.supsystic-plugin .sgg-all-img-info-sect input[type='text']:focus {
+  border-color: #0e8a93;
+  box-shadow: 0 0 0 3px rgba(14, 138, 147, 0.15);
+}
+.supsystic-plugin .sgg-all-img-info-sect .gg-tile-size-control {
+  padding: 3px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+.supsystic-plugin .sgg-all-img-info-sect .gg-tile-size-btn {
+  border: 0;
+  border-radius: 7px;
+}
+.supsystic-plugin .sgg-all-img-info-sect .gg-tile-size-btn.gg-tile-size-active {
+  background: linear-gradient(145deg, #26384c 0%, #1d2b3c 100%);
+  color: #fff;
+}
+
+/* Polish: the counter stands next to the page buttons; the search field is white like the selects */
+.supsystic-plugin li.gg-pagination,
+#single-gallery-toolbar ul.supsystic-bar-controls > li.gg-pagination {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.supsystic-plugin .supsystic-bar-controls #find-by-caption,
+.supsystic-plugin .supsystic-bar-controls input[type="search"] {
+  background-color: #fff;
+}
+
+@media screen and (max-width: 810px) {
+  .supsystic-plugin .sgg-all-img-info-sect {
+    margin-left: 40px;
+  }
 }

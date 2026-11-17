@@ -188,6 +188,12 @@ class GridGallery_Galleries_Module extends GridGallery_Core_Module
     if ($environment->isAction('index')) {
       $cssList[] = $this->getLocationUrl() . '/assets/css/grid-gallery.galleries.list.css';
     }
+    if ($environment->isAction('settings')) {
+      $cssList[] = $this->getLocationUrl() . '/assets/css/grid-gallery.galleries.settings-ui.css';
+    }
+    if ($environment->isAction('settings') || $environment->isAction('view')) {
+      $cssList[] = $this->getLocationUrl() . '/assets/css/grid-gallery.galleries.dialogs.css';
+    }
     if ($environment->isAction('view')) {
       $cssList[] = $this->getLocationUrl() . '/assets/css/grid-gallery.galleries.tiles.css';
     }
@@ -228,6 +234,12 @@ class GridGallery_Galleries_Module extends GridGallery_Core_Module
     }
     if ($environment->isAction('preview')) {
       $jsList[] = $this->getLocationUrl() . '/assets/js/grid-gallery.galleries.preview.js';
+    }
+    if ($environment->isAction('settings')) {
+      $jsList[] = $this->getLocationUrl() . '/assets/js/grid-gallery.galleries.settings-ui.js';
+    }
+    if ($environment->isAction('settings') || $environment->isAction('view')) {
+      $jsList[] = $this->getLocationUrl() . '/assets/js/grid-gallery.galleries.dialogs.js';
     }
 
     $jsList[] = $this->getLocationUrl() . '/assets/js/grid-gallery.galleries.thumb.js';
@@ -626,7 +638,9 @@ class GridGallery_Galleries_Module extends GridGallery_Core_Module
         // would still hang gg-colorbox on every photo.
         $popupEnabled = !isset($settingsData['box']['enabled']) || $settingsData['box']['enabled'] !== 'false';
 
-        if ($popupEnabled) {
+        if ($popupEnabled && isset($settingsData['box']['type']) && (string) $settingsData['box']['type'] === '3') {
+          // The new lightbox is free; its PRO parts are switched off by the Lightbox module
+        } elseif ($popupEnabled) {
           $settingsData['box']['type'] = self::FREE_POPUP_TYPE;
           $settingsData['box']['theme'] = self::FREE_POPUP_THEME;
         } else {
@@ -852,6 +866,82 @@ class GridGallery_Galleries_Module extends GridGallery_Core_Module
     return $this->getController()->getModel($alias);
   }
 
+  /**
+   * The gallery shortcode. A Carousel or Slider gallery is drawn by its own module, any other gallery by
+   * getGallery(), which PRO overrides; this entry is not overridden, so the types work with any PRO version.
+   * @param array $attributes
+   * @return string|null
+   */
+  public function renderShortcode($attributes)
+  {
+    if (!is_feed()) {
+      $typeHtml = $this->renderGalleryType($attributes);
+      if ($typeHtml !== null) {
+        return $typeHtml;
+      }
+    }
+
+    return $this->getGallery($attributes);
+  }
+
+  /**
+   * Admin pages of the module. The settings page of a Carousel or Slider gallery is the editor of its type;
+   * PRO overrides settingsAction() but not this method.
+   * @return RscSgg_Http_Response
+   */
+  public function handle()
+  {
+    $request = $this->getRequest();
+    if ($request && $request->query->get('action') === 'settings') {
+      $typeModule = $this->getGalleryTypeModule((int) $request->query->get('gallery_id'));
+      if ($typeModule) {
+        return $typeModule->editorResponse((int) $request->query->get('gallery_id'));
+      }
+    }
+
+    return parent::handle();
+  }
+
+  /**
+   * @param int $galleryId
+   * @return GridGallery_Carousel_Module|null The module of the gallery's type, null for a classic gallery
+   */
+  public function getGalleryTypeModule($galleryId)
+  {
+    if ($galleryId < 1 || !class_exists('GridGallery_Carousel_Module')) {
+      return null;
+    }
+    $carousel = $this->getEnvironment()->getModule('carousel');
+    if (!$carousel instanceof GridGallery_Carousel_Module) {
+      return null;
+    }
+    $type = $carousel->getTypeOf($galleryId);
+    $module = $type !== 'gallery' ? $this->getEnvironment()->getModule($type) : null;
+
+    return $module instanceof GridGallery_Carousel_Module ? $module : null;
+  }
+
+  /**
+   * The output of a Carousel or Slider gallery, or null for a classic gallery.
+   * @param array $attributes
+   * @return string|null
+   */
+  protected function renderGalleryType($attributes)
+  {
+    $module = is_array($attributes) && !empty($attributes['id']) ? $this->getGalleryTypeModule((int) $attributes['id']) : null;
+
+    return $module ? $module->renderShortcode($attributes) : null;
+  }
+
+  /**
+   * Marks the photos the Ecommerce module protects; the Carousel and Slider types use it too.
+   * @param object $gallery
+   */
+  public function applyEcommerceAccess($gallery)
+  {
+    $this->applyEcommerceAccessState($gallery);
+  }
+
   protected function applyEcommerceAccessState($gallery)
   {
     if (!$gallery || empty($gallery->id) || empty($gallery->photos) || !is_array($gallery->photos)) {
@@ -1075,7 +1165,7 @@ class GridGallery_Galleries_Module extends GridGallery_Core_Module
   public function registerShortcode()
   {
     $attachment = new GridGallery_Galleries_Attachment();
-    $handler = [$this, 'getGallery'];
+    $handler = [$this, 'renderShortcode'];
     $shortcode = $this->getEnvironment()->getConfig()->get('shortcode_name');
 
     $this->shortcodeAttachment = $attachment;

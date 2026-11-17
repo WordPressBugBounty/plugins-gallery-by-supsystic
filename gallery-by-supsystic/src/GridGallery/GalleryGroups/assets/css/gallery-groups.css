@@ -80,3 +80,73 @@
   color: #646970;
   cursor: default;
 }
+
+/* Buttons in the look of the Data Tables list: outline buttons, the main action dark */
+.supsystic-plugin .gg-table-toolbar .button,
+.supsystic-plugin .gg-galleries-table td .button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  min-height: 32px;
+  margin: 0 2px 0 0;
+  padding: 0 11px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: none;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 30px;
+  text-shadow: none;
+}
+.supsystic-plugin .gg-table-toolbar .button:hover,
+.supsystic-plugin .gg-table-toolbar .button:focus,
+.supsystic-plugin .gg-galleries-table td .button:hover,
+.supsystic-plugin .gg-galleries-table td .button:focus {
+  border-color: #0e8a93;
+  background: #fff;
+  color: #0e8a93;
+}
+.supsystic-plugin .gg-galleries-table td .button[data-confirm]:hover,
+.supsystic-plugin .gg-galleries-table td .button[data-confirm]:focus {
+  border-color: #e5484d;
+  color: #e5484d;
+}
+.supsystic-plugin .gg-table-toolbar .button-primary {
+  height: 34px;
+  border-color: transparent;
+  background: linear-gradient(145deg, #26384c 0%, #1d2b3c 100%);
+  color: #fff;
+}
+.supsystic-plugin .gg-table-toolbar .button-primary:hover,
+.supsystic-plugin .gg-table-toolbar .button-primary:focus {
+  border-color: transparent;
+  background: #17222e;
+  color: #fff;
+}
+.supsystic-plugin .gg-table-toolbar .button .fa,
+.supsystic-plugin .gg-galleries-table td .button .fa {
+  width: auto;
+  color: inherit;
+}
+
+/* Polish: the group name reads as a title, the shortcode field spans its column */
+.supsystic-plugin .gg-galleries-table td a:not(.button) {
+  color: #13202e;
+  font-weight: 600;
+  text-decoration: none;
+}
+.supsystic-plugin .gg-galleries-table td a:not(.button):hover,
+.supsystic-plugin .gg-galleries-table td a:not(.button):focus {
+  color: #0e8a93;
+}
+.supsystic-plugin .gg-galleries-table td .ggCopyTextCode.shortcode {
+  width: 100%;
+  max-width: 340px;
+  height: 30px;
+  font-family: Menlo, Consolas, monospace;
+  font-size: 11.5px;
+  text-overflow: ellipsis;
+}

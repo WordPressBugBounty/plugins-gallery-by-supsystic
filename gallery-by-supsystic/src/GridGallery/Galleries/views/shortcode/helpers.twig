@@ -149,6 +149,10 @@
 		{% if settings.box.type == '2' and (is_ext_link == false or (photo.attachment.video is defined and photo.attachment.video|trim is not empty)) %}
 			pbox
 		{% endif %}
+
+		{% if settings.box.type == '3' and (is_ext_link == false or (photo.attachment.video is defined and photo.attachment.video|trim is not empty)) %}
+			gg-pswp
+		{% endif %}
 	{% endif %}
 {% endset %}
 
@@ -274,6 +278,9 @@
 			{% endif %}"
 			data-grid-gallery-type="{{ galleryType|trim }}"
 			data-index="{{ index }}"
+			{% if settings.box.type == '3' and photo.attachment.width is defined and photo.attachment.width %}
+				data-gg-full="{{ photo.attachment.width ~ 'x' ~ photo.attachment.height }}"
+			{% endif %}
 			style="display:none;{{ figureStyle|trim }}"
 				{% if settings.icons.enabled|default('false') == 'true' %}
 					{% set galleryType %}
@@ -565,6 +572,7 @@
 
 							class="hi-icon {{' '}} gg-video {{' '}} {{ videoIcon }}
 											{% if settings.box.type == '2' %} pbox{% endif %}
+											{% if settings.box.type == '3' %} gg-pswp{% endif %}
 										"
 							style="{{ iconStyle|trim }}"
 							data-video-source="{{ videoSource }}"
@@ -588,7 +596,7 @@
 							{% if settings.disableImageTitle != 1 %}
 								title="{{ aTitle|trim }}"
 							{% endif %}
-							data-id="gg-{{ gallery.id }}-{{ photo.id }}" href="{% if settings.openByLink == 'on' %} {{ prepareImgUrl }} {% else %} {{ photo.attachment.external_link }} {% endif %} " target="{{ photo.attachment.target|default('_self') }}" class="hi-icon icon-link {{' '}} {% if settings.box.type == '2' and settings.openByLink == 'on' %}pbox{% endif %}" style="{{ iconStyle|trim }}" {{ _self.iconAttributesData(settings, photo) }}></a>
+							data-id="gg-{{ gallery.id }}-{{ photo.id }}" href="{% if settings.openByLink == 'on' %} {{ prepareImgUrl }} {% else %} {{ photo.attachment.external_link }} {% endif %} " target="{{ photo.attachment.target|default('_self') }}" class="hi-icon icon-link {{' '}} {% if settings.box.type == '2' and settings.openByLink == 'on' %}pbox{% endif %}{% if settings.box.type == '3' and settings.openByLink == 'on' %} gg-pswp{% endif %}" style="{{ iconStyle|trim }}" {{ _self.iconAttributesData(settings, photo) }}></a>
 					{% endif %}
 
 					{% set isShowPopupIcon = 0 %}
@@ -610,7 +618,7 @@
 							{% if settings.disableImageTitle != 1 %}
 								title="{{ aTitle|trim }}"
 							{% endif %}
-							data-id="gg-{{ gallery.id }}-{{ photo.id }}" href="{{ prepareImgUrl }}" class="hi-icon icon-fullscreen gg-colorbox {{' '}} {% if settings.box.type == '2' and link is not defined %} pbox{% endif %}" style="{{ iconStyle|trim }}"
+							data-id="gg-{{ gallery.id }}-{{ photo.id }}" href="{{ prepareImgUrl }}" class="hi-icon icon-fullscreen gg-colorbox {{' '}} {% if settings.box.type == '2' and link != true %} pbox{% endif %}{% if settings.box.type == '3' and link != true %} gg-pswp{% endif %}" style="{{ iconStyle|trim }}"
 								{% if settings.box.type == '1' %}
 							data-rel="prettyPhoto[pp_gal]"
 								{% endif %}

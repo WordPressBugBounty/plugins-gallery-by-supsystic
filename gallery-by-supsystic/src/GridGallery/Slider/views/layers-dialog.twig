@@ -1,0 +1,212 @@
+{# Layer editor of the Slider: the image of one slide at the size of a desktop, a tablet or a phone, the layers over
+   it and the panel of the chosen layer. layers.js runs it. Its fields have no names: the layers travel only in the
+   hidden field of the Layers card. #}
+{% set dev = {'d': environment.translate('Desktop'), 't': environment.translate('Tablet'), 'm': environment.translate('Phone')} %}
+{% set types = {'heading': environment.translate('Heading'), 'text': environment.translate('Text'), 'button': environment.translate('Button'), 'badge': environment.translate('Badge')} %}
+{% set typeIcons = {'heading': 'fa-header', 'text': 'fa-align-left', 'button': 'fa-mouse-pointer', 'badge': 'fa-tag'} %}
+{% set i18n = {
+    'types': types,
+    'icons': typeIcons,
+    'samples': {'heading': environment.translate('Your headline here'), 'text': environment.translate('A few words about this slide'), 'button': environment.translate('Learn more'), 'badge': environment.translate('New')},
+    'devices': dev,
+    'sameAs': {'t': environment.translate('Follows desktop, the text a little smaller'), 'm': environment.translate('Follows tablet, the text a little smaller')},
+    'own': environment.translate('Own values for this device'),
+    'reset': {'t': environment.translate('Use desktop values'), 'm': environment.translate('Use tablet values')},
+    'empty': environment.translate('Empty layer'),
+    'over': environment.translate('Not shown in the free version'),
+    'hidden': environment.translate('Hidden on this device'),
+    'copied': environment.translate('Copied to %d slides'),
+    'noRoom': environment.translate('No other slide has room for one more layer'),
+    'summary': environment.translate('%1$d of %2$d slides have layers'),
+    'summaryNone': environment.translate('No layers yet'),
+    'picker': {'picker': environment.translate('Color'), 'shade': environment.translate('Saturation and brightness'), 'hue': environment.translate('Hue'), 'opacity': environment.translate('Opacity'), 'code': environment.translate('Color code: hex or rgba')},
+    'limit': environment.translate('Up to %d layers on a slide'),
+    'chooseTitle': {'mobile': environment.translate('Image for phones'), 'compare': environment.translate('The "after" image'), 'video': environment.translate('Video file')},
+    'use': environment.translate('Use this'),
+    'chooseImage': environment.translate('Choose image'),
+    'replace': environment.translate('Replace'),
+    'before': environment.translate('Before'),
+    'after': environment.translate('After'),
+    'flags': {'mobile': environment.translate('Phone image'), 'compare': environment.translate('Before / After'), 'video': environment.translate('Video')},
+} %}
+<dialog class="sgg-ly" data-sgg-ly aria-labelledby="sgg-ly-title"
+        data-slides="{{ layerSlides|json_encode|e('html_attr') }}"
+        data-defaults="{{ layerDefaults|json_encode|e('html_attr') }}"
+        data-limit="{{ layerLimit }}" data-max="{{ layerMax }}" data-anim="{{ layerAnimations ? 1 : 0 }}" data-videos="{{ slideVideos ? 1 : 0 }}" data-compare="{{ slideCompare ? 1 : 0 }}" data-follow="{{ layerFollow|json_encode|e('html_attr') }}"
+        data-i18n="{{ i18n|json_encode|e('html_attr') }}">
+    <div class="sgg-ly-bar">
+        <h2 id="sgg-ly-title" tabindex="-1" autofocus><i class="fa fa-clone" aria-hidden="true"></i>{{ environment.translate('Slide editor') }}</h2>
+        <div class="sgg-ly-devices" role="group" aria-label="{{ environment.translate('Device')|e('html_attr') }}">
+            {% for device, icon in {'d': 'fa-desktop', 't': 'fa-tablet', 'm': 'fa-mobile'} %}
+                <button type="button" data-sgg-ly-device="{{ device }}" aria-pressed="false"><i class="{{ 'fa ' ~ icon }}" aria-hidden="true"></i><span>{{ dev[device] }}</span></button>
+            {% endfor %}
+        </div>
+        <span class="sgg-ly-size" data-sgg-ly-size></span>
+        <span class="sgg-ly-status" data-sgg-ly-status role="status" aria-live="polite"></span>
+        <button type="button" class="button button-primary sgg-ly-done" data-sgg-ly-close><i class="fa fa-check" aria-hidden="true"></i>{{ ' ' ~ environment.translate('Done') }}</button>
+    </div>
+
+    <div class="sgg-ly-slides" data-sgg-ly-slides role="listbox" aria-label="{{ environment.translate('Slides')|e('html_attr') }}"></div>
+
+    <div class="sgg-ly-main">
+        <div class="sgg-ly-workspace" data-sgg-ly-workspace>
+            <div class="sgg-ly-scaler" data-sgg-ly-scaler>
+                <div class="sgg-sl sgg-sl--slider sgg-ly-stage" data-device="d" data-sgg-ly-stage>
+                    <div class="sgg-sl-frame" data-sgg-ly-frame>
+                        <div class="sgg-sl-media"><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="" data-sgg-ly-image></div>
+                        <div class="sgg-sl-compare sgg-ly-compare" data-sgg-ly-compare hidden><img class="sgg-sl-compare-img" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt=""><span class="sgg-sl-compare-line"></span></div>
+                        <div class="sgg-sl-layers" data-sgg-ly-layers></div>
+                        <span class="sgg-ly-videoflag" data-sgg-ly-videoflag hidden><i class="fa fa-video-camera" aria-hidden="true"></i>{{ ' ' ~ environment.translate('Video') }}</span>
+                        <span class="sgg-ly-guide sgg-ly-guide-v" data-sgg-ly-guide="x" aria-hidden="true"></span>
+                        <span class="sgg-ly-guide sgg-ly-guide-h" data-sgg-ly-guide="y" aria-hidden="true"></span>
+                    </div>
+                </div>
+            </div>
+            <p class="sgg-ly-empty" data-sgg-ly-empty hidden>{{ environment.translate('Add images to this gallery on the Images page, then place layers over them.') }}</p>
+        </div>
+
+        <div class="sgg-ly-panel">
+            <div class="sgg-ly-tabs" role="tablist">
+                <button type="button" role="tab" aria-selected="true" data-sgg-ly-tab="layers"><i class="fa fa-clone" aria-hidden="true"></i>{{ ' ' ~ environment.translate('Layers') }}</button>
+                <button type="button" role="tab" aria-selected="false" data-sgg-ly-tab="slide"><i class="fa fa-image" aria-hidden="true"></i>{{ ' ' ~ environment.translate('Slide') }}</button>
+            </div>
+
+            <div class="sgg-ly-pane" data-sgg-ly-pane="layers">
+            <div class="sgg-ly-add">
+                <div class="sgg-ly-add-head"><strong>{{ environment.translate('Add a layer') }}</strong><span class="sgg-ly-count" data-sgg-ly-count></span></div>
+                {% if layerLimit < layerMax %}<button type="button" class="sgg-ly-more" data-sgg-upsell="layers"><span class="sgg-ly-pro-tag">PRO</span>{{ environment.translate('Up to %d layers on a slide')|format(layerMax) }}</button>{% endif %}
+                <div class="sgg-ly-add-buttons">
+                    {% for type, label in types %}
+                        <button type="button" class="button" data-sgg-ly-add="{{ type }}"><i class="{{ 'fa ' ~ typeIcons[type] }}" aria-hidden="true"></i><span>{{ label }}</span></button>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <ol class="sgg-ly-list" data-sgg-ly-list aria-label="{{ environment.translate('Layers of this slide')|e('html_attr') }}"></ol>
+            <p class="sgg-ly-hint" data-sgg-ly-hint>{{ environment.translate('Pick a layer on the image or add a new one. Drag a layer to move it, pull its right edge to change the width, arrow keys nudge it (with Shift, in bigger steps).') }}</p>
+
+            <div class="sgg-ly-props" data-sgg-ly-props hidden>
+                <div class="sgg-ly-tools">
+                    <strong data-sgg-ly-props-title></strong>
+                    <span class="sgg-ly-tool-buttons">
+                        <button type="button" data-sgg-ly-act="up" title="{{ environment.translate('Bring forward')|e('html_attr') }}"><i class="fa fa-arrow-up" aria-hidden="true"></i></button>
+                        <button type="button" data-sgg-ly-act="down" title="{{ environment.translate('Send backward')|e('html_attr') }}"><i class="fa fa-arrow-down" aria-hidden="true"></i></button>
+                        <button type="button" data-sgg-ly-act="duplicate" title="{{ environment.translate('Duplicate')|e('html_attr') }}"><i class="fa fa-copy" aria-hidden="true"></i></button>
+                        <button type="button" data-sgg-ly-act="everywhere" title="{{ environment.translate('Copy to all slides')|e('html_attr') }}"><i class="fa fa-clone" aria-hidden="true"></i></button>
+                        <button type="button" class="is-danger" data-sgg-ly-act="delete" title="{{ environment.translate('Delete')|e('html_attr') }}"><i class="fa fa-trash" aria-hidden="true"></i></button>
+                    </span>
+                </div>
+
+                <label class="sgg-ly-field"><span>{{ environment.translate('Text') }}</span><textarea rows="3" data-prop="text"></textarea></label>
+                <label class="sgg-ly-field"><span>{{ environment.translate('Link') }}</span><input type="url" data-prop="link" placeholder="https://"></label>
+                <div class="sgg-ly-line"><span>{{ environment.translate('Open in a new tab') }}</span><button type="button" class="sgg-sle-switch" role="switch" aria-checked="false" data-prop-switch="newTab"><span aria-hidden="true"></span></button></div>
+
+                <div class="sgg-ly-grid">
+                    <div class="sgg-ly-field"><span>{{ environment.translate('Text color') }}</span>
+                        <span class="sgg-ly-bg" data-sgg-ly-colorbox="color"><span class="sgg-cp" data-sgg-cp><button type="button" class="sgg-cp-chip" data-sgg-cp-open aria-haspopup="dialog" aria-expanded="false" aria-label="{{ environment.translate('Text color')|e('html_attr') }}"><i></i></button><input type="hidden" data-prop="color" data-sgg-cp-value></span><button type="button" data-sgg-ly-auto="color" aria-pressed="false" title="{{ environment.translate('From the style')|e('html_attr') }}"><i class="fa fa-paint-brush" aria-hidden="true"></i></button></span>
+                    </div>
+                    <div class="sgg-ly-field"><span>{{ environment.translate('Background') }}</span>
+                        <span class="sgg-ly-bg" data-sgg-ly-colorbox="bg"><span class="sgg-cp" data-sgg-cp><button type="button" class="sgg-cp-chip" data-sgg-cp-open aria-haspopup="dialog" aria-expanded="false" aria-label="{{ environment.translate('Background')|e('html_attr') }}"><i></i></button><input type="hidden" data-prop="bg" data-sgg-cp-value></span><button type="button" data-sgg-ly-auto="bg" aria-pressed="false" title="{{ environment.translate('From the style')|e('html_attr') }}"><i class="fa fa-paint-brush" aria-hidden="true"></i></button><button type="button" data-sgg-ly-nobg aria-pressed="false" title="{{ environment.translate('No background')|e('html_attr') }}"><i class="fa fa-ban" aria-hidden="true"></i></button></span>
+                    </div>
+                    <p class="sgg-ly-palette-note">{{ environment.translate('With the brush on, the color follows the style of the slider: change the style and the layer changes with it.') }}</p>
+                    <label class="sgg-ly-field"><span>{{ environment.translate('Weight') }}</span>
+                        <select data-prop="weight">
+                            {% for weight, label in {'400': environment.translate('Regular'), '500': environment.translate('Medium'), '600': environment.translate('Semibold'), '700': environment.translate('Bold'), '800': environment.translate('Extra bold')} %}
+                                <option value="{{ weight }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label class="sgg-ly-field"><span>{{ environment.translate('Corners') }}</span><span class="sgg-sle-number"><input type="number" min="0" max="100" data-prop="radius"><span class="sgg-sle-suffix">px</span></span></label>
+                </div>
+                <div class="sgg-ly-line"><span>{{ environment.translate('Text align') }}</span>
+                    <span class="sgg-ly-seg" role="group">
+                        {% for align in ['left', 'center', 'right'] %}
+                            <button type="button" data-prop-align="{{ align }}" aria-pressed="false" title="{{ {'left': environment.translate('Left'), 'center': environment.translate('Center'), 'right': environment.translate('Right')}[align]|e('html_attr') }}"><i class="{{ 'fa fa-align-' ~ align }}" aria-hidden="true"></i></button>
+                        {% endfor %}
+                    </span>
+                </div>
+                <div class="sgg-ly-line"><span>{{ environment.translate('Shadow') }}</span><button type="button" class="sgg-sle-switch" role="switch" aria-checked="false" data-prop-switch="shadow"><span aria-hidden="true"></span></button></div>
+
+                <fieldset class="sgg-ly-device">
+                    <legend><i class="fa fa-desktop" aria-hidden="true" data-sgg-ly-dev-icon></i><span data-sgg-ly-dev-name></span></legend>
+                    <p class="sgg-ly-inherit" data-sgg-ly-inherit-row><span data-sgg-ly-inherit></span><button type="button" class="button-link" data-sgg-ly-reset></button></p>
+                    {% for key, row in {'x': [environment.translate('Across'), 0, 100, 0.5, '%'], 'y': [environment.translate('Down'), 0, 100, 0.5, '%'], 'w': [environment.translate('Width'), 0, 100, 1, '%'], 'size': [environment.translate('Font size'), 8, 120, 1, 'px']} %}
+                        <div class="sgg-ly-range">
+                            <span>{{ row[0] }}</span>
+                            <input type="range" min="{{ row[1] }}" max="{{ row[2] }}" step="{{ row[3] }}" data-box="{{ key }}" aria-label="{{ row[0]|e('html_attr') }}">
+                            <span class="sgg-sle-number"><input type="number" min="{{ row[1] }}" max="{{ key == 'size' ? 200 : row[2] }}" step="{{ row[3] }}" data-box="{{ key }}" aria-label="{{ row[0]|e('html_attr') }}"><span class="sgg-sle-suffix">{{ row[4] }}</span></span>
+                        </div>
+                    {% endfor %}
+                    <p class="sgg-ly-tip">{{ environment.translate('Width 0 makes the layer as wide as its text.') }}</p>
+                    <div class="sgg-ly-line"><span>{{ environment.translate('Hide on this device') }}</span><button type="button" class="sgg-sle-switch" role="switch" aria-checked="false" data-box-switch="hide"><span aria-hidden="true"></span></button></div>
+                </fieldset>
+
+                <fieldset class="sgg-ly-anim{% if not layerAnimations %} is-locked{% endif %}">
+                    <legend>{{ environment.translate('Entrance animation') }}{% if not layerAnimations %}<button type="button" class="sgg-ly-pro-tag" data-sgg-upsell="animations">PRO</button>{% endif %}</legend>
+                    <div class="sgg-ly-grid">
+                        <label class="sgg-ly-field"><span>{{ environment.translate('Animation') }}</span>
+                            <select data-prop="anim"{% if not layerAnimations %} disabled{% endif %}>
+                                {% for anim, label in {'none': environment.translate('None'), 'fade': environment.translate('Fade in'), 'up': environment.translate('Slide up'), 'down': environment.translate('Slide down'), 'left': environment.translate('From the right'), 'right': environment.translate('From the left'), 'zoom': environment.translate('Zoom in')} %}
+                                    <option value="{{ anim }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                        <label class="sgg-ly-field"><span>{{ environment.translate('Delay') }}</span><span class="sgg-sle-number"><input type="number" min="0" max="3000" step="100" data-prop="delay"{% if not layerAnimations %} disabled{% endif %}><span class="sgg-sle-suffix">ms</span></span></label>
+                    </div>
+                </fieldset>
+            </div>
+            </div>
+
+            <div class="sgg-ly-pane" data-sgg-ly-pane="slide" hidden>
+                <section class="sgg-ly-section">
+                    <h4><i class="fa fa-mobile" aria-hidden="true"></i>{{ environment.translate('Image for phones') }}</h4>
+                    <p class="sgg-ly-tip">{{ environment.translate('Another picture on screens narrower than 768 px, for example a tall crop of the same scene. Layers stay as they are.') }}</p>
+                    <div class="sgg-ly-media" data-sgg-ly-media="mobile">
+                        <span class="sgg-ly-media-preview"><img alt="" hidden></span>
+                        <span class="sgg-ly-media-actions">
+                            <button type="button" class="button" data-sgg-ly-choose="mobile">{{ environment.translate('Choose image') }}</button>
+                            <button type="button" class="button-link sgg-ly-remove" data-sgg-ly-clear="mobile" hidden>{{ environment.translate('Remove') }}</button>
+                        </span>
+                    </div>
+                </section>
+
+                <section class="sgg-ly-section{% if not slideCompare %} is-locked{% endif %}">
+                    <h4><i class="fa fa-columns" aria-hidden="true"></i>{{ environment.translate('Before / After') }}{% if not slideCompare %}<button type="button" class="sgg-ly-pro-tag" data-sgg-upsell="compare">PRO</button>{% endif %}</h4>
+                    <p class="sgg-ly-tip">{{ environment.translate('The image of this slide is "before". Choose the "after" image of the same size: visitors drag the line to compare them.') }}</p>
+                    <div class="sgg-ly-media" data-sgg-ly-media="compare">
+                        <span class="sgg-ly-media-preview"><img alt="" hidden></span>
+                        <span class="sgg-ly-media-actions">
+                            <button type="button" class="button" data-sgg-ly-choose="compare"{% if not slideCompare %} disabled{% endif %}>{{ environment.translate('Choose image') }}</button>
+                            <button type="button" class="button-link sgg-ly-remove" data-sgg-ly-clear="compare" hidden>{{ environment.translate('Remove') }}</button>
+                        </span>
+                    </div>
+                    <div class="sgg-ly-compare-fields" data-sgg-ly-compare-fields hidden>
+                        <div class="sgg-ly-grid">
+                            <label class="sgg-ly-field"><span>{{ environment.translate('Left label') }}</span><input type="text" maxlength="40" data-slide-prop="before"{% if not slideCompare %} disabled{% endif %}></label>
+                            <label class="sgg-ly-field"><span>{{ environment.translate('Right label') }}</span><input type="text" maxlength="40" data-slide-prop="after"{% if not slideCompare %} disabled{% endif %}></label>
+                        </div>
+                        <div class="sgg-ly-range">
+                            <span>{{ environment.translate('Line at') }}</span>
+                            <input type="range" min="0" max="100" step="1" data-slide-prop="start" aria-label="{{ environment.translate('Line at')|e('html_attr') }}"{% if not slideCompare %} disabled{% endif %}>
+                            <span class="sgg-sle-number"><input type="number" min="0" max="100" step="1" data-slide-prop="start" aria-label="{{ environment.translate('Line at')|e('html_attr') }}"{% if not slideCompare %} disabled{% endif %}><span class="sgg-sle-suffix">%</span></span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="sgg-ly-section{% if not slideVideos %} is-locked{% endif %}">
+                    <h4><i class="fa fa-video-camera" aria-hidden="true"></i>{{ environment.translate('Video') }}{% if not slideVideos %}<button type="button" class="sgg-ly-pro-tag" data-sgg-upsell="video">PRO</button>{% endif %}</h4>
+                    <p class="sgg-ly-tip">{{ environment.translate('A YouTube or Vimeo link, or a video file. A slide with Before / After shows no video.') }}</p>
+                    <label class="sgg-ly-field"><span>{{ environment.translate('Video link') }}</span>
+                        <span class="sgg-ly-videourl"><input type="url" data-slide-prop="video" placeholder="https://www.youtube.com/watch?v=…"{% if not slideVideos %} disabled{% endif %}><button type="button" class="button" data-sgg-ly-choose="video" title="{{ environment.translate('Media Library')|e('html_attr') }}"{% if not slideVideos %} disabled{% endif %}><i class="fa fa-folder-open" aria-hidden="true"></i></button></span>
+                    </label>
+                    <label class="sgg-ly-field"><span>{{ environment.translate('Play') }}</span>
+                        <select data-slide-prop="videoMode"{% if not slideVideos %} disabled{% endif %}>
+                            <option value="click">{{ environment.translate('On click, with a play button') }}</option>
+                            <option value="background">{{ environment.translate('In the background, muted, in a loop') }}</option>
+                        </select>
+                    </label>
+                </section>
+            </div>
+        </div>
+    </div>
+</dialog>

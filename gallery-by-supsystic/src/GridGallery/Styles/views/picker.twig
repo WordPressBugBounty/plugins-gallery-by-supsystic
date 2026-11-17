@@ -1,0 +1,40 @@
+{# Style library window (GridGallery_Styles_Module). styles.js draws the cards from data-styles and puts the values
+   of a style into the settings form (field names: prefix[path][to][key], or path[to][key] without a prefix). #}
+<dialog class="sgg-st" data-sgg-st aria-labelledby="sgg-st-title"
+        data-type="{{ type }}" data-prefix="{{ prefix }}" data-pro-open="{{ proOpen ? 1 : 0 }}"
+        data-styles="{{ styles|json_encode|e('html_attr') }}"
+        data-msg-applied="{{ environment.translate('Style applied: %s. Save to keep it.')|e('html_attr') }}"
+        data-msg-undone="{{ environment.translate('The previous look is back.')|e('html_attr') }}">
+    <div class="sgg-st-head">
+        <div>
+            <h2 id="sgg-st-title"><i class="fa fa-paint-brush" aria-hidden="true"></i>{{ environment.translate('Style library') }}</h2>
+            {# The count reads "100+" like everywhere else in the plugin, so it does not change with every new style #}
+            {% set count = total >= 100 ? '100+' : total %}
+            {% if proOpen %}
+                <p>{{ environment.translate('%s styles. A style changes only the look: colors, corners, shadows, arrows, dots and captions.')|format(count) }}</p>
+            {% else %}
+                <p>{{ environment.translate('%1$s styles: %2$d free, the rest in PRO. A style changes only the look: colors, corners, shadows, arrows, dots and captions.')|format(count, free) }}</p>
+            {% endif %}
+        </div>
+        <button type="button" class="sgg-st-close" data-sgg-st-close aria-label="{{ environment.translate('Close')|e('html_attr') }}">&times;</button>
+    </div>
+    <div class="sgg-st-tools">
+        <input type="search" class="sgg-st-search" data-sgg-st-search placeholder="{{ environment.translate('Search styles…')|e('html_attr') }}" aria-label="{{ environment.translate('Search styles')|e('html_attr') }}">
+        {% if not proOpen %}
+            <span class="sgg-st-seg" role="group">
+                <button type="button" data-sgg-st-tier="all" aria-pressed="true">{{ environment.translate('All') }}</button>
+                <button type="button" data-sgg-st-tier="free" aria-pressed="false">{{ environment.translate('Free') }}</button>
+                <button type="button" data-sgg-st-tier="pro" aria-pressed="false">PRO</button>
+            </span>
+        {% endif %}
+        <select data-sgg-st-collection aria-label="{{ environment.translate('Collection')|e('html_attr') }}">
+            <option value="">{{ environment.translate('All collections') }}</option>
+            {% for collection in collections %}<option value="{{ collection }}">{{ environment.translate(collection) }}</option>{% endfor %}
+        </select>
+        {% if not proOpen %}
+            <button type="button" class="sgg-st-pro" data-sgg-upsell="styles"><span>PRO</span>{{ environment.translate('100 more styles') }}</button>
+        {% endif %}
+    </div>
+    <div class="sgg-st-grid" data-sgg-st-grid></div>
+    <p class="sgg-st-empty" data-sgg-st-empty hidden>{{ environment.translate('No styles match. Try another word or collection.') }}</p>
+</dialog>

@@ -293,3 +293,88 @@
   height: 30px;
   margin-left: 8px;
 }
+
+/* Row actions in the look of the Data Tables list: an Edit button and icon buttons with tooltips */
+.supsystic-plugin .sgg-row-actions {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+}
+.supsystic-plugin .sgg-row-actions .sggActionButtons {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 32px;
+  min-height: 32px;
+  margin: 0 !important;
+  padding: 0 11px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: none;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 30px;
+  text-shadow: none;
+  transition: border-color 0.15s, color 0.15s, background-color 0.15s;
+}
+.supsystic-plugin .sgg-row-actions .sgg-act-icon {
+  width: 32px;
+  padding: 0;
+  color: #64748b;
+}
+.supsystic-plugin .sgg-row-actions .sggActionButtons:hover,
+.supsystic-plugin .sgg-row-actions .sggActionButtons:focus {
+  border-color: #0e8a93;
+  background: #fff;
+  color: #0e8a93;
+}
+.supsystic-plugin .sgg-row-actions .sgg-act-danger:hover,
+.supsystic-plugin .sgg-row-actions .sgg-act-danger:focus {
+  border-color: #e5484d;
+  color: #e5484d;
+}
+.supsystic-plugin .sgg-row-actions .sggActionButtons .fa {
+  width: auto;
+  margin: 0;
+  color: inherit;
+  font-size: 14px;
+}
+.supsystic-plugin .gg-col-actions {
+  min-width: 0;
+  width: 1%;
+  white-space: nowrap;
+}
+
+/* Polish: a denser list - smaller covers, shortcode fields across the whole column */
+.gg-thumb-wrap {
+  width: 96px;
+  height: 72px;
+  border-radius: 8px;
+}
+.gg-thumb-wrap img {
+  object-fit: cover;
+}
+.gg-thumb-empty img {
+  object-fit: contain;
+}
+.supsystic-plugin .gg-col-code .ggCopyTextCode,
+.supsystic-plugin .gg-col-code .ggCopyTextCode.shortcode,
+.supsystic-plugin .gg-col-code .ggCopyTextCode.phpcode {
+  width: 100%;
+  max-width: 340px;
+  height: 30px;
+  min-height: 30px;
+  margin: 0 0 6px;
+  padding: 3px 8px;
+  font-family: Menlo, Consolas, monospace;
+  font-size: 11.5px;
+  text-overflow: ellipsis;
+}
+.supsystic-plugin .gg-col-code .ggCopyTextCode:last-child {
+  margin-bottom: 0;
+}

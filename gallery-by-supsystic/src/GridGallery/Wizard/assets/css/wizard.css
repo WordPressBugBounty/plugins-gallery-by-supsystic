@@ -1,0 +1,953 @@
+/* Creation wizard on the New Gallery page. The pictures of goals and styles are drawn by the Styles module
+   (mock.css); here only their frames and sizes. */
+.sgg-wz {
+  --wz-ink: #13202e;
+  --wz-text: #3b4b5c;
+  --wz-muted: #6b7c8f;
+  --wz-line: #e3e9f0;
+  --wz-soft: #f6f8fb;
+  --wz-teal: #0e8a93;
+  --wz-teal-soft: #e6f6f7;
+  --wz-navy: linear-gradient(145deg, #26384c 0%, #1d2b3c 100%);
+  box-sizing: border-box;
+  max-width: 1240px;
+  margin: 16px 10px 40px;
+  padding: 22px 26px 20px;
+  border: 1px solid var(--wz-line);
+  border-radius: 16px;
+  background: #fff;
+  color: var(--wz-text);
+  box-shadow: 0 10px 30px -22px rgba(19, 32, 46, 0.45);
+}
+.sgg-wz *,
+.sgg-wz *:before,
+.sgg-wz *:after {
+  box-sizing: border-box;
+}
+/* Hidden parts stay hidden over the button rules of the plugin pages */
+.sgg-wz [hidden] {
+  display: none !important;
+}
+/* The plugin pages keep paragraphs on one line (.supsystic-item p); the wizard's texts wrap */
+.sgg-wz p {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+}
+
+/* ---------- Steps: done steps can be clicked to go back */
+.sgg-wz-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  margin: 0 0 20px;
+  padding: 0 0 14px;
+  border-bottom: 1px solid var(--wz-line);
+  list-style: none;
+}
+.sgg-wz-steps li {
+  display: flex;
+  align-items: center;
+  margin: 0;
+}
+.sgg-wz-steps li + li:before {
+  width: 22px;
+  height: 1px;
+  margin-right: 8px;
+  background: var(--wz-line);
+  content: '';
+}
+.sgg-wz-steps button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px 4px 4px;
+  border: 0;
+  border-radius: 99px;
+  background: none;
+  color: var(--wz-muted);
+  font: inherit;
+  font-weight: 600;
+  cursor: default;
+}
+.sgg-wz-steps button:not([disabled]) {
+  cursor: pointer;
+}
+.sgg-wz-steps button:not([disabled]):hover {
+  background: var(--wz-soft);
+  color: var(--wz-ink);
+}
+.sgg-wz-steps button span {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #eef2f6;
+  font-size: 12px;
+}
+.sgg-wz-steps button small {
+  max-width: 180px;
+  overflow: hidden;
+  color: var(--wz-teal);
+  font-size: 12px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sgg-wz-steps li.is-current button {
+  color: var(--wz-ink);
+}
+.sgg-wz-steps li.is-current button span {
+  background: var(--wz-teal);
+  color: #fff;
+}
+.sgg-wz-steps li.is-done button span {
+  background: #d7f0f2;
+  color: var(--wz-teal);
+}
+
+.sgg-wz-pane header h2 {
+  margin: 0 0 4px;
+  padding: 0;
+  color: var(--wz-ink);
+  font-size: 21px;
+  line-height: 1.3;
+}
+.sgg-wz-pane header p {
+  max-width: 860px;
+  margin: 0 0 18px;
+  color: var(--wz-muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+/* ---------- Goals: a picture of the layout, what it is, what it is best for */
+.sgg-wz-group + .sgg-wz-group {
+  margin-top: 24px;
+}
+.sgg-wz-group h3 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+  margin: 0 0 12px;
+  padding: 0;
+  color: var(--wz-ink);
+  font-size: 15px;
+}
+.sgg-wz-group h3 .fa {
+  color: var(--wz-teal);
+}
+.sgg-wz-group h3 small {
+  color: var(--wz-muted);
+  font-size: 12px;
+  font-weight: 400;
+}
+.sgg-wz-goals {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(214px, 1fr));
+  gap: 12px;
+}
+.sgg-wz-goal {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 8px 8px 12px;
+  border: 1px solid var(--wz-line);
+  border-radius: 14px;
+  background: #fff;
+  color: var(--wz-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+.sgg-wz-goal:hover,
+.sgg-wz-goal:focus-visible,
+.sgg-wz-goal.is-current {
+  border-color: var(--wz-teal);
+  box-shadow: 0 12px 26px -16px rgba(14, 138, 147, 0.75);
+  outline: none;
+  transform: translateY(-2px);
+}
+.sgg-wz-goal-pic {
+  display: block;
+}
+.sgg-wz-goal-pic .sgg-mk {
+  --mk-h: 112px;
+  border-radius: 10px;
+  background: var(--wz-soft);
+}
+/* The goal pictures in calm flat colors, teal on hover */
+.sgg-wz-goal .sgg-mk-t {
+  background-image: none !important;
+  background-color: #cfd8e3;
+  transition: background-color 0.2s;
+}
+.sgg-wz-goal .sgg-mk-t.is-n1 {
+  background-color: #dde4ec;
+}
+.sgg-wz-goal .sgg-mk-t.is-n2 {
+  background-color: #c2ccd8;
+}
+.sgg-wz-goal .sgg-mk-t.is-hover,
+.sgg-wz-goal .sgg-mk-t.is-wide,
+.sgg-wz-goal .sgg-mk-stage.is-mosaic .sgg-mk-t:first-child {
+  background-color: #b4c0ce;
+}
+.sgg-wz-goal:hover .sgg-mk-t,
+.sgg-wz-goal.is-current .sgg-mk-t {
+  background-color: #bfe3e6;
+}
+.sgg-wz-goal:hover .sgg-mk-t.is-n1,
+.sgg-wz-goal.is-current .sgg-mk-t.is-n1 {
+  background-color: #d5eef0;
+}
+.sgg-wz-goal:hover .sgg-mk-t.is-hover,
+.sgg-wz-goal:hover .sgg-mk-t.is-wide,
+.sgg-wz-goal.is-current .sgg-mk-t.is-wide {
+  background-color: #8fd0d5;
+}
+.sgg-wz-goal .sgg-mk-after {
+  background: #e3e9ef;
+}
+.sgg-wz-goal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 6px;
+}
+.sgg-wz-goal strong {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--wz-ink);
+  font-size: 14px;
+}
+.sgg-wz-goal strong em,
+.sgg-wz-sc-name em {
+  padding: 0 5px;
+  border-radius: 4px;
+  background: #f59e0b;
+  color: #fff;
+  font-size: 9.5px;
+  font-style: normal;
+  line-height: 16px;
+}
+.sgg-wz-goal-text {
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+.sgg-wz-goal-best {
+  color: var(--wz-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+.sgg-wz-goal-best b {
+  color: var(--wz-text);
+  font-weight: 600;
+}
+.sgg-wz-goal-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+.sgg-wz-goal-tags i {
+  padding: 2px 8px;
+  border-radius: 99px;
+  background: var(--wz-teal-soft);
+  color: #0b6e75;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 16px;
+}
+.sgg-wz-goal.is-locked {
+  background: #fffdf6;
+}
+.sgg-wz-goal.is-locked .sgg-wz-goal-tags i {
+  background: #fff3d6;
+  color: #92400e;
+}
+
+/* ---------- Images */
+.sgg-wz-drop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 18px;
+  padding: 18px 20px;
+  border: 1.5px dashed #c9d4e0;
+  border-radius: 14px;
+  background: var(--wz-soft);
+}
+.sgg-wz-drop-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--wz-teal-soft);
+  color: var(--wz-teal);
+  font-size: 22px;
+}
+.sgg-wz-drop-text {
+  display: flex;
+  flex: 1 1 260px;
+  flex-direction: column;
+  gap: 2px;
+}
+.sgg-wz-drop-text strong {
+  color: var(--wz-ink);
+  font-size: 14px;
+}
+.sgg-wz-drop-text span {
+  color: var(--wz-muted);
+  font-size: 12.5px;
+}
+.sgg-wz .sgg-wz-drop .button {
+  height: 40px;
+  min-height: 40px;
+  padding: 0 18px;
+  font-size: 14px;
+}
+.sgg-wz-count {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+  margin: 16px 0 10px;
+  color: var(--wz-ink);
+  font-weight: 600;
+}
+.sgg-wz-min {
+  color: var(--wz-muted);
+  font-size: 12.5px;
+  font-weight: 500;
+}
+.sgg-wz-min.is-warn {
+  color: #b45309;
+}
+.sgg-wz-picked {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(126px, 1fr));
+  gap: 10px;
+}
+.sgg-wz-picked.is-pairs {
+  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+}
+.sgg-wz-thumb {
+  position: relative;
+  height: 96px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #eef2f6;
+  cursor: grab;
+  transition: opacity 0.15s, box-shadow 0.15s;
+}
+.sgg-wz-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+.sgg-wz-thumb.is-dragging {
+  opacity: 0.4;
+}
+.sgg-wz-thumb.is-target {
+  box-shadow: 0 0 0 3px var(--wz-teal);
+}
+.sgg-wz-badge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  padding: 1px 7px;
+  border-radius: 99px;
+  background: rgba(15, 23, 42, 0.72);
+  color: #fff;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 17px;
+}
+.sgg-wz-thumb.is-before .sgg-wz-badge {
+  background: #1d2b3c;
+}
+.sgg-wz-thumb.is-after .sgg-wz-badge {
+  background: var(--wz-teal);
+}
+.sgg-wz-thumb.is-after {
+  box-shadow: inset 0 0 0 2px var(--wz-teal);
+}
+.sgg-wz-thumb-tools {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  left: 4px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.sgg-wz-thumb:hover .sgg-wz-thumb-tools,
+.sgg-wz-thumb:focus-within .sgg-wz-thumb-tools {
+  opacity: 1;
+}
+.sgg-wz-thumb-tools button {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.75);
+  color: #fff;
+  font-size: 15px;
+  line-height: 22px;
+  cursor: pointer;
+}
+.sgg-wz-thumb-tools button:hover,
+.sgg-wz-thumb-tools button:focus-visible {
+  background: var(--wz-teal);
+  outline: none;
+}
+.sgg-wz-thumb-tools button.is-remove:hover {
+  background: #dc2626;
+}
+.sgg-wz-note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 12px 0 0;
+  color: var(--wz-muted);
+  font-size: 12.5px;
+}
+
+/* ---------- Style: cards in the picture of the chosen goal, the big picture with the images, what the style sets */
+.sgg-wz-style {
+  display: grid;
+  grid-template-columns: minmax(300px, 470px) minmax(0, 1fr);
+  align-items: start;
+  gap: 22px;
+}
+.sgg-wz-style-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+.sgg-wz-style-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.sgg-wz-style-tools select {
+  flex: 1 1 160px;
+  max-width: 240px;
+}
+.sgg-wz-styles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-content: start;
+  gap: 8px;
+  max-height: 560px;
+  padding: 2px 6px 2px 2px;
+  overflow-y: auto;
+}
+.sgg-wz-sc {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+  padding: 5px 5px 7px;
+  border: 1px solid var(--wz-line);
+  border-radius: 11px;
+  background: #fff;
+  color: var(--wz-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.sgg-wz-sc .sgg-mk {
+  --mk-h: 74px;
+  --u: 0.8px;
+  border-radius: 7px;
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.06);
+}
+.sgg-wz-sc:hover,
+.sgg-wz-sc:focus-visible {
+  border-color: var(--wz-teal);
+  outline: none;
+}
+.sgg-wz-sc.is-current {
+  border-color: var(--wz-teal);
+  box-shadow: 0 0 0 2px var(--wz-teal);
+}
+.sgg-wz-sc.is-locked .sgg-mk {
+  filter: saturate(0.85);
+}
+.sgg-wz-sc-name {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 0 3px;
+}
+.sgg-wz-sc-name strong {
+  overflow: hidden;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sgg-wz-sc small {
+  padding: 0 3px;
+  overflow: hidden;
+  color: var(--wz-muted);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sgg-wz-empty {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 24px;
+  border: 1px dashed var(--wz-line);
+  border-radius: 12px;
+  color: var(--wz-muted);
+  text-align: center;
+}
+.sgg-wz-style-side {
+  position: sticky;
+  top: 46px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+.sgg-wz-preview .sgg-mk {
+  --mk-h: 380px;
+  box-shadow: inset 0 0 0 1px var(--bd);
+}
+.sgg-wz-style-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.sgg-wz-style-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+}
+.sgg-wz-style-title strong {
+  color: var(--wz-ink);
+  font-size: 16px;
+}
+.sgg-wz-style-title small {
+  color: var(--wz-muted);
+  font-size: 12px;
+}
+.sgg-wz-palette {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+  align-self: center;
+}
+.sgg-wz-palette i {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.14);
+}
+.sgg-wz-specs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.sgg-wz-specs li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0;
+  padding: 7px 10px;
+  border-radius: 9px;
+  background: var(--wz-soft);
+  font-size: 12px;
+}
+.sgg-wz-specs li span {
+  color: var(--wz-muted);
+}
+.sgg-wz-specs li b {
+  color: var(--wz-ink);
+  font-weight: 600;
+  text-align: right;
+}
+.sgg-wz-dot {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.14);
+  vertical-align: middle;
+}
+
+/* ---------- Additional: switches by heading next to the live picture */
+.sgg-wz-extras-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+.sgg-wz .sgg-wz-xg h3 {
+  margin: 0 0 8px;
+  padding: 0;
+  color: var(--wz-muted);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.sgg-wz-xg {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.sgg-wz .sgg-wz-tg {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--wz-line);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--wz-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s, box-shadow 0.15s;
+}
+.sgg-wz .sgg-wz-tg:hover,
+.sgg-wz .sgg-wz-tg:focus-visible {
+  border-color: var(--wz-teal);
+  outline: none;
+}
+.sgg-wz .sgg-wz-tg:focus-visible {
+  box-shadow: 0 0 0 3px rgba(14, 138, 147, 0.18);
+}
+.sgg-wz-tg > .fa {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: var(--wz-soft);
+  color: var(--wz-muted);
+  font-size: 14px;
+  transition: background-color 0.15s, color 0.15s;
+}
+.sgg-wz-tg-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.sgg-wz-tg-text strong {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 13.5px;
+  font-weight: 650;
+  line-height: 1.3;
+}
+.sgg-wz-tg-text strong em {
+  padding: 1px 7px;
+  border-radius: 99px;
+  background: linear-gradient(145deg, #26384c 0%, #1d2b3c 100%);
+  color: #7ff8ef;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+}
+.sgg-wz-tg-text small {
+  color: var(--wz-muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+.sgg-wz-tg-knob {
+  position: relative;
+  flex: none;
+  width: 36px;
+  height: 20px;
+  border-radius: 99px;
+  background: #cbd5e1;
+  transition: background-color 0.18s;
+}
+.sgg-wz-tg-knob:after {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.3);
+  transition: transform 0.18s cubic-bezier(0.3, 0.7, 0.4, 1);
+  content: '';
+}
+.sgg-wz .sgg-wz-tg.is-on {
+  border-color: #a8dfe3;
+  background: #f3fbfb;
+}
+.sgg-wz-tg.is-on > .fa {
+  background: var(--wz-teal-soft);
+  color: var(--wz-teal);
+}
+.sgg-wz-tg.is-on .sgg-wz-tg-knob {
+  background: var(--wz-teal);
+}
+.sgg-wz-tg.is-on .sgg-wz-tg-knob:after {
+  transform: translateX(16px);
+}
+/* A closed PRO option: a lock instead of the switch; the picture shows it while the mouse is on it */
+.sgg-wz .sgg-wz-tg.is-locked {
+  background: #fbfcfd;
+}
+.sgg-wz-tg.is-locked .sgg-wz-tg-knob {
+  background: #e2e8f0;
+}
+.sgg-wz-tg.is-locked .sgg-wz-tg-knob:after {
+  display: grid;
+  place-items: center;
+  color: #64748b;
+  font-family: 'Font Awesome 6 Free';
+  font-size: 8px;
+  font-weight: 900;
+  content: '\f023';
+}
+.sgg-wz-extras-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: linear-gradient(145deg, #26384c 0%, #1d2b3c 100%);
+  color: #e2e8f0;
+  font-size: 12.5px;
+}
+.sgg-wz-extras-note:before {
+  color: #7ff8ef;
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  content: '\f0d0';
+}
+
+/* ---------- Finish */
+.sgg-wz-finish {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 440px);
+  align-items: start;
+  gap: 24px;
+}
+.sgg-wz-finish-pic .sgg-mk {
+  --mk-h: 300px;
+  --u: 1.6px;
+  box-shadow: inset 0 0 0 1px var(--bd);
+}
+.sgg-wz-finish-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.sgg-wz-title {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--wz-ink);
+  font-weight: 600;
+}
+.sgg-wz-title input {
+  width: 100%;
+  height: 42px;
+  font-size: 15px;
+}
+.sgg-wz-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.sgg-wz-summary li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--wz-soft);
+  color: var(--wz-ink);
+}
+.sgg-wz-summary .fa {
+  width: 16px;
+  color: var(--wz-teal);
+  text-align: center;
+}
+.sgg-wz-after {
+  margin: 0;
+  color: var(--wz-muted);
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+.sgg-wz-create {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.sgg-wz .sgg-wz-create .button-hero {
+  height: 44px;
+  min-height: 44px;
+  padding: 0 22px;
+  font-size: 14px;
+}
+.sgg-wz-status {
+  color: #b91c1c;
+}
+
+.sgg-wz-foot {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 22px;
+  padding-top: 14px;
+  border-top: 1px solid var(--wz-line);
+}
+.sgg-wz-foot [data-wz-next] {
+  margin-left: auto;
+}
+
+@media (max-width: 960px) {
+  .sgg-wz-style,
+  .sgg-wz-finish {
+    grid-template-columns: 1fr;
+  }
+  .sgg-wz-style-side {
+    position: static;
+  }
+  .sgg-wz-preview .sgg-mk {
+    --mk-h: 280px;
+    --u: 1.5px;
+  }
+}
+@media (max-width: 600px) {
+  .sgg-wz {
+    padding: 16px;
+  }
+  .sgg-wz-styles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Free / PRO filter, the same look as in the Style library */
+.sgg-wz .sgg-st-seg {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 9px;
+  background: #f1f5f9;
+}
+.sgg-wz .sgg-st-seg button {
+  padding: 4px 12px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #475569;
+  font-weight: 600;
+  cursor: pointer;
+}
+.sgg-wz .sgg-st-seg button[aria-pressed='true'] {
+  background: #fff;
+  color: var(--wz-teal);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.15);
+}
+
+/* Full white fields over the old plugin-wide field rule */
+.supsystic-plugin .sgg-wz input[type='text'],
+.supsystic-plugin .sgg-wz input[type='number'],
+.supsystic-plugin .sgg-wz input[type='url'],
+.supsystic-plugin .sgg-wz input[type='search'],
+.supsystic-plugin .sgg-wz textarea {
+  float: none;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: none;
+  color: #13202e;
+}
+.supsystic-plugin .sgg-wz input[type='text']:focus,
+.supsystic-plugin .sgg-wz input[type='number']:focus,
+.supsystic-plugin .sgg-wz input[type='url']:focus,
+.supsystic-plugin .sgg-wz input[type='search']:focus,
+.supsystic-plugin .sgg-wz textarea:focus {
+  border-color: var(--wz-teal);
+  box-shadow: 0 0 0 3px rgba(14, 138, 147, 0.15);
+  outline: none;
+}
+
+/* A goal that needs a plugin that is off (WooCommerce): grey, cannot be picked, with the way to turn it on */
+.sgg-wz-goal.is-off {
+  border-style: dashed;
+  background: #f8fafc;
+  box-shadow: none;
+  cursor: default;
+}
+.sgg-wz-goal.is-off:hover {
+  border-color: var(--sgg-line, #e2e8f0);
+  transform: none;
+}
+.sgg-wz-goal.is-off .sgg-wz-goal-pic {
+  filter: grayscale(1);
+  opacity: 0.5;
+}
+.sgg-wz-goal.is-off strong,
+.sgg-wz-goal.is-off .sgg-wz-goal-text {
+  color: #94a3b8;
+}
+.sgg-wz-goal .sgg-wz-goal-off {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 4px 11px;
+  border-radius: 99px;
+  background: #e2e8f0;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+  text-decoration: none;
+}
+.sgg-wz-goal a.sgg-wz-goal-off:hover,
+.sgg-wz-goal a.sgg-wz-goal-off:focus-visible {
+  background: #0e8a93;
+  color: #fff;
+  outline: none;
+}

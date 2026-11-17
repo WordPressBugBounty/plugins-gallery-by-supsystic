@@ -13,6 +13,7 @@ return [
     'gallery-align' =>
       __('Choose the most suitable gallery alignment for your site design. Gallery may be aligned by center, left or right side of the page. ', 'sgg') . '<a target=\'_blank\' href=\'https://supsystic.com/documentation/main-settings/\'>https://supsystic.com/documentation/main-settings</a>',
     'columns' => __('Number of columns with images on gallery page', 'sgg'),
+    'justified-rows' => __('Horizontal type only. Every row fills the whole width of the gallery: the images keep their proportions, each row gets its own height close to the Image height, and the right edge is even. The last row keeps the Image height.', 'sgg'),
     'responsive-columns' => __('The number of columns for a given width of the screen. We specify the standard 1200px for medium-sized screens, 768px for the tablets, 320 for mobile. You can change this sizes if you want.', 'sgg'),
     'distance' => __('Here you can set the distance between images in your gallery. This parameter affects both horyzontal and vertical distance.', 'sgg') . '</br><img src=@url/distance_between_photos.jpg />',
     'area-height' => __('Height', 'sgg'),

@@ -1,0 +1,13 @@
+{# The Layers card of the Slider editor. The layers themselves are edited in the layer editor (layers-dialog.twig) and
+   travel in one hidden field as JSON; the server checks every value. #}
+<section class="sgg-sle-card sgg-ly-card" data-sgg-sle-card="layers" data-sgg-sle-show="source=images">
+    <h3><i class="fa fa-clone" aria-hidden="true"></i>{{ environment.translate('Slide editor') }}</h3>
+    <p class="sgg-sle-note">{{ environment.translate('Headings, text, buttons and badges over the images, dragged into place for desktop, tablet and phone separately. Each slide can also have its own phone image, a Before / After comparison and a video.') }}</p>
+    <p class="sgg-ly-summary" data-sgg-ly-summary></p>
+    <button type="button" class="button button-primary sgg-ly-open" data-sgg-ly-open><i class="fa fa-pencil" aria-hidden="true"></i>{{ ' ' ~ environment.translate('Open slide editor') }}</button>
+    {% if layerLimit < layerMax or not layerAnimations or not slideVideos or not slideCompare %}
+        <div class="sgg-sle-pro-note sgg-ly-pro"><span class="sgg-sle-pro-note-icon"><i class="fa fa-diamond" aria-hidden="true"></i></span><span class="sgg-sle-pro-note-text"><b class="sgg-sle-pro-note-tag">PRO</b>{{ environment.translate('The free version shows up to %d layers on a slide, without animations. PRO shows up to %d layers with entrance animations, Before / After slides and video slides.')|format(layerLimit, layerMax) }}</span><a class="sgg-sle-pro-note-more" href="https://supsystic.com/plugins/photo-gallery?utm_source=plugin&amp;utm_medium=slider_layers&amp;utm_campaign=gallery" target="_blank" rel="noopener" data-sgg-upsell="layers">{{ environment.translate('Read more') }}<i class="fa fa-arrow-right" aria-hidden="true"></i></a></div>
+    {% endif %}
+    <input type="hidden" name="slider[layersJson]" value="{{ settings.layers|json_encode|e('html_attr') }}" data-sgg-ly-input>
+    <input type="hidden" name="slider[slidesJson]" value="{{ slideExtras|json_encode|e('html_attr') }}" data-sgg-ly-slides-input>
+</section>

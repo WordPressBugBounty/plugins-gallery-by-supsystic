@@ -1,0 +1,180 @@
+{# PRO feature windows of the free version (GridGallery_Upsell_Module). One <dialog>; each feature is a <template>
+   that upsell.js puts into it. Keys: the new types use their own names, the classic gallery uses the row id or the
+   utm_medium of its PRO row (Core/views/form.twig, getProPanelRow). #}
+{% set features = {
+    'effects': {'group': 'types', 'icon': 'fa-cube', 'chip': environment.translate('3D effects'), 'medium': 'upsell_slider_effects',
+        'title': environment.translate('Move your slides in 3D'),
+        'text': environment.translate('Five more effects for carousels and sliders: slides turn, flip, stack and glide in depth.'),
+        'points': [environment.translate('Coverflow, Cube, Flip, Cards and Creative'), environment.translate('Vertical carousels and sliders'), environment.translate('Work with autoplay, loop, arrows and dots'), environment.translate('Try each one in the live preview of the editor'), environment.translate('Respect visitors who turn off motion')],
+        'uses': [environment.translate('Portfolios'), environment.translate('Product showcases'), environment.translate('Hero sliders')]},
+    'posts': {'group': 'types', 'icon': 'fa-rss', 'chip': environment.translate('Posts as slides'), 'medium': 'upsell_slider_posts',
+        'title': environment.translate('Turn your posts into a slider'),
+        'text': environment.translate('Show the latest posts, pages or any post type as slides with the featured image, title, date and excerpt.'),
+        'points': [environment.translate('Any public post type'), environment.translate('Pick posts to show or to leave out'), environment.translate('Take posts from some categories, skip others'), environment.translate('Updates by itself when you publish')],
+        'uses': [environment.translate('Blog highlights'), environment.translate('News'), environment.translate('Case studies')]},
+    'productFilters': {'group': 'types', 'icon': 'fa-filter', 'chip': environment.translate('Product filters'), 'medium': 'upsell_product_filters',
+        'title': environment.translate('Show exactly the products you want'),
+        'text': environment.translate('Leave out products and take products only from the categories you choose; the carousel follows your shop by itself.'),
+        'points': [environment.translate('Leave out any products'), environment.translate('Only products from chosen categories'), environment.translate('Leave out whole categories'), environment.translate('New products of those categories join by themselves')],
+        'uses': [environment.translate('Seasonal offers'), environment.translate('Category pages'), environment.translate('Best sellers')]},
+    'compare': {'group': 'types', 'icon': 'fa-columns', 'chip': environment.translate('Before / After'), 'medium': 'upsell_slider_compare',
+        'title': environment.translate('Show the difference with one drag'),
+        'text': environment.translate('Two photos of the same place on one slide: visitors drag a line to see what changed.'),
+        'points': [environment.translate('Any slide of a slider can compare two images'), environment.translate('Labels for both sides and where the line starts'), environment.translate('Works with the mouse, touch and the keyboard'), environment.translate('A wizard goal that pairs the images for you')],
+        'uses': [environment.translate('Renovations'), environment.translate('Retouching'), environment.translate('Beauty and fitness')]},
+    'layers': {'group': 'types', 'icon': 'fa-clone', 'chip': environment.translate('20 layers'), 'medium': 'upsell_slider_layers',
+        'title': environment.translate('Up to 20 layers on every slide'),
+        'text': environment.translate('Headings, text, buttons and badges over each image, placed for desktop, tablet and phone separately.'),
+        'points': [environment.translate('Up to 20 layers on a slide instead of 2'), environment.translate('Drag them into place right on the image'), environment.translate('Own place, width and text size for each device'), environment.translate('Copy a layer to all slides in one click')],
+        'uses': [environment.translate('Promotions'), environment.translate('Landing pages'), environment.translate('Product launches')]},
+    'animations': {'group': 'types', 'icon': 'fa-magic', 'chip': environment.translate('Layer animations'), 'medium': 'upsell_slider_animations',
+        'title': environment.translate('Bring the layers to life'),
+        'text': environment.translate('Every layer can fade, slide or zoom in when its slide comes into view, one after another.'),
+        'points': [environment.translate('Fade, slide up, down, from the left or right, zoom'), environment.translate('A delay for each layer to play them in turn'), environment.translate('Plays again each time the slide shows'), environment.translate('Stays still for visitors who turn off motion')],
+        'uses': [environment.translate('Hero sliders'), environment.translate('Offers'), environment.translate('Storytelling')]},
+    'video': {'group': 'types', 'icon': 'fa-video-camera', 'chip': environment.translate('Video slides'), 'medium': 'upsell_slider_video',
+        'title': environment.translate('Play video right in the slider'),
+        'text': environment.translate('Any slide can play a YouTube or Vimeo video or a file from the Media Library.'),
+        'points': [environment.translate('YouTube (privacy mode), Vimeo and video files'), environment.translate('On a click, or in the background without sound'), environment.translate('The player loads only on the slide in view'), environment.translate('The slider waits while the video plays')],
+        'uses': [environment.translate('Product demos'), environment.translate('Travel'), environment.translate('Restaurants')]},
+
+    'styles': {'group': 'types', 'icon': 'fa-th-large', 'chip': environment.translate('100 styles'), 'medium': 'upsell_styles',
+        'title': environment.translate('100 more styles for every gallery'),
+        'text': environment.translate('Ten collections of ready looks for galleries, carousels and sliders, the same family as the palettes of Data Tables.'),
+        'points': [environment.translate('Studio, Nature, Ocean, Editorial, Pastel, Night and more'), environment.translate('Colors, corners, shadows, arrows, dots and captions in one click'), environment.translate('See each style in the live preview, undo in one click'), environment.translate('Change any detail of a style afterwards')],
+        'uses': [environment.translate('Brand sites'), environment.translate('Agencies'), environment.translate('Quick launches')]},
+    'mosaic': {'group': 'gallery', 'icon': 'fa-th-large', 'chip': environment.translate('Mosaic'), 'medium': 'upsell_mosaic',
+        'title': environment.translate('Build a magazine-style mosaic'),
+        'text': environment.translate('Large and small tiles in one grid: a few big pictures lead the eye, the rest fill the gaps.'),
+        'points': [environment.translate('Four mosaic layouts, multi-column among them'), environment.translate('Own column count for desktop, tablet and phone'), environment.translate('Works with captions, icons and the lightbox')],
+        'uses': [environment.translate('Portfolios'), environment.translate('Travel stories'), environment.translate('Lookbooks')]},
+    'lightbox': {'group': 'gallery', 'icon': 'fa-expand', 'chip': environment.translate('Lightbox'), 'medium': 'upsell_lightbox',
+        'title': environment.translate('Every lightbox theme and tool'),
+        'text': environment.translate('Six more themes for the modern lightbox and the tools that keep visitors in your gallery.'),
+        'points': [environment.translate('Glass, Minimal, Side caption, Filmstrip, Polaroid and Cinema'), environment.translate('A strip of thumbnails and a slideshow with a progress line'), environment.translate('Download and share buttons on every photo'), environment.translate('The same themes for galleries, carousels and sliders')],
+        'uses': [environment.translate('Photographers'), environment.translate('Portfolios'), environment.translate('Shops')]},
+    'useCats': {'group': 'gallery', 'icon': 'fa-tags', 'chip': environment.translate('Categories'), 'medium': 'categories',
+        'title': environment.translate('Let visitors filter by category'),
+        'text': environment.translate('Put the images in categories and show buttons above the gallery: one click shows only that group.'),
+        'points': [environment.translate('Category buttons above the gallery'), environment.translate('Animated filtering'), environment.translate('Your own button style with Custom Buttons'), environment.translate('Handy for galleries with many images')],
+        'uses': [environment.translate('Portfolios'), environment.translate('Product catalogs'), environment.translate('Events')]},
+    'usePages': {'group': 'gallery', 'icon': 'fa-copy', 'chip': environment.translate('Pagination'), 'medium': 'pages',
+        'title': environment.translate('Split a big gallery into pages'),
+        'text': environment.translate('Show a set number of images on a page with page buttons, so the page stays light.'),
+        'points': [environment.translate('Choose how many images go on a page'), environment.translate('Page buttons in your own style'), environment.translate('Faster pages for large galleries')],
+        'uses': [environment.translate('Photo archives'), environment.translate('Event albums'), environment.translate('Stock libraries')]},
+    'show-more': {'group': 'gallery', 'icon': 'fa-angle-double-down', 'chip': environment.translate('Load More'), 'medium': 'show-more',
+        'title': environment.translate('Load more images on demand'),
+        'text': environment.translate('Start with a few images and let visitors load the rest with a button or while they scroll.'),
+        'points': [environment.translate('Set the first batch and the step'), environment.translate('A Load More button or loading on scroll'), environment.translate('Your own button text and style')],
+        'uses': [environment.translate('Long galleries'), environment.translate('Blogs'), environment.translate('Portfolios')]},
+    'sgg-posts-layout-enable': {'group': 'gallery', 'icon': 'fa-rss', 'chip': environment.translate('Post feed'), 'medium': 'postfeed',
+        'title': environment.translate('Show posts and pages in the gallery'),
+        'text': environment.translate('Post feed templates put your posts and pages in the gallery as tiles with their image and title.'),
+        'points': [environment.translate('Add posts or pages to a gallery'), environment.translate('Featured image, title and a link to the post'), environment.translate('Several post feed templates')],
+        'uses': [environment.translate('Blogs'), environment.translate('News'), environment.translate('Case studies')]},
+    'showWatermRow': {'group': 'gallery', 'icon': 'fa-tint', 'chip': environment.translate('Watermark'), 'medium': 'watermarks',
+        'title': environment.translate('Sign your photos with a watermark'),
+        'text': environment.translate('Put your logo or mark on the images of the gallery so they keep your name wherever they go.'),
+        'points': [environment.translate('Your own watermark image'), environment.translate('Choose where it sits on the photo'), environment.translate('Downloads can carry the watermark too')],
+        'uses': [environment.translate('Photographers'), environment.translate('Agencies'), environment.translate('Stock sellers')]},
+    'social-sharing': {'group': 'gallery', 'icon': 'fa-share-alt', 'chip': environment.translate('Social sharing'), 'medium': 'social_sharing',
+        'title': environment.translate('Let visitors share your images'),
+        'text': environment.translate('Share buttons for the gallery, for each image and in the lightbox.'),
+        'points': [environment.translate('Facebook, X, Telegram, WhatsApp, Pinterest and more'), environment.translate('Colors, shapes and sizes to match your site'), environment.translate('Buttons where you want them')],
+        'uses': [environment.translate('Blogs'), environment.translate('Events'), environment.translate('Contests')]},
+    'ggExifDataTable': {'group': 'gallery', 'icon': 'fa-camera-retro', 'chip': environment.translate('EXIF data'), 'medium': 'exif-data',
+        'title': environment.translate('Show the camera details of each photo'),
+        'text': environment.translate('EXIF data is read on import and shown with the image as its caption or description.'),
+        'points': [environment.translate('Camera, lens, exposure and more'), environment.translate('As the caption or as the description'), environment.translate('Read again any time with one click')],
+        'uses': [environment.translate('Photographers'), environment.translate('Photo clubs'), environment.translate('Reviews')]},
+    'useCaptionBuilder': {'group': 'gallery', 'icon': 'fa-align-left', 'chip': environment.translate('Caption Builder'), 'medium': 'caption_builder',
+        'title': environment.translate('Lay out captions the way you want'),
+        'text': environment.translate('Caption Builder makes multi-row captions with titles, descriptions and icons, each with its own style.'),
+        'points': [environment.translate('Several rows in one caption'), environment.translate('Own font, size and color for each row'), environment.translate('Descriptions of the images on the page')],
+        'uses': [environment.translate('Portfolios'), environment.translate('Menus'), environment.translate('Catalogs')]},
+    'photo-icon': {'group': 'gallery', 'icon': 'fa-search-plus', 'chip': environment.translate('Icons'), 'medium': 'icons',
+        'title': environment.translate('Add action icons over the images'),
+        'text': environment.translate('Icons appear when the mouse is over a thumbnail: open the lightbox, follow a link and more.'),
+        'points': [environment.translate('Choose the icons and their entry effect'), environment.translate('Size, color, hover color and transparency'), environment.translate('Align them where you like')],
+        'uses': [environment.translate('Portfolios'), environment.translate('Shops'), environment.translate('Downloads')]},
+    'sggLazyLoadEnableRow': {'group': 'gallery', 'icon': 'fa-bolt', 'chip': environment.translate('Lazy load'), 'medium': 'lazy_load',
+        'title': environment.translate('Load images as the page scrolls'),
+        'text': environment.translate('Big galleries open fast: each image loads only when it comes close to the screen.'),
+        'points': [environment.translate('Faster first view of the page'), environment.translate('Less traffic for visitors on phones'), environment.translate('Your own loading picture')],
+        'uses': [environment.translate('Large galleries'), environment.translate('Photo blogs'), environment.translate('Archives')]},
+    'useCdnRow': {'group': 'gallery', 'icon': 'fa-globe', 'chip': environment.translate('CDN'), 'medium': 'cdn',
+        'title': environment.translate('Serve images from a CDN'),
+        'text': environment.translate('Push the images of the gallery to a content delivery network, close to every visitor.'),
+        'points': [environment.translate('Images come from the nearest location'), environment.translate('Transfers can run by themselves when images change'), environment.translate('Less load on your own server')],
+        'uses': [environment.translate('Visitors worldwide'), environment.translate('Busy sites'), environment.translate('Large images')]},
+    'useOptimizationRow': {'group': 'gallery', 'icon': 'fa-compress', 'chip': environment.translate('Optimization'), 'medium': 'optimization',
+        'title': environment.translate('Make every image lighter'),
+        'text': environment.translate('Compress the images through TinyPNG or on your own server, cap oversized photos and serve WebP or AVIF.'),
+        'points': [environment.translate('Recompress the images of the gallery'), environment.translate('Limit the size of oversized photos'), environment.translate('Modern WebP and AVIF on the page')],
+        'uses': [environment.translate('Fast pages'), environment.translate('Better Core Web Vitals'), environment.translate('Phones')]},
+    'custom_buttons': {'group': 'gallery', 'icon': 'fa-mouse-pointer', 'chip': environment.translate('Custom buttons'), 'medium': 'custom_buttons',
+        'title': environment.translate('Style the gallery buttons your way'),
+        'text': environment.translate('Presets and your own colors for the category, pagination and Load More buttons.'),
+        'points': [environment.translate('Many ready button presets'), environment.translate('Colors, borders, corners and fonts'), environment.translate('One look for all gallery buttons')],
+        'uses': [environment.translate('Brand sites'), environment.translate('Portfolios'), environment.translate('Shops')]},
+    'useCaptions': {'group': 'gallery', 'icon': 'fa-comment', 'chip': environment.translate('Hover captions'), 'medium': 'captions',
+        'title': environment.translate('Show captions over the images'),
+        'text': environment.translate('Titles and descriptions appear over the thumbnails with an effect of your choice when the mouse is over them.'),
+        'points': [environment.translate('Many caption effects to choose from'), environment.translate('Colors, fonts and transparency of the caption'), environment.translate('Icons together with the captions')],
+        'uses': [environment.translate('Portfolios'), environment.translate('Menus'), environment.translate('Team pages')]},
+    'custom_attributes': {'group': 'gallery', 'icon': 'fa-filter', 'chip': environment.translate('Custom attributes'), 'medium': 'custom_attributes',
+        'title': environment.translate('Filter and search by your own fields'),
+        'text': environment.translate('Give the images your own attributes, such as price, size or author, and let visitors filter and search by them.'),
+        'points': [environment.translate('Your own attributes for each image'), environment.translate('Filter and search above the gallery'), environment.translate('Attributes shown with the image')],
+        'uses': [environment.translate('Catalogs'), environment.translate('Real estate'), environment.translate('Art collections')]},
+    'additinalCaptionSettings': {'group': 'gallery', 'icon': 'fa-expand', 'chip': environment.translate('Thumbnail effects'), 'medium': 'additinalCaptionSettings',
+        'title': environment.translate('Animate the thumbnails on hover'),
+        'text': environment.translate('Thumbnails turn, zoom or change in other ways when the mouse is over them.'),
+        'points': [environment.translate('Several hover transformations'), environment.translate('Combine them with caption effects'), environment.translate('Make the gallery feel alive')],
+        'uses': [environment.translate('Portfolios'), environment.translate('Creative studios'), environment.translate('Shops')]}
+} %}
+<dialog class="sgg-up" data-sgg-up aria-labelledby="sgg-up-title">
+    <button type="button" class="sgg-up-close" data-sgg-up-close aria-label="{{ environment.translate('Close')|e('html_attr') }}">&times;</button>
+    <div class="sgg-up-body" data-sgg-up-body></div>
+</dialog>
+{% for key, f in features %}
+    <template id="sgg-up-{{ key }}">
+        <div class="sgg-up-hero">
+            <span class="sgg-up-eyebrow"><i class="fa fa-diamond" aria-hidden="true"></i>{{ environment.translate('PRO feature') }}</span>
+            <div class="sgg-up-head">
+                <div>
+                    <h2 id="sgg-up-title">{{ f.title }}</h2>
+                    <p>{{ f.text }}</p>
+                </div>
+                <a class="sgg-up-cta" href="{{ environment.getProUrl('utm_source=plugin&utm_medium=' ~ f.medium ~ '&utm_campaign=gallery')|e('html_attr') }}" target="_blank" rel="noopener">{{ environment.translate('Get PRO') }}<i class="fa fa-arrow-right" aria-hidden="true"></i></a>
+            </div>
+        </div>
+        <div class="sgg-up-main">
+            <div class="sgg-up-demo" aria-hidden="true">
+                <div class="sgg-up-demo-bar"><i></i><i></i><i></i><span>{{ environment.translate('On your page') }}</span></div>
+                <div class="sgg-up-stage sgg-up-stage-{{ key }}">
+                    {% include '@upsell/demos.twig' %}
+                </div>
+            </div>
+            <div class="sgg-up-info">
+                <h3>{{ environment.translate('What you get') }}</h3>
+                <ul>
+                    {% for point in f.points %}<li>{{ point }}</li>{% endfor %}
+                </ul>
+                <h3>{{ environment.translate('Great for') }}</h3>
+                <div class="sgg-up-uses">
+                    {% for use in f.uses %}<span>{{ use }}</span>{% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="sgg-up-more">
+            <span class="sgg-up-more-label">{{ environment.translate('Also in PRO') }}</span>
+            {% for otherKey, other in features %}
+                {% if otherKey != key and other.group == f.group %}
+                    <button type="button" data-sgg-upsell="{{ otherKey }}"><i class="{{ 'fa ' ~ other.icon }}" aria-hidden="true"></i>{{ ' ' ~ other.chip }}</button>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </template>
+{% endfor %}

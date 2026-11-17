@@ -3,6 +3,15 @@
     initCreateDialog();
   });
 
+  // New Gallery page: the type decides which settings the gallery gets; layout templates are for galleries only
+  $(document).on('click', '.sgg-type-chooser [data-sgg-type]', function () {
+    var type = $(this).attr('data-sgg-type');
+    $('.sgg-type-chooser [data-sgg-type]').removeClass('is-active').attr('aria-checked', 'false');
+    $(this).addClass('is-active').attr('aria-checked', 'true');
+    $('#kindValue').val(type);
+    $('.presetSelect').toggle(type === 'gallery');
+  });
+
   function initCreateDialog() {
     var $container = $('.supsystic-container'),
       $trigger = $('#gg-create-gallery-link, #btn-add-new');
@@ -50,6 +59,7 @@
         request = $.extend('', request, {
           title: title,
           preset: preset,
+          kind: $container.find('#kindValue').val() || 'gallery',
         });
 
         $.post(wp.ajax.settings.url, request, function (response) {

@@ -1,0 +1,1245 @@
+/* Gallery settings page in the look of the Data Tables editor: group tabs, search and cards (see grid-gallery.galleries.settings-ui.js). */
+
+.supsystic-plugin {
+  --sgg-ink: #0f172a;
+  --sgg-text: #334155;
+  --sgg-muted: #64748b;
+  --sgg-line: #e2e8f0;
+  --sgg-line-soft: #f1f5f9;
+  --sgg-surface: #f8fafc;
+  --sgg-accent: #0e8a93;
+  --sgg-accent-soft: #e6f6f7;
+  --sgg-navy: linear-gradient(145deg, #26384c 0%, #1d2b3c 100%);
+  --sgg-brand: linear-gradient(135deg, #4ae8ea 0%, #377dff 100%);
+  --sgg-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 16px -8px rgba(15, 23, 42, 0.1);
+}
+
+/* ---------- Header: actions, shortcode and tabs ---------- */
+.supsystic-plugin .gg-detailed-info .button,
+.supsystic-plugin .gg-code-switcher .button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  min-height: 34px;
+  margin: 0;
+  padding: 0 12px;
+  border: 1px solid var(--sgg-line);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: none;
+  color: var(--sgg-text);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 32px;
+  text-shadow: none;
+  transition: border-color 0.15s, color 0.15s, background-color 0.15s;
+}
+.supsystic-plugin .gg-detailed-info .button:hover,
+.supsystic-plugin .gg-detailed-info .button:focus,
+.supsystic-plugin .gg-code-switcher .button:hover,
+.supsystic-plugin .gg-code-switcher .button:focus {
+  border-color: var(--sgg-accent);
+  background: #fff;
+  color: var(--sgg-accent);
+}
+.supsystic-plugin .gg-detailed-info .button .fa {
+  width: auto;
+  color: inherit;
+}
+.supsystic-plugin .gg-detailed-info #btnSave.button {
+  border-color: transparent;
+  background: var(--sgg-navy);
+  color: #fff;
+}
+.supsystic-plugin .gg-detailed-info #btnSave.button:hover,
+.supsystic-plugin .gg-detailed-info #btnSave.button:focus {
+  background: #17222e;
+  color: #fff;
+}
+.supsystic-plugin #single-gallery-toolbar .supsystic-bar-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+}
+.supsystic-plugin #single-gallery-toolbar .supsystic-bar-controls li {
+  margin: 0;
+}
+.supsystic-plugin .gg-code-switcher {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.supsystic-plugin .gg-code-switcher select,
+.supsystic-plugin .gg-code-switcher .gg-code-value {
+  height: 34px;
+  min-height: 34px;
+  margin: 0;
+  border: 1px solid var(--sgg-line);
+  border-radius: 8px;
+  background-color: var(--sgg-surface);
+  box-shadow: none;
+  color: var(--sgg-text);
+  font-size: 13px;
+}
+.supsystic-plugin .gg-code-switcher .gg-code-value {
+  font-family: Menlo, Consolas, monospace;
+  font-size: 12px;
+}
+
+.supsystic-plugin .gg-settings-header-row .form-tabs {
+  display: flex;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  border-bottom: 1px solid var(--sgg-line);
+}
+.supsystic-plugin .gg-settings-header-row .form-tabs .nav-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 -1px;
+  padding: 10px 14px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--sgg-muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+.supsystic-plugin .gg-settings-header-row .form-tabs .nav-tab:hover {
+  color: var(--sgg-ink);
+}
+.supsystic-plugin .gg-settings-header-row .form-tabs .nav-tab.active,
+.supsystic-plugin .gg-settings-header-row .form-tabs .nav-tab.nav-tab-active {
+  border-bottom-color: var(--sgg-accent);
+  background: none;
+  color: var(--sgg-ink);
+}
+.supsystic-plugin .gg-settings-header-row .form-tabs .nav-tab .fa {
+  color: var(--sgg-accent);
+}
+
+/* ---------- Group tabs and search ---------- */
+.sgg-settings-ui .sgg-settings-nav {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 4px 0 16px;
+  padding: 6px;
+  border: 1px solid var(--sgg-line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: var(--sgg-shadow);
+  -webkit-backdrop-filter: saturate(1.4) blur(8px);
+  backdrop-filter: saturate(1.4) blur(8px);
+}
+/* On the Posts tab the groups stay to go back; the search is for settings only */
+.sgg-settings-ui.is-other-tab .sgg-settings-search,
+.sgg-settings-ui.is-other-tab .sgg-settings-empty {
+  display: none;
+}
+/* The old Settings / Posts bar: Posts is one of the groups now */
+.supsystic-plugin .gg-settings-header-row.sgg-tabs-moved {
+  display: none !important;
+}
+.sgg-settings-ui .sgg-settings-groups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.sgg-settings-ui .sgg-settings-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 34px;
+  padding: 0 13px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  color: var(--sgg-text);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+.sgg-settings-ui .sgg-settings-group .fa {
+  color: var(--sgg-muted);
+}
+.sgg-settings-ui .sgg-settings-group:hover {
+  background: var(--sgg-line-soft);
+  color: var(--sgg-ink);
+}
+.sgg-settings-ui .sgg-settings-group:focus-visible {
+  outline: 2px solid var(--sgg-accent);
+  outline-offset: 1px;
+}
+.sgg-settings-ui .sgg-settings-group.is-active {
+  background: var(--sgg-navy);
+  color: #fff;
+}
+.sgg-settings-ui .sgg-settings-group.is-active .fa {
+  color: #7ff8ef;
+}
+.sgg-settings-ui.is-searching .sgg-settings-group.is-active {
+  background: none;
+  color: var(--sgg-text);
+}
+.sgg-settings-ui.is-searching .sgg-settings-group.is-active .fa {
+  color: var(--sgg-muted);
+}
+.sgg-settings-ui .sgg-settings-search {
+  position: relative;
+  flex: 0 1 240px;
+  margin: 0;
+}
+.sgg-settings-ui .sgg-settings-search .fa {
+  position: absolute;
+  top: 50%;
+  left: 11px;
+  transform: translateY(-50%);
+  color: var(--sgg-muted);
+  pointer-events: none;
+}
+.sgg-settings-ui .sgg-settings-search input[type='search'] {
+  width: 100%;
+  height: 34px;
+  min-height: 34px;
+  margin: 0;
+  padding: 0 10px 0 32px;
+  border: 1px solid var(--sgg-line);
+  border-radius: 10px;
+  background: var(--sgg-surface);
+  box-shadow: none;
+  color: var(--sgg-ink);
+  font-size: 13px;
+}
+.sgg-settings-ui .sgg-settings-search input[type='search']:focus {
+  border-color: var(--sgg-accent);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(14, 138, 147, 0.15);
+}
+.sgg-settings-ui .sgg-settings-empty {
+  margin: 0 0 16px;
+  padding: 28px;
+  border: 1px dashed var(--sgg-line);
+  border-radius: 14px;
+  color: var(--sgg-muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+/* Only the active group, or every match while searching */
+.sgg-settings-ui .sgg-section.sgg-section-off {
+  display: none !important;
+}
+.sgg-settings-ui.is-searching .sgg-section.sgg-section-off {
+  display: block !important;
+}
+.sgg-settings-ui.is-searching .sgg-section.sgg-section-miss,
+.sgg-settings-ui.is-other-tab .sgg-section {
+  display: none !important;
+}
+.sgg-settings-ui .sgg-row-miss {
+  display: none !important;
+}
+/* A match inside a collapsed section is still shown; rows the page hides on its own stay hidden */
+.sgg-settings-ui.is-searching .gg-section-collapsed tr:not(.sgg-row-miss):not([hidden]):not([style*='display: none']):not([style*='display:none']) {
+  display: table-row !important;
+}
+
+/* ---------- Sections as cards ---------- */
+.sgg-settings-ui .sgg-section {
+  margin: 0 0 16px;
+  padding: 6px 20px 8px;
+  border: 1px solid var(--sgg-line);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: var(--sgg-shadow);
+  color: var(--sgg-text);
+}
+.sgg-settings-ui .sgg-section > hr,
+.sgg-settings-ui .sgg-section .separator {
+  display: none;
+}
+.sgg-settings-ui .sgg-section table.form-table {
+  width: 100%;
+  margin: 0;
+  border-collapse: collapse;
+}
+.sgg-settings-ui .sgg-section table.form-table + table.form-table {
+  border-top: 1px solid var(--sgg-line-soft);
+}
+.supsystic-plugin .sgg-settings-ui .sgg-section .form-table th {
+  width: 290px;
+  padding: 11px 18px 11px 0 !important;
+  color: var(--sgg-text);
+  font-size: 13px;
+  font-weight: 500 !important;
+  line-height: 1.45;
+  vertical-align: middle;
+}
+.supsystic-plugin .sgg-settings-ui .sgg-section .form-table td {
+  padding: 8px 0 !important;
+  color: var(--sgg-text);
+  font-size: 13px;
+  vertical-align: middle;
+}
+.sgg-settings-ui .sgg-section .form-table tr + tr > th,
+.sgg-settings-ui .sgg-section .form-table tr + tr > td {
+  border-top: 1px solid var(--sgg-line-soft);
+}
+.sgg-settings-ui .sgg-section .form-table th label {
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+/* Section title: the first row with the h3 */
+.supsystic-plugin .sgg-settings-ui .sgg-section .form-table th h3 {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: auto;
+  margin: 0 !important;
+  padding: 4px 34px 4px 0;
+  border-radius: 0;
+  background: none;
+  color: var(--sgg-ink);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.35;
+  text-shadow: none;
+}
+.supsystic-plugin .sgg-settings-ui .sgg-section .form-table th h3:before {
+  content: '';
+  flex: none;
+  width: 4px;
+  height: 16px;
+  border-radius: 2px;
+  background: var(--sgg-brand);
+}
+/* The caption sections had their own dark color by row id; in a card they are sub-headings with a darker bar */
+.sgg-settings-ui #useCaptions h3,
+.sgg-settings-ui #photo-icon h3,
+.sgg-settings-ui #useCaptionBuilder h3,
+.sgg-settings-ui #captionBuilderBackgroundEnableRow h3,
+.sgg-settings-ui #captionBuilderTitleEnableRow h3,
+.sgg-settings-ui #captionBuilderDescriptionEnableRow h3,
+.sgg-settings-ui #iconsEnable h3 {
+  background: none;
+}
+.supsystic-plugin .sgg-settings-ui .sgg-section .form-table tr:not(:first-child) th h3 {
+  font-size: 14px;
+}
+.supsystic-plugin .sgg-settings-ui .sgg-section .form-table tr:not(:first-child) th h3:before {
+  background: #2b4d73;
+}
+.supsystic-plugin .sgg-settings-ui .sgg-section .form-table th h3 .fa-question.supsystic-tooltip {
+  border-color: var(--sgg-line);
+  color: var(--sgg-muted);
+}
+.sgg-settings-ui .sgg-section .gg-section-toggle {
+  right: 4px;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  color: var(--sgg-muted);
+  opacity: 1;
+}
+.sgg-settings-ui .sgg-section .gg-section-toggle:hover {
+  background: var(--sgg-line-soft);
+  color: var(--sgg-ink);
+}
+@keyframes sggAnchorGlow {
+  0% {
+    background: var(--sgg-accent-soft);
+  }
+  100% {
+    background: transparent;
+  }
+}
+.supsystic-plugin .sgg-settings-ui .form-table .gg-anchor-highlight h3 {
+  border-radius: 6px;
+  animation: sggAnchorGlow 2s ease-out !important;
+}
+
+/* ---------- Fields ---------- */
+.sgg-settings-ui .sgg-section input[type='text'],
+.sgg-settings-ui .sgg-section input[type='number'],
+.sgg-settings-ui .sgg-section input[type='url'],
+.sgg-settings-ui .sgg-section select,
+.sgg-settings-ui .sgg-section textarea {
+  min-height: 32px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  box-shadow: none;
+  color: var(--sgg-ink);
+  font-size: 13px;
+}
+.sgg-settings-ui .sgg-section input[type='text']:focus,
+.sgg-settings-ui .sgg-section input[type='number']:focus,
+.sgg-settings-ui .sgg-section input[type='url']:focus,
+.sgg-settings-ui .sgg-section select:focus,
+.sgg-settings-ui .sgg-section textarea:focus {
+  border-color: var(--sgg-accent);
+  box-shadow: 0 0 0 3px rgba(14, 138, 147, 0.15);
+}
+
+/* Switches instead of checkboxes */
+.sgg-settings-ui .sgg-section .icheckbox_minimal {
+  position: relative;
+  flex: none;
+  width: 36px;
+  height: 20px;
+  margin: 0 6px 0 0;
+  border-radius: 999px;
+  background: #cbd5e1;
+  background-image: none;
+  vertical-align: middle;
+  transition: background-color 0.18s;
+}
+.sgg-settings-ui .sgg-section .icheckbox_minimal:after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.3);
+  transition: transform 0.18s cubic-bezier(0.3, 0.7, 0.4, 1);
+  pointer-events: none;
+}
+.sgg-settings-ui .sgg-section .icheckbox_minimal.hover {
+  background-color: #b4c0d0;
+}
+.sgg-settings-ui .sgg-section .icheckbox_minimal.checked {
+  background: var(--sgg-brand);
+}
+.sgg-settings-ui .sgg-section .icheckbox_minimal.checked:after {
+  transform: translateX(16px);
+}
+.sgg-settings-ui .sgg-section .icheckbox_minimal.disabled {
+  background: #e2e8f0;
+  cursor: not-allowed;
+}
+
+/* Radio buttons */
+.sgg-settings-ui .sgg-section .iradio_minimal {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  margin: 0 4px 0 0;
+  border: 1.5px solid #94a3b8;
+  border-radius: 50%;
+  background: #fff;
+  background-image: none;
+  box-sizing: border-box;
+  vertical-align: middle;
+  transition: border-color 0.15s;
+}
+.sgg-settings-ui .sgg-section .iradio_minimal.hover,
+.sgg-settings-ui .sgg-section .iradio_minimal.checked {
+  border-color: var(--sgg-accent);
+}
+.sgg-settings-ui .sgg-section .iradio_minimal.checked:after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: var(--sgg-accent);
+  pointer-events: none;
+}
+
+@media (max-width: 960px) {
+  .sgg-settings-ui .sgg-settings-nav {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .sgg-settings-ui .sgg-settings-search {
+    flex-basis: auto;
+  }
+  .supsystic-plugin .sgg-settings-ui .sgg-section .form-table th {
+    width: 200px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sgg-settings-ui .sgg-section .icheckbox_minimal,
+  .sgg-settings-ui .sgg-section .icheckbox_minimal:after,
+  .sgg-settings-ui .sgg-settings-group {
+    transition: none;
+  }
+}
+
+/* ---------- Polish ---------- */
+.sgg-settings-ui .sgg-section.sgg-section-empty {
+  display: none !important;
+}
+/* The old bordered buttons (Choose theme, Upload image...) and the color pickers in the look of the other fields */
+.supsystic-plugin .sgg-settings-ui .button.bordered,
+.supsystic-plugin .sgg-settings-ui input.button.bordered {
+  height: 32px;
+  min-height: 32px;
+  padding: 0 14px;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 8px !important;
+  background: #fff !important;
+  box-shadow: none !important;
+  color: #13202e !important;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 30px;
+}
+.supsystic-plugin .sgg-settings-ui .button.bordered:hover,
+.supsystic-plugin .sgg-settings-ui .button.bordered:focus {
+  border-color: #0e8a93 !important;
+  color: #0e8a93 !important;
+}
+.supsystic-plugin .sgg-settings-ui .wp-picker-container .wp-color-result.button {
+  height: 32px;
+  min-height: 32px;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  box-shadow: none;
+}
+.supsystic-plugin .sgg-settings-ui .wp-picker-container .wp-color-result .wp-color-result-text {
+  height: 30px;
+  border-left: 1px solid #e2e8f0;
+  border-radius: 0 7px 7px 0;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 12px;
+  line-height: 30px;
+}
+.supsystic-plugin .sgg-settings-ui .wp-picker-container .wp-color-result:hover,
+.supsystic-plugin .sgg-settings-ui .wp-picker-container .wp-color-result:focus {
+  border-color: #0e8a93;
+}
+
+/* Every text and number field on white, like the selects next to them */
+.supsystic-plugin .sgg-settings-ui .sgg-section input[type="text"]:not([readonly]):not(:disabled),
+.supsystic-plugin .sgg-settings-ui .sgg-section input[type="number"]:not([readonly]):not(:disabled),
+.supsystic-plugin .sgg-settings-ui .sgg-section input[type="url"]:not([readonly]):not(:disabled) {
+  background-color: #fff;
+}
+
+/* ---------- Gallery type as picture cards (the select stays the field of the form, out of sight) ---------- */
+.supsystic-plugin .sgg-gt {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+  gap: 10px;
+  max-width: 1080px;
+  margin: 4px 0;
+}
+.supsystic-plugin .sgg-gt-card {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  margin: 0;
+  padding: 6px 6px 10px;
+  border: 1px solid var(--sgg-line, #e2e8f0);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--sgg-text, #334155);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+.supsystic-plugin .sgg-gt-card:hover,
+.supsystic-plugin .sgg-gt-card:focus-visible {
+  border-color: var(--sgg-accent, #0e8a93);
+  box-shadow: 0 10px 22px -16px rgba(14, 138, 147, 0.8);
+  outline: none;
+  transform: translateY(-1px);
+}
+.supsystic-plugin .sgg-gt-card.is-current {
+  border-color: var(--sgg-accent, #0e8a93);
+  box-shadow: 0 0 0 2px var(--sgg-accent, #0e8a93);
+}
+.supsystic-plugin .sgg-gt-pic {
+  display: block;
+  margin-bottom: 4px;
+}
+.supsystic-plugin .sgg-gt-pic .sgg-mk {
+  --mk-h: 76px;
+  border-radius: 8px;
+  background: #f6f8fb;
+}
+/* The pictures in calm flat colors, teal for the chosen type */
+.supsystic-plugin .sgg-gt-card .sgg-mk-t {
+  background-image: none !important;
+  background-color: #cfd8e3;
+}
+.supsystic-plugin .sgg-gt-card .sgg-mk-t.is-n1 {
+  background-color: #dde4ec;
+}
+.supsystic-plugin .sgg-gt-card .sgg-mk-t.is-n2 {
+  background-color: #c2ccd8;
+}
+.supsystic-plugin .sgg-gt-card:hover .sgg-mk-t,
+.supsystic-plugin .sgg-gt-card.is-current .sgg-mk-t {
+  background-color: #bfe3e6;
+}
+.supsystic-plugin .sgg-gt-card:hover .sgg-mk-t.is-n1,
+.supsystic-plugin .sgg-gt-card.is-current .sgg-mk-t.is-n1 {
+  background-color: #d5eef0;
+}
+.supsystic-plugin .sgg-gt-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 4px;
+  color: var(--sgg-ink, #0f172a);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.supsystic-plugin .sgg-gt-name em {
+  padding: 0 5px;
+  border-radius: 4px;
+  background: #f59e0b;
+  color: #fff;
+  font-size: 9.5px;
+  font-style: normal;
+  line-height: 16px;
+}
+.supsystic-plugin .sgg-gt-text {
+  padding: 0 4px;
+  color: var(--sgg-muted, #64748b);
+  font-size: 11.5px;
+  font-weight: 400;
+  line-height: 1.4;
+  white-space: normal;
+}
+.supsystic-plugin .sgg-gt-card.is-locked {
+  background: #fffdf6;
+}
+/* The select keeps its name, value and options for the form and the scripts; the cards show it */
+.supsystic-plugin select.sgg-gt-native {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden;
+  border: 0 !important;
+  clip: rect(0 0 0 0);
+  opacity: 0;
+  pointer-events: none;
+}
+/* The cards hold Justified rows and the Mosaic PRO window, so their own rows step back */
+.supsystic-plugin .sgg-gt-ready #ggJustifiedRow,
+.supsystic-plugin .sgg-gt-ready #ggMosaicUpsellRow {
+  display: none !important;
+}
+
+/* ---------- Lightbox: the choice of lightbox and the theme cards of the new one ---------- */
+.supsystic-plugin .sgg-lb-off,
+.supsystic-plugin [data-sgg-lb-rows][hidden] {
+  display: none !important;
+}
+.supsystic-plugin .sgg-lbe {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 10px;
+  max-width: 720px;
+}
+.supsystic-plugin .sgg-lbe-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--sgg-line, #e2e8f0);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--sgg-text, #334155);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.supsystic-plugin .sgg-lbe-card:hover,
+.supsystic-plugin .sgg-lbe-card:focus-visible {
+  border-color: var(--sgg-accent, #0e8a93);
+  outline: none;
+}
+.supsystic-plugin .sgg-lbe-card.is-current {
+  border-color: var(--sgg-accent, #0e8a93);
+  box-shadow: 0 0 0 2px var(--sgg-accent, #0e8a93);
+}
+.supsystic-plugin .sgg-lbe-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--sgg-accent-soft, #e6f6f7);
+  color: var(--sgg-accent, #0e8a93);
+  font-size: 16px;
+}
+.supsystic-plugin .sgg-lbe-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--sgg-muted, #64748b);
+}
+.supsystic-plugin .sgg-lbe-body strong {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--sgg-ink, #0f172a);
+  font-size: 13.5px;
+}
+.supsystic-plugin .sgg-lbe-body strong em {
+  padding: 0 6px;
+  border-radius: 99px;
+  background: var(--sgg-accent, #0e8a93);
+  color: #fff;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 17px;
+}
+.supsystic-plugin .sgg-lbt {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(156px, 1fr));
+  gap: 10px;
+  max-width: 1080px;
+}
+.supsystic-plugin .sgg-lbt-card {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  margin: 0;
+  padding: 6px 6px 10px;
+  border: 1px solid var(--sgg-line, #e2e8f0);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--sgg-muted, #64748b);
+  font: inherit;
+  font-size: 11.5px;
+  line-height: 1.4;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+.supsystic-plugin .sgg-lbt-card:hover,
+.supsystic-plugin .sgg-lbt-card:focus-visible {
+  border-color: var(--sgg-accent, #0e8a93);
+  outline: none;
+  transform: translateY(-1px);
+}
+.supsystic-plugin .sgg-lbt-card.is-current {
+  border-color: var(--sgg-accent, #0e8a93);
+  box-shadow: 0 0 0 2px var(--sgg-accent, #0e8a93);
+}
+.supsystic-plugin .sgg-lbt-card.is-locked {
+  background: #fffdf6;
+}
+.supsystic-plugin .sgg-lbt-pic {
+  display: block;
+  margin-bottom: 4px;
+}
+.supsystic-plugin .sgg-lbt-pic .sgg-mk {
+  --mk-h: 84px;
+  border-radius: 8px;
+}
+.supsystic-plugin .sgg-lbt-card strong {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 4px;
+  color: var(--sgg-ink, #0f172a);
+  font-size: 13px;
+}
+.supsystic-plugin .sgg-lbt-card strong em {
+  padding: 0 5px;
+  border-radius: 4px;
+  background: #f59e0b;
+  color: #fff;
+  font-size: 9.5px;
+  font-style: normal;
+  line-height: 16px;
+}
+.supsystic-plugin .sgg-lbt-card > span:last-child {
+  padding: 0 4px;
+  white-space: normal;
+}
+.supsystic-plugin .sgg-lb-checks {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 20px;
+}
+.supsystic-plugin .sgg-lb-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.supsystic-plugin .sgg-lb-check label {
+  margin: 0;
+}
+.supsystic-plugin .sgg-lb-pro {
+  padding: 0 7px;
+  border: 0;
+  border-radius: 4px;
+  background: #f59e0b;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 18px;
+  text-decoration: none;
+  cursor: pointer;
+}
+.supsystic-plugin .sgg-lb-note {
+  margin: 0;
+  overflow: visible;
+  color: var(--sgg-muted, #64748b);
+  font-size: 12px;
+  line-height: 1.5;
+  text-overflow: clip;
+  white-space: normal;
+}
+
+/* ---------- Classic popup: the chosen style beside the button, and its card in the dialog ---------- */
+.supsystic-plugin .sgg-pth-current {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 10px 0 0;
+  padding: 4px 12px 4px 4px;
+  border: 1px solid var(--sgg-line, #e2e8f0);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--sgg-ink, #0f172a);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  vertical-align: middle;
+  cursor: pointer;
+}
+.supsystic-plugin .sgg-pth-current:hover,
+.supsystic-plugin .sgg-pth-current:focus-visible {
+  border-color: var(--sgg-accent, #0e8a93);
+  outline: none;
+}
+.supsystic-plugin .sgg-pth-current img {
+  display: block;
+  width: 64px;
+  height: 40px;
+  border-radius: 6px;
+  background: #f2f5f8;
+  object-fit: cover;
+}
+.supsystic-plugin .sgg-pth-current[hidden] {
+  display: none;
+}
+.gg-pth-dialog .gg-pth-card.is-active {
+  border-color: #0e8a93;
+  box-shadow: 0 0 0 2px #0e8a93;
+}
+.gg-pth-dialog .gg-pth-card.is-active .gg-pth-check {
+  background: #0e8a93;
+}
+.gg-pth-dialog .gg-pth-card.is-active .gg-pth-name {
+  color: #0e8a93;
+}
+/* The effect in use beside the button: the photo with a caption strip and the name */
+.supsystic-plugin .sgg-fx-current .sgg-fx-pic {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  width: 64px;
+  height: 40px;
+  border-radius: 6px;
+}
+.supsystic-plugin .sgg-fx-current .sgg-fx-pic img {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+}
+.supsystic-plugin .sgg-fx-current .sgg-fx-pic::after {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 36%;
+  background: rgba(15, 23, 42, 0.62);
+  content: '';
+}
+
+/* ---------- Caption Builder: where a part sits, a 3 x 3 grid over a picture ---------- */
+.supsystic-plugin .sgg-pos-native {
+  display: none !important;
+}
+.supsystic-plugin .sgg-pos {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+}
+.supsystic-plugin .sgg-pos-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 4px;
+  box-sizing: border-box;
+  width: 144px;
+  height: 96px;
+  padding: 6px;
+  border-radius: 10px;
+  background: linear-gradient(170deg, #b9d7ef 0%, #7fa9cc 44%, #4f7a4b 45%, #2f4f30 100%);
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.08);
+}
+.supsystic-plugin .sgg-pos-grid .sgg-pos-cell {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 1px dashed rgba(255, 255, 255, 0.6);
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: none;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+.supsystic-plugin .sgg-pos-grid .sgg-pos-cell:hover,
+.supsystic-plugin .sgg-pos-grid .sgg-pos-cell:focus-visible {
+  border-style: solid;
+  background: rgba(255, 255, 255, 0.34);
+  outline: none;
+}
+.supsystic-plugin .sgg-pos-grid .sgg-pos-cell:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.supsystic-plugin .sgg-pos-grid .sgg-pos-cell.is-current {
+  border: 1px solid #0e8a93;
+  background: rgba(15, 23, 42, 0.74);
+  box-shadow: 0 0 0 2px rgba(14, 138, 147, 0.55);
+}
+.supsystic-plugin .sgg-pos-grid .sgg-pos-cell.is-current::before {
+  position: absolute;
+  top: 50%;
+  left: 12%;
+  width: 58%;
+  height: 4px;
+  border-radius: 2px;
+  background: #fff;
+  transform: translateY(-50%);
+  content: '';
+}
+.supsystic-plugin .sgg-pos-grid .sgg-pos-cell.is-current.is-h-center::before {
+  left: 21%;
+}
+.supsystic-plugin .sgg-pos-grid .sgg-pos-cell.is-current.is-h-right::before {
+  right: 12%;
+  left: auto;
+}
+.supsystic-plugin .sgg-pos-label {
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* ---------- Shadow presets (#shadowDialog): cards with the photo and the real shadow ---------- */
+.sgg-sh-dialog #shadowDialog {
+  padding: 18px 22px 12px;
+  background: #f8fafc;
+}
+.sgg-sh-dialog .shadow-dialog-wrapper {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 150px);
+  justify-content: center;
+  gap: 16px;
+  margin-top: 6px;
+}
+.sgg-sh-dialog .sgg-sh-group {
+  grid-column: 1 / -1;
+  margin: 8px 0 0;
+  padding: 0;
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.sgg-sh-dialog .sgg-sh-card {
+  position: relative;
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  float: none !important;
+  margin: 0 !important;
+  padding: 22px 12px 12px;
+  overflow: visible;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.sgg-sh-dialog .sgg-sh-card:hover {
+  border-color: #0e8a93;
+}
+.sgg-sh-dialog .sgg-sh-card:has(.shadow-preset.selected) {
+  border-color: #0e8a93;
+  box-shadow: 0 0 0 2px #0e8a93;
+}
+.sgg-sh-dialog .sgg-sh-card:has(.shadow-preset.selected)::after {
+  position: absolute;
+  top: -9px;
+  right: -9px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #0e8a93 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5l3 3 6-7' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 13px no-repeat;
+  box-shadow: 0 0 0 3px #f8fafc;
+  content: '';
+}
+#shadowDialog .sgg-sh-card .shadow-preset {
+  width: 96px;
+  height: 96px;
+  margin: 4px 0 6px !important;
+  border-radius: 8px;
+  outline: none !important;
+  overflow: hidden;
+}
+/* holder.js writes 150px on the picture itself */
+#shadowDialog .sgg-sh-card .shadow-preset img.dialog-image {
+  display: block;
+  width: 96px !important;
+  height: 96px !important;
+  object-fit: cover;
+  background: linear-gradient(170deg, #b9d7ef 0%, #7fa9cc 44%, #4f7a4b 45%, #2f4f30 100%);
+}
+.sgg-sh-dialog .sgg-sh-name {
+  color: #0f172a;
+  font-size: 12.5px;
+  font-weight: 600;
+  text-align: center;
+}
+.sgg-sh-dialog .sgg-sh-card:has(.shadow-preset.selected) .sgg-sh-name {
+  color: #0e8a93;
+}
+.sgg-sh-dialog .sgg-sh-card .select-element {
+  top: 8px;
+  right: 8px;
+  left: auto;
+  margin: 0;
+  padding: 2px 9px;
+  border: 0;
+  border-radius: 99px;
+  background: rgba(15, 23, 42, 0.74);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 16px;
+  transition: opacity 0.2s;
+}
+.supsystic-plugin .sgg-sh-current .sgg-sh-pic {
+  display: block;
+  overflow: visible;
+  width: 40px;
+  height: 40px;
+  margin: 2px 6px 2px 2px;
+  border-radius: 6px;
+}
+.supsystic-plugin .sgg-sh-current .sgg-sh-pic img {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+}
+
+/* ---------- Custom Buttons editor (PRO dialog) ---------- */
+.sgg-bp-dialog .buttons-edit-preset-dialog {
+  display: grid !important;
+  grid-template-columns: minmax(280px, 380px) minmax(0, 1fr);
+  gap: 22px;
+  padding: 18px 22px 12px;
+  background: #f8fafc;
+}
+.sgg-bp-dialog .buttons-edit-preset-dialog__left-col,
+.sgg-bp-dialog .buttons-edit-preset-dialog__right-col {
+  float: none;
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+}
+.sgg-bp-dialog .buttons-edit-preset-dialog__right-col {
+  padding: 6px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #fff;
+}
+.sgg-bp-dialog .buttons-edit-preset-dialog__right-col .form-table {
+  margin: 0;
+}
+.sgg-bp-dialog .buttons-edit-preset-dialog__right-col .form-table th {
+  width: 150px;
+  padding: 9px 10px 9px 0 !important;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+}
+.sgg-bp-dialog .buttons-edit-preset-dialog__right-col .form-table td {
+  padding: 7px 0 !important;
+}
+.sgg-bp-dialog .sgg-bp-lead {
+  margin: 0 0 8px;
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 700;
+}
+.sgg-bp-dialog .sgg-bp-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #fff;
+}
+.sgg-bp-dialog .sgg-bp-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.sgg-bp-dialog .sgg-bp-label {
+  width: 100%;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.sgg-bp-dialog .sgg-bp-sample,
+.supsystic-plugin .sgg-bp-chip-button {
+  display: inline-block;
+  line-height: 1.2;
+  text-decoration: none;
+  cursor: pointer;
+}
+.sgg-bp-dialog #buttons-presets-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+  max-height: none;
+  margin-top: 14px;
+  padding: 0;
+  overflow: visible;
+}
+.sgg-bp-dialog #buttons-presets-list .sgg-bp-head {
+  grid-column: 1 / -1;
+  margin: 6px 0 0;
+  padding: 0;
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 700;
+}
+.sgg-bp-dialog #buttons-presets-list > .presets-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 58px;
+  margin: 0;
+  padding: 10px 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: none;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.sgg-bp-dialog #buttons-presets-list > .presets-list-item:hover {
+  border-color: #0e8a93;
+}
+.sgg-bp-dialog #buttons-presets-list > .presets-list-item.active {
+  border-color: #0e8a93;
+  box-shadow: 0 0 0 2px #0e8a93;
+}
+.sgg-bp-dialog #buttons-presets-list > .presets-list-item a {
+  max-width: 100%;
+  overflow: hidden;
+  line-height: 1.2;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sgg-bp-dialog #buttons-presets-list > .presets-list-item > .fa-times {
+  top: 6px;
+  right: 7px;
+  color: #94a3b8;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.sgg-bp-dialog #buttons-presets-list > .presets-list-item:hover > .fa-times {
+  opacity: 1;
+}
+.sgg-bp-dialog #buttons-presets-list > .presets-list-item > .fa-times:hover {
+  color: #dc2626;
+}
+.supsystic-plugin .sgg-bp-chip-stage {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: #f1f5f9;
+}
+@media (max-width: 900px) {
+  .sgg-bp-dialog .buttons-edit-preset-dialog {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* The modern button presets (the same rules as in the frontend CSS) */
+.sgg-btn {
+  display: inline-block;
+  line-height: 1.2 !important;
+  text-decoration: none !important;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+.sgg-btn:hover {
+  transform: translateY(-1px);
+}
+.sgg-btn-shadow {
+  box-shadow: 0 6px 16px -8px rgba(15, 23, 42, 0.55);
+}
+.sgg-btn-shadow:hover {
+  box-shadow: 0 10px 22px -10px rgba(15, 23, 42, 0.6);
+}
+.sgg-btn-ghost:hover {
+  background-color: rgba(15, 23, 42, 0.07);
+}
+.sgg-btn-caps {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.sgg-btn-underline {
+  box-shadow: inset 0 -2px 0 currentColor;
+}

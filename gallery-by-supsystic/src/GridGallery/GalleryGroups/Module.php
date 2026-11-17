@@ -49,7 +49,8 @@ class GridGallery_GalleryGroups_Module extends RscSgg_Mvc_Module
 
     $output = '';
     foreach ($galleryIds as $galleryId) {
-      $output .= (string) $galleriesModule->getGallery(['id' => $galleryId]);
+      // renderShortcode() draws a Carousel or Slider gallery by its type, any other gallery as before
+      $output .= (string) (method_exists($galleriesModule, 'renderShortcode') ? $galleriesModule->renderShortcode(['id' => $galleryId]) : $galleriesModule->getGallery(['id' => $galleryId]));
     }
 
     return sprintf('<div class="sgg-gallery-group" data-gallery-group-id="%d">%s</div>', $groupId, $output);

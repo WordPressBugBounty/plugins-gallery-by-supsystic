@@ -1,0 +1,11 @@
+{# Layers over a slide of the Slider: headings, text, buttons and badges. Place and size on every device are CSS
+   variables made in GridGallery_Slider_Module::frontLayers() from checked numbers and colors; the text is plain. #}
+<div class="sgg-sl-layers">
+    {% for layer in items %}
+        {% if layer.link %}
+            <a class="{{ layer.class|e('html_attr') }}" href="{{ layer.link|e('html_attr') }}"{% if layer.newTab %} target="_blank" rel="noopener"{% endif %} style="{{ layer.style|e('html_attr') }}"{% if layer.anim %} data-anim="{{ layer.anim|e('html_attr') }}"{% endif %}>{{ layer.text|e|nl2br }}</a>
+        {% else %}
+            <div class="{{ layer.class|e('html_attr') }}" style="{{ layer.style|e('html_attr') }}"{% if layer.anim %} data-anim="{{ layer.anim|e('html_attr') }}"{% endif %}>{{ layer.text|e|nl2br }}</div>
+        {% endif %}
+    {% endfor %}
+</div>

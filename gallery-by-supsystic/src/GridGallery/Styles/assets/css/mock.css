@@ -1,0 +1,1451 @@
+/* Pictures of a gallery in the colors and shape of a style (SggStyleMock, mock.js). Sizes follow --u: 1px in the
+   small cards, more in the big live picture of the wizard. */
+.sgg-mk {
+  --u: 1px;
+  --g: var(--sg);
+  --f: var(--fw);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  height: var(--mk-h, 92px);
+  padding: calc(7 * var(--u));
+  overflow: hidden;
+  border-radius: 8px;
+  /* The page the gallery sits on: the styles color the gallery, not the page */
+  background: #fff;
+  color: var(--tx);
+  font-size: calc(6 * var(--u));
+  line-height: 1.25;
+  text-align: left;
+}
+.sgg-mk.is-big {
+  --u: 2px;
+  --mk-h: 360px;
+  padding: calc(10 * var(--u));
+  border-radius: 14px;
+}
+.sgg-mk *,
+.sgg-mk *:before,
+.sgg-mk *:after {
+  box-sizing: border-box;
+}
+/* Plain boxes; the class rules below win over this reset */
+.sgg-mk :where(i, b, u, em, span) {
+  display: block;
+  margin: 0;
+  padding: 0;
+  font-style: normal;
+  text-decoration: none;
+}
+.sgg-mk .sgg-mk-tx,
+.sgg-mk .sgg-mk-head {
+  overflow: hidden;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sgg-mk-stage {
+  position: relative;
+  display: flex;
+  flex: 1;
+  gap: var(--g);
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Tiles: the chosen images, or the colors of the style */
+.sgg-mk-t {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border: var(--f) solid var(--fc);
+  border-radius: var(--r);
+  background: linear-gradient(140deg, var(--ac), var(--h)) center / cover no-repeat;
+}
+.sgg-mk-t.is-n1 {
+  background-image: linear-gradient(140deg, var(--sp), var(--bd));
+}
+.sgg-mk-t.is-n2 {
+  background-image: linear-gradient(140deg, var(--h), var(--tx));
+}
+.sgg-mk.is-sh-soft .sgg-mk-t,
+.sgg-mk.is-sh-soft .sgg-mk-card {
+  box-shadow: 0 calc(3 * var(--u)) calc(8 * var(--u)) calc(-3 * var(--u)) rgba(15, 23, 42, 0.4);
+}
+.sgg-mk.is-sh-strong .sgg-mk-t,
+.sgg-mk.is-sh-strong .sgg-mk-card {
+  box-shadow: 0 calc(6 * var(--u)) calc(14 * var(--u)) calc(-4 * var(--u)) rgba(15, 23, 42, 0.6);
+}
+.sgg-mk .sgg-mk-card .sgg-mk-t {
+  box-shadow: none;
+}
+
+/* Lines stand for words in the small pictures */
+.sgg-mk-ln {
+  flex: none;
+  width: 45%;
+  height: calc(3 * var(--u));
+  border-radius: calc(2 * var(--u));
+  background: currentColor;
+  opacity: 0.45;
+}
+.sgg-mk-ln.is-strong {
+  width: 70%;
+  height: calc(4 * var(--u));
+  opacity: 0.85;
+}
+.sgg-mk-ln.is-date {
+  width: 30%;
+  opacity: 0.3;
+}
+
+/* Caption on hover of a classic gallery */
+.sgg-mk-ov {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: calc(2 * var(--u));
+  padding: calc(5 * var(--u)) calc(7 * var(--u));
+  background: var(--h);
+  color: var(--ht);
+  opacity: 0.9;
+}
+/* In a circle the strip sits a little higher, so the title is not cut by the curve */
+.sgg-mk-t.is-round .sgg-mk-ov {
+  padding-bottom: calc(9 * var(--u));
+  text-align: center;
+  align-items: center;
+}
+.sgg-mk-tx {
+  font-size: calc(6.5 * var(--u));
+}
+.sgg-mk.is-al-center .sgg-mk-ov,
+.sgg-mk.is-al-center .sgg-mk-below {
+  align-items: center;
+  text-align: center;
+}
+
+/* ---------- Classic gallery layouts */
+.sgg-mk-stage.is-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+}
+.sgg-mk-stage.is-rows,
+.sgg-mk-col {
+  flex-direction: column;
+}
+.sgg-mk-row,
+.sgg-mk-col {
+  display: flex;
+  flex: 1;
+  gap: var(--g);
+  min-width: 0;
+  min-height: 0;
+}
+.sgg-mk-stage.is-people {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+}
+.sgg-mk-person {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(3 * var(--u));
+  min-height: 0;
+}
+.sgg-mk-t.is-round {
+  flex: 1 1 0;
+  width: auto;
+  max-width: 100%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+}
+.sgg-mk-ln.is-name {
+  width: 55%;
+  opacity: 0.6;
+}
+.sgg-mk-filters {
+  display: flex !important;
+  flex: none;
+  justify-content: center;
+  gap: calc(3 * var(--u));
+  margin-bottom: calc(5 * var(--u)) !important;
+}
+.sgg-mk-filters u {
+  width: calc(18 * var(--u));
+  height: calc(7 * var(--u));
+  border-radius: calc(4 * var(--u));
+  background: var(--sp);
+  box-shadow: inset 0 0 0 1px var(--bd);
+}
+.sgg-mk-filters u.is-on {
+  background: var(--ac);
+  box-shadow: none;
+}
+.sgg-mk-icons {
+  position: absolute;
+  inset: 0;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: calc(4 * var(--u));
+  background: rgba(15, 23, 42, 0.35);
+}
+.sgg-mk-icons b {
+  width: calc(10 * var(--u));
+  height: calc(10 * var(--u));
+  border-radius: 50%;
+  background: var(--sf);
+}
+.sgg-mk-stage.is-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.sgg-mk-card {
+  display: flex !important;
+  flex: 1 1 0;
+  flex-direction: column;
+  gap: calc(3 * var(--u));
+  min-width: 0;
+  min-height: 0;
+  padding: calc(4 * var(--u));
+  border-radius: var(--r);
+  background: var(--sf);
+  box-shadow: 0 0 0 1px var(--bd);
+}
+.sgg-mk-card .sgg-mk-t {
+  border-radius: calc(var(--r) * 0.6);
+}
+.sgg-mk-pages {
+  display: flex !important;
+  flex: none;
+  justify-content: center;
+  gap: calc(3 * var(--u));
+  margin-top: calc(5 * var(--u)) !important;
+}
+.sgg-mk-pages u {
+  width: calc(8 * var(--u));
+  height: calc(8 * var(--u));
+  border-radius: calc(2 * var(--u));
+  background: var(--sp);
+  box-shadow: inset 0 0 0 1px var(--bd);
+}
+.sgg-mk-pages u.is-on {
+  background: var(--ac);
+  box-shadow: none;
+}
+.sgg-mk-stage.is-mosaic {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+}
+.sgg-mk-stage.is-mosaic .sgg-mk-t:first-child {
+  grid-row: span 2;
+}
+
+/* ---------- Carousel */
+.sgg-mk.is-carousel,
+.sgg-mk.is-slider {
+  --f: 0px;
+}
+.sgg-mk-slide {
+  display: flex !important;
+  flex: 1 1 0;
+  flex-direction: column;
+  gap: calc(3 * var(--u));
+  min-width: 0;
+}
+.sgg-mk-below {
+  display: flex !important;
+  flex: none;
+  flex-direction: column;
+  gap: calc(2 * var(--u));
+  color: var(--tx);
+}
+.sgg-mk-card.is-product .sgg-mk-tx,
+.sgg-mk-card .sgg-mk-tx {
+  color: var(--tx);
+}
+.sgg-mk-price {
+  flex: none;
+  min-height: calc(3 * var(--u));
+  color: var(--ac);
+  font-weight: 700;
+}
+.is-small .sgg-mk-price {
+  width: 30%;
+  border-radius: calc(2 * var(--u));
+  background: var(--ac);
+}
+.sgg-mk-btn {
+  display: flex !important;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  height: calc(9 * var(--u));
+  padding: 0 calc(6 * var(--u)) !important;
+  border-radius: calc(var(--r) * 0.5 + 2px);
+  background: var(--ac);
+  color: #fff;
+  font-size: calc(5.5 * var(--u));
+  font-weight: 700;
+  white-space: nowrap;
+}
+.sgg-mk-stage.is-logos {
+  align-items: center;
+  margin-right: calc(-24 * var(--u));
+}
+.sgg-mk-logo {
+  display: flex !important;
+  flex: 1 1 0;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  height: 58%;
+  border-radius: var(--r);
+  background: var(--sp);
+  box-shadow: inset 0 0 0 1px var(--bd);
+}
+.sgg-mk-logo .sgg-mk-t.is-contain {
+  width: 80%;
+  height: 70%;
+  flex: none;
+  border: 0;
+  background-color: transparent;
+  background-size: contain;
+  box-shadow: none;
+  filter: grayscale(1);
+  opacity: 0.8;
+}
+.sgg-mk-glyph {
+  display: flex !important;
+  align-items: center;
+  gap: calc(2 * var(--u));
+  opacity: 0.55;
+}
+.sgg-mk-glyph:before {
+  width: calc(8 * var(--u));
+  height: calc(8 * var(--u));
+  border-radius: 50%;
+  background: var(--tx);
+  content: '';
+}
+.sgg-mk-glyph:after {
+  width: calc(14 * var(--u));
+  height: calc(4 * var(--u));
+  border-radius: calc(2 * var(--u));
+  background: var(--tx);
+  content: '';
+}
+.sgg-mk-glyph.is-g1:before {
+  border-radius: calc(2 * var(--u));
+}
+.sgg-mk-glyph.is-g2:before {
+  border-radius: calc(2 * var(--u));
+  transform: rotate(45deg) scale(0.85);
+}
+.sgg-mk-flow {
+  flex: none;
+  width: 34%;
+  height: calc(2 * var(--u));
+  margin: calc(5 * var(--u)) auto 0 !important;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, var(--ac));
+}
+
+/* ---------- Arrows: round, square, minimal or bar; inside over the slides or outside next to them */
+.sgg-mk-arw {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  width: calc(14 * var(--u));
+  height: calc(14 * var(--u));
+  margin-top: calc(-7 * var(--u)) !important;
+  border-radius: 50%;
+  background: var(--sf);
+  box-shadow: 0 0 0 1px var(--bd), 0 calc(2 * var(--u)) calc(5 * var(--u)) rgba(15, 23, 42, 0.25);
+}
+.sgg-mk-arw:after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: calc(4 * var(--u));
+  height: calc(4 * var(--u));
+  border-top: calc(1.4 * var(--u)) solid var(--tx);
+  border-left: calc(1.4 * var(--u)) solid var(--tx);
+  transform: translate(-30%, -50%) rotate(-45deg);
+  content: '';
+}
+.sgg-mk-arw.is-next:after {
+  transform: translate(-70%, -50%) rotate(135deg);
+}
+.sgg-mk-arw.is-prev {
+  left: calc(4 * var(--u));
+}
+.sgg-mk-arw.is-next {
+  right: calc(4 * var(--u));
+}
+.sgg-mk.is-arw-square .sgg-mk-arw {
+  border-radius: calc(3 * var(--u));
+}
+.sgg-mk.is-arw-minimal .sgg-mk-arw {
+  background: transparent;
+  box-shadow: none;
+}
+.sgg-mk.is-arw-minimal .sgg-mk-arw:after {
+  border-color: var(--ac);
+}
+.sgg-mk.is-arw-bar .sgg-mk-arw {
+  width: calc(9 * var(--u));
+  height: calc(28 * var(--u));
+  margin-top: calc(-14 * var(--u)) !important;
+  border-radius: calc(2 * var(--u));
+}
+.sgg-mk.is-pos-outside .sgg-mk-stage.is-row,
+.sgg-mk.is-slider.is-pos-outside .sgg-mk-stage {
+  margin: 0 calc(13 * var(--u)) !important;
+}
+.sgg-mk.is-pos-outside .sgg-mk-arw.is-prev {
+  left: calc(-15 * var(--u));
+}
+.sgg-mk.is-pos-outside .sgg-mk-arw.is-next {
+  right: calc(-15 * var(--u));
+}
+.sgg-mk.is-pos-outside.is-arw-bar .sgg-mk-arw.is-prev {
+  left: calc(-12 * var(--u));
+}
+.sgg-mk.is-pos-outside.is-arw-bar .sgg-mk-arw.is-next {
+  right: calc(-12 * var(--u));
+}
+
+/* ---------- Pagination: dots, dynamic dots, counter or progress bar */
+.sgg-mk-pg {
+  display: flex !important;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  gap: calc(3 * var(--u));
+  height: calc(8 * var(--u));
+  margin-top: calc(4 * var(--u)) !important;
+}
+.sgg-mk-pg u {
+  width: calc(4 * var(--u));
+  height: calc(4 * var(--u));
+  border-radius: 50%;
+  background: var(--bd);
+}
+.sgg-mk-pg u.is-on {
+  width: calc(10 * var(--u));
+  border-radius: calc(2 * var(--u));
+  background: var(--ac);
+}
+.sgg-mk-pg u.is-s {
+  width: calc(3 * var(--u));
+  height: calc(3 * var(--u));
+}
+.sgg-mk-pg u.is-xs {
+  width: calc(2 * var(--u));
+  height: calc(2 * var(--u));
+}
+.sgg-mk-pg.is-fraction {
+  color: var(--tx);
+  font-size: calc(6 * var(--u));
+  font-weight: 700;
+}
+.sgg-mk-pg.is-progress {
+  height: calc(3 * var(--u));
+  margin-top: calc(6 * var(--u)) !important;
+  overflow: hidden;
+  border-radius: 99px;
+  background: var(--bd);
+}
+.sgg-mk-pg.is-progress i {
+  width: 35%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--ac);
+}
+
+/* ---------- Slider: one slide, pagination over it */
+.sgg-mk-stage.is-one .sgg-mk-pg {
+  position: absolute;
+  right: 0;
+  bottom: calc(5 * var(--u));
+  left: 0;
+  z-index: 2;
+  margin: 0 !important;
+}
+.sgg-mk-stage.is-one .sgg-mk-pg u {
+  background: var(--ht);
+  opacity: 0.7;
+}
+.sgg-mk-stage.is-one .sgg-mk-pg u.is-on {
+  background: var(--ac);
+  opacity: 1;
+}
+.sgg-mk-stage.is-one .sgg-mk-pg.is-fraction {
+  right: calc(8 * var(--u));
+  left: auto;
+  padding: 0 calc(5 * var(--u)) !important;
+  border-radius: 99px;
+  background: var(--h);
+  color: var(--ht);
+}
+.sgg-mk-stage.is-one .sgg-mk-pg.is-progress {
+  right: calc(var(--r) * 0.6);
+  bottom: 0;
+  left: calc(var(--r) * 0.6);
+  border-radius: 0;
+  background: rgba(255, 255, 255, 0.45);
+}
+.sgg-mk-box {
+  position: absolute;
+  bottom: calc(16 * var(--u));
+  left: calc(22 * var(--u));
+  display: flex !important;
+  flex-direction: column;
+  gap: calc(2 * var(--u));
+  width: 46%;
+  padding: calc(5 * var(--u)) calc(7 * var(--u)) !important;
+  border-radius: calc(var(--r) * 0.5);
+  background: var(--h);
+  color: var(--ht);
+  opacity: 0.94;
+}
+.sgg-mk.is-al-center .sgg-mk-box {
+  left: 50%;
+  align-items: center;
+  text-align: center;
+  transform: translateX(-50%);
+}
+.sgg-mk-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.2), rgba(15, 23, 42, 0.6));
+}
+.sgg-mk-shade.is-bottom {
+  background: linear-gradient(180deg, transparent 35%, rgba(15, 23, 42, 0.78));
+}
+.sgg-mk-hero {
+  position: absolute;
+  inset: 0;
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(4 * var(--u));
+  padding: 0 18% !important;
+  color: #fff;
+  text-align: center;
+}
+.sgg-mk-head {
+  max-width: 100%;
+  font-size: calc(11 * var(--u));
+  line-height: 1.15;
+}
+.sgg-mk-ln.is-head {
+  width: 70%;
+  height: calc(6 * var(--u));
+  background: #fff;
+  opacity: 1;
+}
+.sgg-mk-ln.is-light {
+  width: 50%;
+  background: #fff;
+  opacity: 0.6;
+}
+.sgg-mk-hero .sgg-mk-btn {
+  min-width: calc(26 * var(--u));
+  margin-top: calc(2 * var(--u)) !important;
+}
+.sgg-mk-story {
+  position: absolute;
+  right: 35%;
+  bottom: calc(16 * var(--u));
+  left: calc(22 * var(--u));
+  display: flex !important;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: calc(3 * var(--u));
+  color: #fff;
+}
+.sgg-mk-story .sgg-mk-ln.is-date {
+  background: #fff;
+  opacity: 0.6;
+}
+.sgg-mk-story .sgg-mk-btn {
+  min-width: calc(24 * var(--u));
+}
+.sgg-mk-after {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 50%;
+  background: linear-gradient(140deg, var(--sp), var(--bd)) right center / cover no-repeat;
+}
+.sgg-mk-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  z-index: 2;
+  width: calc(2 * var(--u));
+  margin-left: calc(-1 * var(--u)) !important;
+  background: #fff;
+}
+.sgg-mk-handle:after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(16 * var(--u));
+  height: calc(16 * var(--u));
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 calc(2 * var(--u)) calc(6 * var(--u)) rgba(15, 23, 42, 0.35);
+  color: var(--tx);
+  font-size: calc(8 * var(--u));
+  font-weight: 700;
+  line-height: 1;
+  transform: translate(-50%, -50%);
+  content: '\2039\00a0\203a';
+}
+.sgg-mk-tag {
+  position: absolute;
+  top: calc(6 * var(--u));
+  z-index: 2;
+  min-width: calc(16 * var(--u));
+  min-height: calc(7 * var(--u));
+  padding: calc(1.5 * var(--u)) calc(5 * var(--u)) !important;
+  border-radius: calc(3 * var(--u));
+  background: rgba(15, 23, 42, 0.65);
+  color: #fff;
+  font-size: calc(5.5 * var(--u));
+  font-weight: 700;
+}
+.sgg-mk-tag.is-before {
+  left: calc(6 * var(--u));
+}
+.sgg-mk-tag.is-after {
+  right: calc(6 * var(--u));
+}
+
+/* ---------- Slide presets of Carousel and Slider, as on the site (sliders.css) */
+.sgg-mk.is-pre-framed:not(.is-gallery) .sgg-mk-stage > .sgg-mk-slide > .sgg-mk-t,
+.sgg-mk.is-pre-framed:not(.is-gallery) .sgg-mk-stage.is-one > .sgg-mk-t {
+  border: calc(4 * var(--u)) solid #fff;
+  outline: 1px solid #e2e8f0;
+}
+.sgg-mk.is-pre-minimal:not(.is-gallery) {
+  --r: 0px;
+}
+.sgg-mk.is-pre-minimal:not(.is-gallery) .sgg-mk-arw {
+  border-radius: 0;
+  box-shadow: none;
+}
+.sgg-mk.is-pre-soft:not(.is-gallery) .sgg-mk-arw {
+  background: color-mix(in srgb, var(--ac) 14%, #fff);
+  box-shadow: none;
+}
+.sgg-mk.is-pre-soft:not(.is-gallery) .sgg-mk-arw:after {
+  border-color: var(--ac);
+}
+.sgg-mk.is-pre-dark:not(.is-gallery) .sgg-mk-arw {
+  background: #0f172a;
+}
+.sgg-mk.is-pre-dark:not(.is-gallery) .sgg-mk-arw:after {
+  border-color: #fff;
+}
+.sgg-mk.is-pre-dark:not(.is-gallery) .sgg-mk-card {
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+/* ---------- Captions over the slides of Carousel and Slider: a fade from the bottom, as on the site */
+.sgg-mk.is-carousel .sgg-mk-ov,
+.sgg-mk-box {
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: auto;
+  padding: calc(16 * var(--u)) calc(9 * var(--u)) calc(7 * var(--u)) !important;
+  border-radius: 0;
+  background: linear-gradient(to top, color-mix(in srgb, var(--h) 82%, transparent), transparent);
+  opacity: 1;
+  transform: none;
+}
+.sgg-mk.is-slider .sgg-mk-box {
+  padding-bottom: calc(18 * var(--u)) !important;
+}
+.sgg-mk.is-al-center .sgg-mk-box {
+  left: 0;
+  transform: none;
+}
+.sgg-mk.is-slider.is-big .sgg-mk-box .sgg-mk-tx {
+  font-size: calc(10 * var(--u));
+}
+
+/* Buttons and badges: ink that reads on the accent; text over a slide: the caption color of the style */
+.sgg-mk-btn {
+  color: var(--oa, #fff);
+}
+.sgg-mk-hero,
+.sgg-mk-story {
+  color: var(--ht);
+}
+.sgg-mk-hero .sgg-mk-ln.is-head,
+.sgg-mk-hero .sgg-mk-ln.is-light,
+.sgg-mk-story .sgg-mk-ln.is-head,
+.sgg-mk-story .sgg-mk-ln.is-date {
+  background: var(--ht);
+}
+
+/* ---------- Fixed: tiles of one size, centred rows; Horizontal: rows of one height that end unevenly */
+.sgg-mk-stage.is-fixed {
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: center;
+}
+.sgg-mk-stage.is-fixed .sgg-mk-t {
+  flex: none;
+  width: calc(26 * var(--u) * 1.15);
+  height: calc(26 * var(--u) * 1.15);
+}
+.sgg-mk-stage.is-hrows {
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* ---------- Polaroid: straight frames in the paper of the style (--sf), the title under the photo in its ink (--tx) */
+.sgg-mk-stage.is-polaroid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: calc(var(--g) + 4 * var(--u)) calc(var(--g) + 9 * var(--u));
+  padding: calc(3 * var(--u)) calc(8 * var(--u));
+}
+.sgg-mk-pol {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  padding: calc(4 * var(--u)) calc(4 * var(--u)) 0;
+  border-radius: calc(1 * var(--u));
+  background: var(--sf);
+  color: var(--tx);
+  box-shadow: 0 calc(3 * var(--u)) calc(9 * var(--u)) calc(-2 * var(--u)) rgba(15, 23, 42, 0.45), 0 0 0 1px rgba(15, 23, 42, 0.06);
+}
+.sgg-mk-pol.is-lit {
+  z-index: 1;
+  transform: scale(1.07);
+}
+.sgg-mk .sgg-mk-pol .sgg-mk-t {
+  flex: 1 1 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.sgg-mk-pol-cap {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  height: calc(12 * var(--u));
+  min-width: 0;
+  text-align: center;
+}
+.sgg-mk-pol-cap .sgg-mk-tx {
+  font-size: calc(6 * var(--u));
+}
+.sgg-mk-pol-cap .sgg-mk-ln {
+  width: 55%;
+}
+.sgg-mk-stage.is-hrows .sgg-mk-row {
+  flex: none;
+  justify-content: center;
+  height: calc(28 * var(--u) * 1.15);
+}
+
+/* ---------- Lightbox themes (SggStyleMock.lightbox) */
+.sgg-mk-lb {
+  --u: 1px;
+  padding: 0;
+  background: var(--lb-bg);
+  color: var(--lb-ui);
+}
+.sgg-mk-lb :where(i, b) {
+  position: absolute;
+  display: block;
+}
+.sgg-mk-lb .sgg-mk-lb-bg {
+  inset: 0;
+  background: var(--lb-bg);
+  opacity: 0.94;
+}
+.sgg-mk-lb .sgg-mk-lb-photo {
+  top: 17%;
+  right: 23%;
+  bottom: 31%;
+  left: 23%;
+  border-radius: 2px;
+  background: linear-gradient(170deg, #b9d7ef 0%, #7fa9cc 44%, #4f7a4b 45%, #2f4f30 100%);
+  box-shadow: 0 6px 14px -8px rgba(0, 0, 0, 0.6);
+}
+.sgg-mk-lb .sgg-mk-lb-top {
+  top: 6%;
+  right: 5%;
+  left: 5%;
+  height: 6px;
+}
+.sgg-mk-lb .sgg-mk-lb-top .is-count {
+  top: 0;
+  left: 0;
+  width: 14px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--lb-ui);
+  opacity: 0.6;
+}
+.sgg-mk-lb .sgg-mk-lb-top .is-close {
+  top: -2px;
+  right: 0;
+  width: 8px;
+  height: 8px;
+  background: linear-gradient(45deg, transparent 42%, var(--lb-ui) 42%, var(--lb-ui) 58%, transparent 58%),
+    linear-gradient(-45deg, transparent 42%, var(--lb-ui) 42%, var(--lb-ui) 58%, transparent 58%);
+}
+.sgg-mk-lb .sgg-mk-lb-arw {
+  top: calc(41% - 7px);
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--lb-ui) 18%, transparent);
+}
+.sgg-mk-lb .sgg-mk-lb-arw:after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  border-top: 1.4px solid var(--lb-ui);
+  border-left: 1.4px solid var(--lb-ui);
+  transform: translate(-30%, -50%) rotate(-45deg);
+  content: '';
+}
+.sgg-mk-lb .sgg-mk-lb-arw.is-next:after {
+  transform: translate(-70%, -50%) rotate(135deg);
+}
+.sgg-mk-lb .sgg-mk-lb-arw.is-prev {
+  left: 6%;
+}
+.sgg-mk-lb .sgg-mk-lb-arw.is-next {
+  right: 6%;
+}
+.sgg-mk-lb .sgg-mk-lb-cap {
+  right: 25%;
+  bottom: 8%;
+  left: 25%;
+  height: 14%;
+}
+.sgg-mk-lb .sgg-mk-lb-cap b,
+.sgg-mk-lb .sgg-mk-lb-side b {
+  position: relative;
+  height: 3px;
+  margin: 0 auto 3px;
+  border-radius: 2px;
+  background: var(--lb-ui);
+  opacity: 0.5;
+}
+.sgg-mk-lb .sgg-mk-lb-cap b.is-title,
+.sgg-mk-lb .sgg-mk-lb-side b.is-title {
+  width: 60%;
+  height: 4px;
+  opacity: 0.9;
+}
+.sgg-mk-lb .sgg-mk-lb-cap b.is-short {
+  width: 38%;
+}
+/* Glass: a page with color behind a blur */
+.sgg-mk-lb.is-lb-glass .sgg-mk-lb-page {
+  inset: 0;
+  background: #f1f5f9;
+}
+.sgg-mk-lb.is-lb-glass .sgg-mk-lb-page b {
+  width: 46%;
+  height: 60%;
+  border-radius: 50%;
+  filter: blur(8px);
+}
+.sgg-mk-lb.is-lb-glass .sgg-mk-lb-page b:nth-child(1) {
+  top: -10%;
+  left: -6%;
+  background: #f472b6;
+}
+.sgg-mk-lb.is-lb-glass .sgg-mk-lb-page b:nth-child(2) {
+  right: -8%;
+  bottom: -14%;
+  background: #38bdf8;
+}
+.sgg-mk-lb.is-lb-glass .sgg-mk-lb-page b:nth-child(3) {
+  top: 30%;
+  left: 40%;
+  background: #facc15;
+}
+.sgg-mk-lb.is-lb-glass .sgg-mk-lb-bg {
+  background: color-mix(in srgb, var(--lb-bg) 55%, transparent);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  opacity: 1;
+}
+.sgg-mk-lb.is-lb-glass .sgg-mk-lb-photo {
+  border-radius: 5px;
+}
+.sgg-mk-lb .sgg-mk-lb-cap.is-card {
+  right: 28%;
+  left: 28%;
+  padding: 3px 0;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--lb-bg) 45%, transparent);
+}
+/* Minimal and Cinema: no circles around the arrows */
+.sgg-mk-lb.is-lb-minimal .sgg-mk-lb-arw {
+  background: none;
+}
+.sgg-mk-lb.is-lb-minimal .sgg-mk-lb-top .is-count {
+  opacity: 0;
+}
+.sgg-mk-lb.is-lb-cinema .sgg-mk-lb-bg {
+  opacity: 1;
+}
+.sgg-mk-lb.is-lb-cinema .sgg-mk-lb-photo {
+  top: 4%;
+  right: 3%;
+  bottom: 4%;
+  left: 3%;
+  border-radius: 0;
+}
+/* Side: the photo to the left, the caption panel to the right */
+.sgg-mk-lb.is-lb-side .sgg-mk-lb-photo {
+  right: 44%;
+  bottom: 20%;
+  left: 12%;
+}
+.sgg-mk-lb.is-lb-side .sgg-mk-lb-arw.is-next {
+  right: 36%;
+}
+.sgg-mk-lb.is-lb-side .sgg-mk-lb-top {
+  right: 36%;
+}
+.sgg-mk-lb .sgg-mk-lb-side {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 32%;
+  padding: 0 8px;
+  background: color-mix(in srgb, var(--lb-ui) 7%, var(--lb-bg));
+}
+.sgg-mk-lb .sgg-mk-lb-side b {
+  width: 100%;
+  margin: 0 0 4px;
+}
+.sgg-mk-lb .sgg-mk-lb-side b.is-short {
+  width: 64%;
+}
+/* Filmstrip: thumbnails under the photo */
+.sgg-mk-lb.is-lb-filmstrip .sgg-mk-lb-photo {
+  bottom: 38%;
+}
+.sgg-mk-lb.is-lb-filmstrip .sgg-mk-lb-cap {
+  bottom: 24%;
+  height: 10%;
+}
+.sgg-mk-lb.is-lb-filmstrip .sgg-mk-lb-cap b.is-short {
+  display: none;
+}
+.sgg-mk-lb .sgg-mk-lb-strip {
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  gap: 3px;
+  height: 22%;
+  padding-top: 3px;
+  background: color-mix(in srgb, var(--lb-ui) 6%, var(--lb-bg));
+}
+.sgg-mk-lb .sgg-mk-lb-strip b {
+  position: relative;
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  background: linear-gradient(170deg, #b9d7ef 0%, #7fa9cc 44%, #4f7a4b 45%, #2f4f30 100%);
+  opacity: 0.5;
+}
+.sgg-mk-lb .sgg-mk-lb-strip b.is-on {
+  box-shadow: 0 0 0 1.5px var(--lb-ac);
+  opacity: 1;
+}
+/* Polaroid: a white frame, the caption written in it */
+.sgg-mk-lb.is-lb-polaroid .sgg-mk-lb-photo {
+  bottom: 34%;
+  box-shadow: 0 0 0 3px #fffdf8, 0 0 0 3px #fffdf8, 0 10px 14px -6px rgba(63, 58, 51, 0.5);
+  border-bottom: 0;
+}
+.sgg-mk-lb.is-lb-polaroid .sgg-mk-lb-photo:after {
+  position: absolute;
+  right: -3px;
+  bottom: -14px;
+  left: -3px;
+  height: 14px;
+  background: #fffdf8;
+  content: '';
+}
+.sgg-mk-lb.is-lb-polaroid .sgg-mk-lb-cap {
+  bottom: 19%;
+  height: 8%;
+}
+.sgg-mk-lb.is-lb-polaroid .sgg-mk-lb-cap b.is-title {
+  width: 40%;
+  height: 2px;
+  background: #3f3a33;
+}
+
+/* ---------- Image viewer: one large photo with a strip of thumbnails under it */
+.sgg-mk .sgg-mk-thumbs {
+  display: flex;
+  flex: none;
+  gap: calc(3 * var(--u));
+  height: 22%;
+  margin-top: calc(4 * var(--u));
+}
+.sgg-mk .sgg-mk-thumbs .sgg-mk-t {
+  border-width: 0;
+  border-radius: calc(var(--r) * 0.6);
+  opacity: 0.5;
+}
+.sgg-mk .sgg-mk-thumbs .sgg-mk-t.is-on {
+  box-shadow: 0 0 0 calc(1.5 * var(--u)) var(--ac);
+  opacity: 1;
+}
+
+/* ---------- Switches of the Additional step of the wizard (SggStyleMock options.extras) */
+/* Buttons of a classic gallery: category filter, pages and Load more in the accent and corners of the style */
+.sgg-mk-bt {
+  display: flex !important;
+  flex: none;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: calc(3 * var(--u));
+}
+.sgg-mk-bt.is-cats {
+  margin-bottom: calc(6 * var(--u)) !important;
+}
+.sgg-mk-bt.is-pages,
+.sgg-mk-bt.is-more {
+  margin-top: calc(6 * var(--u)) !important;
+}
+.sgg-mk-bt b {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: calc(12 * var(--u));
+  height: calc(12 * var(--u));
+  padding: 0 calc(6 * var(--u));
+  border-radius: var(--br, 6px);
+  background: color-mix(in srgb, var(--ac) 12%, #fff);
+  color: color-mix(in srgb, var(--ac) 80%, #0f172a);
+  font-size: calc(5.5 * var(--u));
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+.sgg-mk-bt b.is-on {
+  background: var(--ac);
+  box-shadow: 0 calc(2 * var(--u)) calc(5 * var(--u)) calc(-2 * var(--u)) color-mix(in srgb, var(--ac) 70%, transparent);
+  color: var(--oa, #fff);
+}
+.sgg-mk-bt.is-pages b {
+  padding: 0;
+}
+.sgg-mk-bt.is-more b {
+  min-width: calc(48 * var(--u));
+  padding: 0 calc(10 * var(--u));
+}
+.sgg-mk.is-small .sgg-mk-bt.is-more b {
+  min-width: calc(30 * var(--u));
+  height: calc(8 * var(--u));
+}
+
+/* Magnifier over an image that opens in the lightbox */
+.sgg-mk-zoom {
+  position: absolute;
+  top: calc(5 * var(--u));
+  right: calc(5 * var(--u));
+  z-index: 2;
+  width: calc(13 * var(--u));
+  height: calc(13 * var(--u));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 calc(1 * var(--u)) calc(4 * var(--u)) rgba(15, 23, 42, 0.3);
+  color: #0f172a;
+}
+/* The glyph is drawn as a vector, so the lens stays round and the handle meets it at any size */
+.sgg-mk-zoom svg {
+  display: block;
+  width: 64%;
+  height: 64%;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+}
+
+/* Horizontal scroll: one row that runs on to the right, with its scroll bar */
+.sgg-mk.has-hscroll .sgg-mk-stage.is-grid {
+  grid-template-columns: none;
+  grid-template-rows: minmax(0, 1fr);
+  grid-auto-columns: calc((100% - 2 * var(--g)) / 2.6);
+  grid-auto-flow: column;
+}
+.sgg-mk.has-hscroll .sgg-mk-stage.is-people {
+  grid-template-columns: none;
+  grid-template-rows: minmax(0, 1fr);
+  grid-auto-columns: calc((100% - 3 * var(--g)) / 3.4);
+  grid-auto-flow: column;
+  align-items: center;
+}
+.sgg-mk-hbar {
+  flex: none;
+  height: calc(3 * var(--u));
+  margin-top: calc(5 * var(--u)) !important;
+  border-radius: 99px;
+  background: var(--sp);
+  box-shadow: inset 0 0 0 1px var(--bd);
+}
+.sgg-mk-hbar b {
+  width: 42%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--ac);
+}
+
+/* A small lightbox in the corner, with thumbnails and the slideshow line (lightbox tools of PRO) */
+.sgg-mk-mlb {
+  position: absolute;
+  right: calc(8 * var(--u));
+  bottom: calc(8 * var(--u));
+  z-index: 4;
+  width: 34%;
+  height: 46%;
+  overflow: hidden;
+  border-radius: calc(6 * var(--u));
+  background: #0b0f19;
+  box-shadow: 0 calc(8 * var(--u)) calc(20 * var(--u)) calc(-6 * var(--u)) rgba(15, 23, 42, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+.sgg-mk .sgg-mk-mlb > i,
+.sgg-mk .sgg-mk-mlb > span {
+  position: absolute;
+}
+.sgg-mk-mlb-photo {
+  top: 10%;
+  right: 16%;
+  bottom: 34%;
+  left: 16%;
+  border-radius: calc(2 * var(--u));
+  background: linear-gradient(140deg, var(--ac), var(--h)) center / cover no-repeat;
+}
+.sgg-mk-mlb-play {
+  top: 7%;
+  right: 6%;
+  width: 0;
+  height: 0;
+  border-top: calc(3.5 * var(--u)) solid transparent;
+  border-bottom: calc(3.5 * var(--u)) solid transparent;
+  border-left: calc(5 * var(--u)) solid #f8fafc;
+}
+.sgg-mk-mlb-line {
+  right: 16%;
+  bottom: 27%;
+  left: 16%;
+  height: calc(1.5 * var(--u));
+  overflow: hidden;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.22);
+}
+.sgg-mk-mlb-line b {
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--ac);
+  animation: sgg-mk-grow 4s linear infinite;
+}
+.sgg-mk .sgg-mk-mlb-strip {
+  right: 0;
+  bottom: 6%;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  gap: calc(2.5 * var(--u));
+  height: 16%;
+}
+.sgg-mk-mlb-strip i {
+  width: 15%;
+  border-radius: calc(1.5 * var(--u));
+  background: linear-gradient(140deg, var(--sp), var(--bd)) center / cover no-repeat;
+  opacity: 0.55;
+}
+.sgg-mk-mlb-strip i.is-on {
+  box-shadow: 0 0 0 calc(1.2 * var(--u)) var(--ac);
+  opacity: 1;
+}
+
+/* Autoplay: a progress line along the top of the slides (along the bottom of one slide) */
+.sgg-mk-auto {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 3;
+  height: calc(2.5 * var(--u));
+  overflow: hidden;
+  border-radius: 99px;
+  background: color-mix(in srgb, var(--sf) 55%, transparent);
+}
+.sgg-mk-auto:after {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: var(--ac);
+  animation: sgg-mk-grow 3.2s linear infinite;
+  content: '';
+}
+.sgg-mk-stage.is-one .sgg-mk-auto {
+  top: auto;
+  bottom: 0;
+  border-radius: 0;
+}
+
+/* Running line: the doubled row slides on without stops */
+.sgg-mk .sgg-mk-track {
+  display: flex;
+  flex: none;
+  width: 200%;
+  min-height: 0;
+  animation: sgg-mk-marquee 14s linear infinite;
+}
+.sgg-mk-stage.is-logos .sgg-mk-track {
+  align-items: center;
+  height: 100%;
+}
+.sgg-mk-track > * {
+  flex: 1 1 0 !important;
+  min-width: 0;
+  margin-right: var(--g) !important;
+}
+.sgg-mk.has-marquee .sgg-mk-stage.is-row,
+.sgg-mk.has-marquee .sgg-mk-stage.is-logos {
+  overflow: hidden;
+}
+
+/* Black and white: the images turn to color under the mouse (the middle slide shows it) */
+.sgg-mk.has-gray .sgg-mk-t {
+  filter: grayscale(1);
+}
+.sgg-mk.has-gray .is-lit .sgg-mk-t {
+  filter: none;
+}
+.sgg-mk.no-gray .sgg-mk-logo .sgg-mk-t.is-contain {
+  filter: none;
+  opacity: 1;
+}
+
+/* 3D Coverflow of a carousel: the side slides turn away in depth */
+.sgg-mk.has-3d.is-carousel .sgg-mk-stage.is-row {
+  perspective: calc(320 * var(--u));
+}
+.sgg-mk.has-3d.is-carousel .sgg-mk-stage.is-row > :nth-child(1) {
+  transform: rotateY(34deg) scale(0.86);
+  transform-origin: right center;
+}
+.sgg-mk.has-3d.is-carousel .sgg-mk-stage.is-row > :nth-child(2) {
+  z-index: 1;
+  transform: scale(1.03);
+}
+.sgg-mk.has-3d.is-carousel .sgg-mk-stage.is-row > :nth-child(3) {
+  transform: rotateY(-34deg) scale(0.86);
+  transform-origin: left center;
+}
+/* 3D Cube of a slider: the slide turns and the side of the next one comes in */
+.sgg-mk.has-3d.is-slider .sgg-mk-stage.is-one {
+  perspective: calc(420 * var(--u));
+}
+.sgg-mk.has-3d.is-slider .sgg-mk-stage.is-one > .sgg-mk-t.is-wide {
+  flex: none;
+  width: 76%;
+  transform: rotateY(18deg);
+  transform-origin: left center;
+}
+.sgg-mk.has-3d.is-slider .sgg-mk-t.is-face {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 30%;
+  filter: brightness(0.72);
+  transform: rotateY(-58deg);
+  transform-origin: right center;
+}
+
+/* Vertical direction: arrows up and down, slides one over the other */
+.sgg-mk.has-vertical .sgg-mk-stage.is-row {
+  flex-direction: column;
+}
+.sgg-mk.has-vertical .sgg-mk-stage.is-row > :nth-child(3) {
+  display: none !important;
+}
+.sgg-mk.has-vertical .sgg-mk-stage.is-row .sgg-mk-slide {
+  flex-direction: row;
+}
+.sgg-mk.has-vertical .sgg-mk-stage.is-row .sgg-mk-below {
+  justify-content: center;
+  width: 40%;
+}
+.sgg-mk.has-vertical .sgg-mk-arw.is-prev,
+.sgg-mk.has-vertical .sgg-mk-arw.is-next {
+  right: auto;
+  left: 50%;
+  margin: 0 0 0 calc(-7 * var(--u)) !important;
+}
+.sgg-mk.has-vertical .sgg-mk-arw.is-prev {
+  top: calc(3 * var(--u));
+}
+.sgg-mk.has-vertical .sgg-mk-arw.is-next {
+  top: auto;
+  bottom: calc(3 * var(--u));
+}
+.sgg-mk.has-vertical .sgg-mk-arw.is-prev:after {
+  transform: translate(-50%, -25%) rotate(45deg);
+}
+.sgg-mk.has-vertical .sgg-mk-arw.is-next:after {
+  transform: translate(-50%, -75%) rotate(225deg);
+}
+.sgg-mk.has-vertical.is-arw-bar .sgg-mk-arw {
+  width: calc(28 * var(--u));
+  height: calc(9 * var(--u));
+  margin-left: calc(-14 * var(--u)) !important;
+}
+.sgg-mk.has-vertical .sgg-mk-stage.is-one .sgg-mk-pg:not(.is-fraction):not(.is-progress) {
+  top: 50%;
+  right: calc(6 * var(--u));
+  bottom: auto;
+  left: auto;
+  flex-direction: column;
+  height: auto;
+  transform: translateY(-50%);
+}
+.sgg-mk.has-vertical .sgg-mk-stage.is-one .sgg-mk-pg:not(.is-fraction):not(.is-progress) u.is-on {
+  width: calc(4 * var(--u));
+  height: calc(10 * var(--u));
+}
+
+/* Fade between slides: the next image fades in and out over the slide */
+.sgg-mk-fade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(140deg, var(--sp), var(--bd)) center / cover no-repeat;
+  opacity: 0;
+  animation: sgg-mk-fade 5s ease-in-out infinite;
+}
+
+/* Animated text of a hero slide: the heading, the line and the button come in one after another */
+.sgg-mk.has-anim .sgg-mk-hero > * {
+  animation: sgg-mk-up 3.6s ease-out infinite both;
+}
+.sgg-mk.has-anim .sgg-mk-hero > :nth-child(2) {
+  animation-delay: 0.25s;
+}
+.sgg-mk.has-anim .sgg-mk-hero > :nth-child(3) {
+  animation-delay: 0.5s;
+}
+
+@keyframes sgg-mk-grow {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+@keyframes sgg-mk-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes sgg-mk-fade {
+  0%,
+  30% {
+    opacity: 0;
+  }
+  50%,
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes sgg-mk-up {
+  0% {
+    opacity: 0;
+    transform: translateY(calc(8 * var(--u)));
+  }
+  18%,
+  82% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sgg-mk-auto:after,
+  .sgg-mk-mlb-line b {
+    width: 60%;
+    animation: none;
+  }
+  .sgg-mk .sgg-mk-track,
+  .sgg-mk.has-anim .sgg-mk-hero > * {
+    animation: none;
+  }
+  .sgg-mk-fade {
+    opacity: 0.5;
+    animation: none;
+    clip-path: inset(0 0 0 50%);
+  }
+}

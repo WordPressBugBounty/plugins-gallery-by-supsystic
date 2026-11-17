@@ -1,0 +1,24 @@
+{% extends '@carousel/editor-base.twig' %}
+{# Slider editor: one slide at a time, so there is no row card; size, layers and captions come first. #}
+
+{% block typeIcon %} fa-image{% endblock %}
+
+{% block cards %}
+    {% import '@carousel/cards.twig' as cards %}
+    {% set n = 'slider' %}
+    {{ cards.content(settings, n, hasWoo, products, categories, sources) }}
+    {{ cards.size(settings, n) }}
+    {% include '@slider/layers-card.twig' %}
+    {{ cards.captions(settings, n) }}
+    {{ cards.motion(settings, n, locked, false) }}
+    {{ cards.navigation(settings, n) }}
+    {{ cards.thumbs(settings, n) }}
+    {{ cards.style(settings, n) }}
+    {% if locked is not empty %}
+        {% include '@carousel/pro-card.twig' with {'proFeatures': {'effects': ['fa-cube', environment.translate('3D effects')], 'posts': ['fa-rss', environment.translate('Posts as slides')], 'layers': ['fa-clone', environment.translate('20 layers')], 'animations': ['fa-magic', environment.translate('Layer animations')], 'video': ['fa-video-camera', environment.translate('Video slides')]}} %}
+    {% endif %}
+{% endblock %}
+
+{% block extras %}
+    {% include '@slider/layers-dialog.twig' %}
+{% endblock %}

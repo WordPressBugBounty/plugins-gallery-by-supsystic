@@ -26,7 +26,7 @@
                     <li {% if request.query.module == 'galleries' and request.query.action == 'showPresets' %} class="active" {% endif %}>
                         <a id="btn-add-new" href="{{ environment.generateUrl('galleries', 'showPresets') }}">
                             <i class="fa fa-plus-circle"></i>
-							<span class="gg-sps-sticky-link">{{ translate('New Gallery') }}</span>
+							<span class="gg-sps-sticky-link">{{ translate('Add new') }}</span>
                         </a>
                     </li>
                     <li class="supsystic-sticky {% if (request.query.module == 'galleries' or request.query.module is null) and request.query.action != 'showPresets' %} active{% endif %}">

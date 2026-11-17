@@ -1,0 +1,263 @@
+{# Setting cards shared by the Carousel and Slider editors. Each editor shows only the cards of its type. #}
+
+{% macro content(s, n, hasWoo, products, categories, sources) %}
+    {% import '@carousel/fields.twig' as f %}
+    <section class="sgg-sle-card" data-sgg-sle-card="content">
+        <h3><i class="fa fa-database" aria-hidden="true"></i>{{ environment.translate('Slides') }}</h3>
+        <div class="sgg-sle-row">
+            <label>{{ environment.translate('Show') }}</label>
+            {% set options = {'images': environment.translate('Images of this gallery')} %}
+            {# Products stay a choice without WooCommerce, so a product carousel keeps its source while the shop is off #}
+            {% set options = options|merge({'products': hasWoo ? environment.translate('WooCommerce products') : environment.translate('WooCommerce products (WooCommerce is off)')}) %}
+            {% set options = options|merge({'posts': environment.translate('Posts of the site')}) %}
+            {{ f.select(n ~ '[content][source]', s.content.source, options, sources.locked) }}
+        </div>
+        {% if 'posts' in sources.locked %}
+            <div class="sgg-sle-pro-note"><span class="sgg-sle-pro-note-icon"><i class="fa fa-diamond" aria-hidden="true"></i></span><span class="sgg-sle-pro-note-text"><b class="sgg-sle-pro-note-tag">PRO</b>{{ environment.translate('Slides from posts, pages and other post types are in Photo Gallery PRO.') }}</span><a class="sgg-sle-pro-note-more" href="https://supsystic.com/plugins/photo-gallery?utm_source=plugin&amp;utm_medium=slider_posts&amp;utm_campaign=gallery" target="_blank" rel="noopener" data-sgg-upsell="posts">{{ environment.translate('Read more') }}<i class="fa fa-arrow-right" aria-hidden="true"></i></a></div>
+        {% endif %}
+        <div data-sgg-sle-show="source=posts">
+            <div class="sgg-sle-row"><label>{{ environment.translate('Post type') }}</label>{{ f.select(n ~ '[posts][postType]', s.posts.postType, sources.postTypes) }}</div>
+            <div class="sgg-sle-row sgg-sle-row-wide">
+                <label>{{ environment.translate('Only these posts') }}</label>
+                {{ f.picker(n ~ '[posts][include]', s.posts.include, sources.titles.posts, 'posts', environment.translate('Search posts…')) }}
+            </div>
+            <div class="sgg-sle-row sgg-sle-row-wide">
+                <label>{{ environment.translate('Leave out posts') }}</label>
+                {{ f.picker(n ~ '[posts][exclude]', s.posts.exclude, sources.titles.posts, 'posts', environment.translate('Search posts…')) }}
+            </div>
+            <div data-sgg-sle-show="postType=post">
+                <div class="sgg-sle-row sgg-sle-row-wide">
+                    <label>{{ environment.translate('Only from categories') }}</label>
+                    {{ f.picker(n ~ '[posts][catsInclude]', s.posts.catsInclude, sources.titles.cats, 'cats', environment.translate('Search categories…')) }}
+                </div>
+                <div class="sgg-sle-row sgg-sle-row-wide">
+                    <label>{{ environment.translate('Leave out categories') }}</label>
+                    {{ f.picker(n ~ '[posts][catsExclude]', s.posts.catsExclude, sources.titles.cats, 'cats', environment.translate('Search categories…')) }}
+                </div>
+            </div>
+            <div class="sgg-sle-row"><label>{{ environment.translate('Number of posts') }}</label>{{ f.number(n ~ '[posts][limit]', s.posts.limit, 1, 60) }}</div>
+            <div class="sgg-sle-row"><label>{{ environment.translate('Order by') }}</label>{{ f.select(n ~ '[posts][orderby]', s.posts.orderby, {'date': environment.translate('Newest'), 'modified': environment.translate('Last updated'), 'title': environment.translate('Title'), 'comment_count': environment.translate('Comments'), 'menu_order': environment.translate('Custom order'), 'rand': environment.translate('Random'), 'include': environment.translate('As chosen above')}) }}</div>
+            <div class="sgg-sle-row"><label>{{ environment.translate('Direction') }}</label>{{ f.select(n ~ '[posts][order]', s.posts.order, {'DESC': environment.translate('Descending'), 'ASC': environment.translate('Ascending')}) }}</div>
+            <div class="sgg-sle-row"><label>{{ environment.translate('Show the date') }}</label>{{ f.toggle(n ~ '[posts][showDate]', s.posts.showDate) }}</div>
+            <div class="sgg-sle-row"><label>{{ environment.translate('Excerpt words') }}</label>{{ f.number(n ~ '[posts][excerptLength]', s.posts.excerptLength, 0, 80) }}</div>
+            <p class="sgg-sle-note">{{ environment.translate('Posts without a featured image are left out. A click on a slide opens its post; the caption shows the title, and the excerpt when Description is on.') }}</p>
+        </div>
+        <p class="sgg-sle-note" data-sgg-sle-show="source=images">{{ environment.translate('Add, order and caption the images on the Images page.') }}</p>
+        {% set productFilters = 'productFilters' not in environment.getModule('carousel').lockedFeatures() %}
+        {% if hasWoo %}
+            <div data-sgg-sle-show="source=products">
+                <div class="sgg-sle-row sgg-sle-row-wide">
+                    <label>{{ environment.translate('Only these products') }}</label>
+                    <select class="wc-product-search" multiple="multiple" style="width:100%;" name="{{ n }}[products][include][]" data-placeholder="{{ environment.translate('Any product')|e('html_attr') }}" data-action="woocommerce_json_search_products">
+                        {% for id in s.products.include %}<option value="{{ id }}" selected>{{ products[id]|default('#' ~ id)|e }}</option>{% endfor %}
+                    </select>
+                </div>
+                {% if productFilters %}
+                <div class="sgg-sle-row sgg-sle-row-wide">
+                    <label>{{ environment.translate('Leave out products') }}</label>
+                    <select class="wc-product-search" multiple="multiple" style="width:100%;" name="{{ n }}[products][exclude][]" data-placeholder="{{ environment.translate('None')|e('html_attr') }}" data-action="woocommerce_json_search_products">
+                        {% for id in s.products.exclude %}<option value="{{ id }}" selected>{{ products[id]|default('#' ~ id)|e }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="sgg-sle-row sgg-sle-row-wide">
+                    <label>{{ environment.translate('Only from categories') }}</label>
+                    <select class="wc-enhanced-select" multiple="multiple" style="width:100%;" name="{{ n }}[products][catsInclude][]" data-placeholder="{{ environment.translate('Any category')|e('html_attr') }}">
+                        {% for id, name in categories %}<option value="{{ id }}"{% if id in s.products.catsInclude %} selected{% endif %}>{{ name|e }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="sgg-sle-row sgg-sle-row-wide">
+                    <label>{{ environment.translate('Leave out categories') }}</label>
+                    <select class="wc-enhanced-select" multiple="multiple" style="width:100%;" name="{{ n }}[products][catsExclude][]" data-placeholder="{{ environment.translate('None')|e('html_attr') }}">
+                        {% for id, name in categories %}<option value="{{ id }}"{% if id in s.products.catsExclude %} selected{% endif %}>{{ name|e }}</option>{% endfor %}
+                    </select>
+                </div>
+                {% else %}
+                    <div class="sgg-sle-pro-note"><span class="sgg-sle-pro-note-icon"><i class="fa fa-diamond" aria-hidden="true"></i></span><span class="sgg-sle-pro-note-text"><b class="sgg-sle-pro-note-tag">PRO</b>{{ environment.translate('Leaving out products, taking products only from some categories and leaving out categories are in Photo Gallery PRO.') }}</span><a class="sgg-sle-pro-note-more" href="https://supsystic.com/plugins/photo-gallery?utm_source=plugin&amp;utm_medium=slider_product_filters&amp;utm_campaign=gallery" target="_blank" rel="noopener" data-sgg-upsell="productFilters">{{ environment.translate('Read more') }}<i class="fa fa-arrow-right" aria-hidden="true"></i></a></div>
+                {% endif %}
+                <div class="sgg-sle-row"><label>{{ environment.translate('Number of products') }}</label>{{ f.number(n ~ '[products][limit]', s.products.limit, 1, 60) }}</div>
+                <div class="sgg-sle-row"><label>{{ environment.translate('Order by') }}</label>{{ f.select(n ~ '[products][orderby]', s.products.orderby, {'date': environment.translate('Newest'), 'title': environment.translate('Name'), 'price': environment.translate('Price'), 'popularity': environment.translate('Sales'), 'rating': environment.translate('Rating'), 'menu_order': environment.translate('Custom order'), 'rand': environment.translate('Random'), 'include': environment.translate('As chosen above')}) }}</div>
+                <div class="sgg-sle-row"><label>{{ environment.translate('Direction') }}</label>{{ f.select(n ~ '[products][order]', s.products.order, {'DESC': environment.translate('Descending'), 'ASC': environment.translate('Ascending')}) }}</div>
+                <div class="sgg-sle-row"><label>{{ environment.translate('Only in stock') }}</label>{{ f.toggle(n ~ '[products][onlyInStock]', s.products.onlyInStock) }}</div>
+                <div class="sgg-sle-row"><label>{{ environment.translate('Only on sale') }}</label>{{ f.toggle(n ~ '[products][onlyOnSale]', s.products.onlyOnSale) }}</div>
+                <div class="sgg-sle-row"><label>{{ environment.translate('Only featured') }}</label>{{ f.toggle(n ~ '[products][onlyFeatured]', s.products.onlyFeatured) }}</div>
+                <div class="sgg-sle-row"><label>{{ environment.translate('Card shows') }}</label>
+                    <span class="sgg-sle-checks">
+                        <span class="sgg-sle-check">{{ f.toggle(n ~ '[products][showTitle]', s.products.showTitle) }}{{ ' ' ~ environment.translate('Name') }}</span>
+                        <span class="sgg-sle-check">{{ f.toggle(n ~ '[products][showPrice]', s.products.showPrice) }}{{ ' ' ~ environment.translate('Price') }}</span>
+                        <span class="sgg-sle-check">{{ f.toggle(n ~ '[products][showRating]', s.products.showRating) }}{{ ' ' ~ environment.translate('Rating') }}</span>
+                        <span class="sgg-sle-check">{{ f.toggle(n ~ '[products][showSale]', s.products.showSale) }}{{ ' ' ~ environment.translate('Sale badge') }}</span>
+                        <span class="sgg-sle-check">{{ f.toggle(n ~ '[products][showButton]', s.products.showButton) }}{{ ' ' ~ environment.translate('Add to cart') }}</span>
+                    </span>
+                </div>
+                <div class="sgg-sle-row"><label>{{ environment.translate("Use the theme's shop styles") }}</label>{{ f.toggle(n ~ '[products][themeStyle]', s.products.themeStyle) }}</div>
+                <p class="sgg-sle-note">{{ environment.translate('Off: buttons, prices, the sale badge and the cards take the colors of the style. On: buttons and prices look like the rest of your shop.') }}</p>
+            </div>
+        {% else %}
+            {# WooCommerce is off: the product settings ride along unchanged, so a save keeps them for when it is back #}
+            <div data-sgg-sle-show="source=products">
+                <p class="sgg-sle-note sgg-sle-woo-off"><i class="fa fa-shopping-cart" aria-hidden="true"></i>{{ ' ' ~ environment.translate('Turn on WooCommerce to show products. The products and options chosen before stay saved.') }}</p>
+                {% for key, value in s.products %}
+                    <input type="hidden" name="{{ n }}[products][{{ key }}]" value="{{ value is iterable ? value|join(',') : value }}">
+                {% endfor %}
+            </div>
+        {% endif %}
+    </section>
+{% endmacro %}
+
+{% macro size(s, n) %}
+    {% import '@carousel/fields.twig' as f %}
+    <section class="sgg-sle-card" data-sgg-sle-card="size">
+        <h3><i class="fa fa-arrows-alt" aria-hidden="true"></i>{{ environment.translate('Size') }}</h3>
+        <div class="sgg-sle-row">
+            <label>{{ environment.translate('Width') }}</label>
+            <span class="sgg-sle-inline">
+                {{ f.number(n ~ '[layout][width]', s.layout.width, 10, 4000) }}
+                {{ f.select(n ~ '[layout][widthUnit]', s.layout.widthUnit, {'%': '%', 'px': 'px'}) }}
+            </span>
+        </div>
+        <div class="sgg-sle-row"><label>{{ environment.translate('Maximum width') }}</label>{{ f.number(n ~ '[layout][maxWidth]', s.layout.maxWidth, 0, 4000, 'px') }}</div>
+        <div class="sgg-sle-row"><label>{{ environment.translate('Alignment') }}</label>{{ f.select(n ~ '[layout][align]', s.layout.align, {'center': environment.translate('Center'), 'left': environment.translate('Left'), 'right': environment.translate('Right')}) }}</div>
+        <div class="sgg-sle-row"><label>{{ environment.translate('Height') }}</label>{{ f.select(n ~ '[layout][heightMode]', s.layout.heightMode, {'ratio': environment.translate('Aspect ratio'), 'fixed': environment.translate('Fixed, per device'), 'viewport': environment.translate('Part of the screen'), 'auto': environment.translate('Natural image height')}) }}</div>
+        <div class="sgg-sle-row" data-sgg-sle-show="heightMode=ratio"><label>{{ environment.translate('Aspect ratio') }}</label>{{ f.select(n ~ '[layout][ratio]', s.layout.ratio, {'16:9': '16:9', '21:9': '21:9', '3:2': '3:2', '4:3': '4:3', '1:1': '1:1', '3:4': '3:4', '2:3': '2:3', '9:16': '9:16'}) }}</div>
+        <div class="sgg-sle-row" data-sgg-sle-show="heightMode=fixed"><label>{{ environment.translate('Height by device') }}</label>{{ f.devices(n ~ '[layout][height]', s.layout.height, 'number', 80, 2000, 'px') }}</div>
+        <div class="sgg-sle-row" data-sgg-sle-show="heightMode=viewport"><label>{{ environment.translate('Screen height') }}</label>{{ f.number(n ~ '[layout][vh]', s.layout.vh, 10, 100, '%') }}</div>
+        <div class="sgg-sle-row"><label>{{ environment.translate('Image fit') }}</label>{{ f.select(n ~ '[layout][fit]', s.layout.fit, {'cover': environment.translate('Fill and crop'), 'contain': environment.translate('Show whole image')}) }}</div>
+    </section>
+{% endmacro %}
+
+{% macro perRow(s, n) %}
+    {% import '@carousel/fields.twig' as f %}
+    <section class="sgg-sle-card" data-sgg-sle-card="row">
+        <h3><i class="fa fa-columns" aria-hidden="true"></i>{{ environment.translate('Slides in a row') }}</h3>
+        <div class="sgg-sle-row"><label>{{ environment.translate('Slides visible') }}</label>{{ f.devices(n ~ '[responsive][perView]', s.responsive.perView, 'number', 1, 8) }}</div>
+        <div class="sgg-sle-row"><label>{{ environment.translate('Space between') }}</label>{{ f.devices(n ~ '[responsive][gap]', s.responsive.gap, 'number', 0, 120, 'px') }}</div>
+    </section>
+{% endmacro %}
+
+{% macro motion(s, n, locked, carousel) %}
+    {% import '@carousel/fields.twig' as f %}
+    <section class="sgg-sle-card" data-sgg-sle-card="motion">
+        <h3><i class="fa fa-play-circle" aria-hidden="true"></i>{{ environment.translate('Motion') }}</h3>
+        {% if carousel %}
+            <div class="sgg-sle-row"><label>{{ environment.translate('Running line') }}</label>{{ f.toggle(n ~ '[motion][marquee]', s.motion.marquee) }}</div>
+            <div data-sgg-sle-show="marquee=1">
+                <div class="sgg-sle-row"><label>{{ environment.translate('Time per slide') }}</label>{{ f.number(n ~ '[motion][marqueeSpeed]', s.motion.marqueeSpeed, 1000, 30000, 'ms', 100) }}</div>
+                <div class="sgg-sle-row"><label>{{ environment.translate('Reverse direction') }}</label>{{ f.toggle(n ~ '[motion][marqueeReverse]', s.motion.marqueeReverse) }}</div>
+                <p class="sgg-sle-note">{{ environment.translate('The slides move on without stops and pause under the mouse. Good for logos of clients and partners: try it with Grey until hover in the Style card.') }}</p>
+            </div>
+        {% endif %}
+        <div data-sgg-sle-hide="marquee=1">
+        <div class="sgg-sle-row"><label>{{ environment.translate('Effect') }}</label>{{ f.select(n ~ '[motion][effect]', s.motion.effect, {'slide': environment.translate('Slide'), 'fade': environment.translate('Fade'), 'coverflow': environment.translate('Coverflow'), 'cube': environment.translate('Cube'), 'flip': environment.translate('Flip'), 'cards': environment.translate('Cards'), 'creative': environment.translate('Creative')}, locked) }}</div>
+        <div class="sgg-sle-row"><label>{{ environment.translate('Speed') }}</label>{{ f.number(n ~ '[motion][speed]', s.motion.speed, 100, 5000, 'ms', 50) }}</div>
+        <div class="sgg-sle-row"><label>{{ environment.translate('Autoplay') }}</label>{{ f.toggle(n ~ '[motion][autoplay]', s.motion.autoplay) }}</div>
+        <div class="sgg-sle-row" data-sgg-sle-show="autoplay=1"><label>{{ environment.translate('Time per slide') }}</label>{{ f.number(n ~ '[motion][delay]', s.motion.delay, 800, 30000, 'ms', 100) }}</div>
+        <div class="sgg-sle-row" data-sgg-sle-show="autoplay=1"><label>{{ environment.translate('Pause on hover') }}</label>{{ f.toggle(n ~ '[motion][pauseOnHover]', s.motion.pauseOnHover) }}</div>
+        <div class="sgg-sle-row"><label>{{ environment.translate('Endless loop') }}</label>{{ f.toggle(n ~ '[motion][loop]', s.motion.loop) }}</div>
+        {% if carousel %}
+            <div class="sgg-sle-row"><label>{{ environment.translate('Center the active slide') }}</label>{{ f.toggle(n ~ '[motion][centered]', s.motion.centered) }}</div>
+            <div class="sgg-sle-row"><label>{{ environment.translate('Free scrolling') }}</label>{{ f.toggle(n ~ '[motion][freeMode]', s.motion.freeMode) }}</div>
+        {% endif %}
+        {% set lockedDirection = 'vertical' in environment.getModule('carousel').lockedFeatures() ? ['vertical'] : [] %}
+        <div class="sgg-sle-row"><label>{{ environment.translate('Direction') }}</label>{{ f.select(n ~ '[motion][direction]', s.motion.direction, {'horizontal': environment.translate('Horizontal'), 'vertical': environment.translate('Vertical')}, lockedDirection) }}</div>
+        </div>
+        <div class="sgg-sle-row"><label>{{ environment.translate('Keyboard arrows') }}</label>{{ f.toggle(n ~ '[motion][keyboard]', s.motion.keyboard) }}</div>
+        <div class="sgg-sle-row"><label>{{ environment.translate('Mouse wheel') }}</label>{{ f.toggle(n ~ '[motion][mousewheel]', s.motion.mousewheel) }}</div>
+        <div class="sgg-sle-row"><label>{{ environment.translate('Drag cursor') }}</label>{{ f.toggle(n ~ '[motion][grabCursor]', s.motion.grabCursor) }}</div>
+        {% if locked is not empty or lockedDirection is not empty %}
+            <div class="sgg-sle-pro-note"><span class="sgg-sle-pro-note-icon"><i class="fa fa-diamond" aria-hidden="true"></i></span><span class="sgg-sle-pro-note-text"><b class="sgg-sle-pro-note-tag">PRO</b>{{ environment.translate('Coverflow, Cube, Flip, Cards and Creative effects and the vertical direction are in Photo Gallery PRO.') }}</span><a class="sgg-sle-pro-note-more" href="https://supsystic.com/plugins/photo-gallery?utm_source=plugin&amp;utm_medium=slider_effects&amp;utm_campaign=gallery" target="_blank" rel="noopener" data-sgg-upsell="effects">{{ environment.translate('Read more') }}<i class="fa fa-arrow-right" aria-hidden="true"></i></a></div>
+        {% endif %}
+    </section>
+{% endmacro %}
+
+{% macro navigation(s, n) %}
+    {% import '@carousel/fields.twig' as f %}
+    <section class="sgg-sle-card" data-sgg-sle-card="navigation">
+        <h3><i class="fa fa-arrows-h" aria-hidden="true"></i>{{ environment.translate('Navigation') }}</h3>
+        <div class="sgg-sle-row"><label>{{ environment.translate('Arrows') }}</label>{{ f.devices(n ~ '[nav][arrows]', s.nav.arrows, 'toggle') }}</div>
+        <div class="sgg-sle-row"><label>{{ environment.translate('Arrow style') }}</label>{{ f.select(n ~ '[nav][arrowStyle]', s.nav.arrowStyle, {'circle': environment.translate('Circle'), 'square': environment.translate('Square'), 'minimal': environment.translate('Minimal'), 'bar': environment.translate('Tall bar')}) }}</div>
+        <div class="sgg-sle-row"><label>{{ environment.translate('Arrow position') }}</label>{{ f.select(n ~ '[nav][arrowPos]', s.nav.arrowPos, {'inside': environment.translate('Over the slides'), 'outside': environment.translate('Beside the slides')}) }}</div>
+        <div class="sgg-sle-row"><label>{{ environment.translate('Pagination') }}</label>{{ f.devices(n ~ '[nav][dots]', s.nav.dots, 'toggle') }}</div>
+        <div class="sgg-sle-row"><label>{{ environment.translate('Pagination type') }}</label>{{ f.select(n ~ '[nav][dotsType]', s.nav.dotsType, {'bullets': environment.translate('Dots'), 'dynamic': environment.translate('Dots, compact'), 'progressbar': environment.translate('Progress bar'), 'fraction': environment.translate('Numbers (2 / 8)')}) }}</div>
+        <div class="sgg-sle-row"><label>{{ environment.translate('Pagination position') }}</label>{{ f.select(n ~ '[nav][dotsPos]', s.nav.dotsPos, {'below': environment.translate('Below the slides'), 'inside': environment.translate('Over the slides')}) }}</div>
+    </section>
+{% endmacro %}
+
+{# Slider only: small pictures of all slides under it #}
+{% macro thumbs(s, n) %}
+    {% import '@carousel/fields.twig' as f %}
+    <section class="sgg-sle-card" data-sgg-sle-card="thumbs" data-sgg-sle-hide="source=products">
+        <h3><i class="fa fa-th-large" aria-hidden="true"></i>{{ environment.translate('Thumbnails') }}</h3>
+        <div class="sgg-sle-row"><label>{{ environment.translate('Show thumbnails') }}</label>{{ f.devices(n ~ '[nav][thumbs]', s.nav.thumbs, 'toggle') }}</div>
+        <div class="sgg-sle-row"><label>{{ environment.translate('Thumbnail height') }}</label>{{ f.number(n ~ '[nav][thumbHeight]', s.nav.thumbHeight, 36, 200, 'px') }}</div>
+        <div class="sgg-sle-row"><label>{{ environment.translate('Space between') }}</label>{{ f.number(n ~ '[nav][thumbGap]', s.nav.thumbGap, 0, 40, 'px') }}</div>
+    </section>
+{% endmacro %}
+
+{% macro captions(s, n) %}
+    {% import '@carousel/fields.twig' as f %}
+    <section class="sgg-sle-card" data-sgg-sle-card="captions" data-sgg-sle-hide="source=products">
+        <h3><i class="fa fa-font" aria-hidden="true"></i>{{ environment.translate('Captions and click') }}</h3>
+        <div class="sgg-sle-row"><label>{{ environment.translate('Captions') }}</label>{{ f.select(n ~ '[captions][mode]', s.captions.mode, {'below': environment.translate('Below the image'), 'overlay': environment.translate('Over the image'), 'hover': environment.translate('Over the image on hover'), 'none': environment.translate('Hidden')}) }}</div>
+        <div class="sgg-sle-row" data-sgg-sle-hide="mode=none"><label>{{ environment.translate('Caption') }}</label>{{ f.toggle(n ~ '[captions][title]', s.captions.title) }}</div>
+        <div class="sgg-sle-row" data-sgg-sle-hide="mode=none"><label>{{ environment.translate('Description') }}</label>{{ f.toggle(n ~ '[captions][text]', s.captions.text) }}</div>
+        <div class="sgg-sle-row" data-sgg-sle-hide="mode=none"><label>{{ environment.translate('Text alignment') }}</label>{{ f.select(n ~ '[captions][align]', s.captions.align, {'left': environment.translate('Left'), 'center': environment.translate('Center'), 'right': environment.translate('Right')}) }}</div>
+        <div class="sgg-sle-row" data-sgg-sle-show="source=images"><label>{{ environment.translate('Click on an image') }}</label>{{ f.select(n ~ '[click][action]', s.click.action, {'lightbox': environment.translate('Open in lightbox'), 'link': environment.translate('Follow the image link'), 'none': environment.translate('Nothing')}) }}</div>
+        {# The lightbox: the themes of the Lightbox module; its colors come from the style of the slider #}
+        {% set lb = environment.getModule('lightbox') %}
+        {% if lb %}
+            {% set lbNames = {} %}
+            {% set lbLocked = [] %}
+            {% for id, theme in lb.themes() %}
+                {% set lbNames = lbNames|merge({(id): theme.name}) %}
+                {% if theme.locked %}{% set lbLocked = lbLocked|merge([id]) %}{% endif %}
+            {% endfor %}
+            <div data-sgg-sle-show="source=images">
+                <div class="sgg-sle-lb" data-sgg-sle-show="action=lightbox">
+                    {# A PRO theme saved before stays saved in the free version (the select does not send a locked choice) #}
+                    {% if s.lightbox.theme in lbLocked %}<input type="hidden" name="{{ n }}[lightbox][theme]" value="{{ s.lightbox.theme|e('html_attr') }}">{% endif %}
+                    <div class="sgg-sle-row"><label>{{ environment.translate('Lightbox theme') }}</label>{{ f.select(n ~ '[lightbox][theme]', s.lightbox.theme, lbNames, lbLocked) }}</div>
+                    <div class="sgg-sle-row"><label>{{ environment.translate('Lightbox arrows') }}</label>{{ f.select(n ~ '[lightbox][arrows]', s.lightbox.arrows, {'circle': environment.translate('Circle'), 'square': environment.translate('Square'), 'minimal': environment.translate('Minimal'), 'none': environment.translate('None')}) }}</div>
+                    <div class="sgg-sle-row"><label>{{ environment.translate('Lightbox caption') }}</label>{{ f.select(n ~ '[lightbox][caption]', s.lightbox.caption, {'auto': environment.translate('As the theme has it'), 'below': environment.translate('Under the photo'), 'overlay': environment.translate('Over the photo'), 'side': environment.translate('In a side panel'), 'none': environment.translate('Hidden')}) }}</div>
+                    <div class="sgg-sle-row"><label>{{ environment.translate('Opening') }}</label>{{ f.select(n ~ '[lightbox][anim]', s.lightbox.anim, {'zoom': environment.translate('Zoom from the slide'), 'fade': environment.translate('Fade'), 'none': environment.translate('None')}) }}</div>
+                    <div class="sgg-sle-row"><label>{{ environment.translate('Counter') }}</label>{{ f.toggle(n ~ '[lightbox][counter]', s.lightbox.counter) }}</div>
+                    <div class="sgg-sle-row"><label>{{ environment.translate('Zoom button') }}</label>{{ f.toggle(n ~ '[lightbox][zoom]', s.lightbox.zoom) }}</div>
+                    <div class="sgg-sle-row"><label>{{ environment.translate('Full screen button') }}</label>{{ f.toggle(n ~ '[lightbox][fullscreen]', s.lightbox.fullscreen) }}</div>
+                    {% if lb.proOpen() %}
+                        <div class="sgg-sle-row"><label>{{ environment.translate('Thumbnail strip') }}</label>{{ f.toggle(n ~ '[lightbox][thumbs]', s.lightbox.thumbs) }}</div>
+                        <div class="sgg-sle-row"><label>{{ environment.translate('Slideshow button') }}</label>{{ f.toggle(n ~ '[lightbox][slideshow]', s.lightbox.slideshow) }}</div>
+                        <div class="sgg-sle-row"><label>{{ environment.translate('Slideshow delay') }}</label>{{ f.number(n ~ '[lightbox][delay]', s.lightbox.delay, 2, 30, environment.translate('s')) }}</div>
+                        <div class="sgg-sle-row"><label>{{ environment.translate('Download button') }}</label>{{ f.toggle(n ~ '[lightbox][download]', s.lightbox.download) }}</div>
+                        <div class="sgg-sle-row"><label>{{ environment.translate('Share button') }}</label>{{ f.toggle(n ~ '[lightbox][share]', s.lightbox.share) }}</div>
+                    {% else %}
+                        {# The PRO tools saved before stay saved; the lightbox leaves them out while PRO is off #}
+                        {% for key in ['thumbs', 'slideshow', 'delay', 'download', 'share'] %}<input type="hidden" name="{{ n }}[lightbox][{{ key }}]" value="{{ s.lightbox[key] }}">{% endfor %}
+                        <div class="sgg-sle-pro-note"><span class="sgg-sle-pro-note-icon"><i class="fa fa-diamond" aria-hidden="true"></i></span><span class="sgg-sle-pro-note-text"><b class="sgg-sle-pro-note-tag">PRO</b>{{ environment.translate('Six more lightbox themes, a thumbnail strip, a slideshow, download and share buttons are in Photo Gallery PRO.') }}</span><a class="sgg-sle-pro-note-more" href="https://supsystic.com/plugins/photo-gallery?utm_source=plugin&amp;utm_medium=slider_lightbox&amp;utm_campaign=gallery" target="_blank" rel="noopener" data-sgg-upsell="lightbox">{{ environment.translate('Read more') }}<i class="fa fa-arrow-right" aria-hidden="true"></i></a></div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </section>
+{% endmacro %}
+
+{% macro style(s, n) %}
+    {% import '@carousel/fields.twig' as f %}
+    <section class="sgg-sle-card" data-sgg-sle-card="style">
+        <h3><i class="fa fa-paint-brush" aria-hidden="true"></i>{{ environment.translate('Style') }}</h3>
+        <div class="sgg-sle-row sgg-st-entry">
+            <input type="hidden" name="{{ n }}[style][theme]" value="{{ s.style.theme|default('')|e('html_attr') }}">
+            <button type="button" class="button" data-sgg-st-open><i class="fa fa-th-large" aria-hidden="true"></i>{{ ' ' ~ environment.translate('Style library') }}</button>
+            <span data-sgg-st-current="{{ environment.translate('Your own look')|e('html_attr') }}"></span>
+            <button type="button" class="button sgg-st-undo" data-sgg-st-undo hidden><i class="fa fa-undo" aria-hidden="true"></i>{{ ' ' ~ environment.translate('Undo') }}</button>
+            <span data-sgg-st-status role="status" aria-live="polite"></span>
+        </div>
+        <div class="sgg-sle-row"><label>{{ environment.translate('Look') }}</label>{{ f.select(n ~ '[style][preset]', s.style.preset, {'clean': environment.translate('Clean'), 'soft': environment.translate('Soft'), 'framed': environment.translate('Framed'), 'dark': environment.translate('Dark'), 'minimal': environment.translate('Minimal')}) }}</div>
+        <div class="sgg-sle-row"><label>{{ environment.translate('Corner radius') }}</label>{{ f.number(n ~ '[style][radius]', s.style.radius, 0, 60, 'px') }}</div>
+        <div class="sgg-sle-row"><label>{{ environment.translate('Shadow') }}</label>{{ f.select(n ~ '[style][shadow]', s.style.shadow, {'none': environment.translate('None'), 'soft': environment.translate('Soft'), 'strong': environment.translate('Strong')}) }}</div>
+        <div class="sgg-sle-row"><label>{{ environment.translate('Accent color') }}</label>{{ f.color(n ~ '[style][accent]', s.style.accent) }}</div>
+        <div class="sgg-sle-row"><label>{{ environment.translate('Grey until hover') }}</label>{{ f.toggle(n ~ '[style][grayscale]', s.style.grayscale) }}</div>
+        <div class="sgg-sle-row"><label>{{ environment.translate('Arrow background') }}</label>{{ f.color(n ~ '[style][arrowBg]', s.style.arrowBg) }}</div>
+        <div class="sgg-sle-row"><label>{{ environment.translate('Arrow color') }}</label>{{ f.color(n ~ '[style][arrowColor]', s.style.arrowColor) }}</div>
+        <div class="sgg-sle-row" data-sgg-sle-hide="source=products"><label>{{ environment.translate('Caption background') }}</label>{{ f.color(n ~ '[style][captionBg]', s.style.captionBg) }}</div>
+        <div class="sgg-sle-row" data-sgg-sle-hide="source=products"><label>{{ environment.translate('Caption text') }}</label>{{ f.color(n ~ '[style][captionColor]', s.style.captionColor) }}</div>
+    </section>
+{% endmacro %}

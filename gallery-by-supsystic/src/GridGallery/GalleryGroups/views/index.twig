@@ -25,7 +25,7 @@
                     </div>
                 </form>
             </div>
-            <div class="gg-pagination-info">{{ recordsTotal }} {{ translate('records') }}</div>
+            <div class="gg-pagination-info">{{ recordsTotal ~ ' ' ~ (recordsTotal == 1 ? translate('record') : translate('records')) }}</div>
         </div>
 
         <table class="gg-galleries-table">

@@ -27,6 +27,8 @@ so this shows precisely what the frontend will render - not an approximation.
 			data-polaroid-frame-width="{{ settings.thumbnail.overlay.polaroidFrameWidth | default(20) }}"
 			{% if settings.captionBuilder.enabled == '1' %}
 				data-polaroid-caption-height="{{ settings.captionBuilder.title.height | default(50) }}"
+			{% elseif settings.thumbnail.overlay.polaroidCaptionHeight is defined and settings.thumbnail.overlay.polaroidCaptionHeight matches '/^[0-9]{1,3}$/' %}
+				data-polaroid-caption-height="{{ settings.thumbnail.overlay.polaroidCaptionHeight }}"
 			{% endif %}
 		{% endif %}>
 			<style>

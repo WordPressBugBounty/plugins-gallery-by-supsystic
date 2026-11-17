@@ -1,0 +1,816 @@
+/* Editor of the slider types, in the look of the Data Tables editor: header, setting cards and a sticky live preview. */
+
+.sgg-sle {
+  --sgg-ink: #0f172a;
+  --sgg-text: #334155;
+  --sgg-muted: #64748b;
+  --sgg-line: #e2e8f0;
+  --sgg-line-soft: #f1f5f9;
+  --sgg-surface: #f8fafc;
+  --sgg-accent: #0e8a93;
+  --sgg-navy: linear-gradient(145deg, #26384c 0%, #1d2b3c 100%);
+  --sgg-brand: linear-gradient(135deg, #4ae8ea 0%, #377dff 100%);
+  --sgg-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 16px -8px rgba(15, 23, 42, 0.1);
+  padding: 6px 4px 16px;
+  color: var(--sgg-text);
+  line-height: 1.5;
+}
+
+/* ---------- Header ---------- */
+.sgg-sle-head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px 16px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+.sgg-sle-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.sgg-sle-title h2 {
+  margin: 0;
+  padding: 0;
+  color: var(--sgg-ink);
+  font-size: 20px;
+  font-weight: 700;
+}
+.sgg-sle-kind {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: linear-gradient(145deg, rgba(74, 232, 234, 0.22), rgba(55, 125, 255, 0.16));
+  color: #1f5fd6;
+  font-size: 12px;
+  font-weight: 700;
+}
+.sgg-sle-id {
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--sgg-line-soft);
+  color: var(--sgg-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+.sgg-sle-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+}
+.sgg-sle .button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  min-height: 34px;
+  margin: 0;
+  padding: 0 12px;
+  border: 1px solid var(--sgg-line);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: none;
+  color: var(--sgg-text);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 32px;
+}
+.sgg-sle .button:hover,
+.sgg-sle .button:focus {
+  border-color: var(--sgg-accent);
+  background: #fff;
+  color: var(--sgg-accent);
+}
+.sgg-sle .sgg-sle-save {
+  border-color: transparent;
+  background: var(--sgg-navy);
+  color: #fff;
+}
+.sgg-sle .sgg-sle-save:hover,
+.sgg-sle .sgg-sle-save:focus {
+  background: #17222e;
+  color: #fff;
+}
+.sgg-sle-code {
+  display: flex;
+  flex-wrap: wrap;
+  grid-column: 1 / -1;
+  align-items: center;
+  gap: 8px;
+}
+.sgg-sle-code label {
+  color: var(--sgg-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+.sgg-sle-code input {
+  width: 260px;
+  min-height: 34px;
+  border: 1px solid var(--sgg-line);
+  border-radius: 8px;
+  background: var(--sgg-surface);
+  font-family: Menlo, Consolas, monospace;
+  font-size: 12px;
+}
+.sgg-sle-status {
+  color: var(--sgg-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+.sgg-sle-status[data-kind='ok'] {
+  color: #15803d;
+}
+.sgg-sle-status[data-kind='error'] {
+  color: #b91c1c;
+}
+
+/* ---------- Body: settings and preview ---------- */
+.sgg-sle-body {
+  display: grid;
+  grid-template-columns: minmax(340px, 430px) minmax(0, 1fr);
+  align-items: start;
+  gap: 18px;
+}
+.sgg-sle-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+.sgg-sle-card {
+  padding: 14px 18px 8px;
+  border: 1px solid var(--sgg-line);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: var(--sgg-shadow);
+}
+.sgg-sle-card h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 6px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--sgg-line-soft);
+  color: var(--sgg-ink);
+  font-size: 14px;
+  font-weight: 700;
+}
+.sgg-sle-card h3 .fa {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: linear-gradient(145deg, rgba(74, 232, 234, 0.22), rgba(55, 125, 255, 0.16));
+  color: #1f5fd6;
+  font-size: 13px;
+}
+.sgg-sle-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 12px;
+  padding: 8px 0;
+}
+.sgg-sle-row + .sgg-sle-row {
+  border-top: 1px solid var(--sgg-line-soft);
+}
+.sgg-sle-row > label {
+  color: var(--sgg-text);
+  font-size: 13px;
+  font-weight: 600;
+}
+.sgg-sle-row-wide {
+  flex-direction: column;
+  align-items: stretch;
+}
+.sgg-sle select,
+.sgg-sle input[type='number'],
+.sgg-sle input[type='text'] {
+  min-height: 32px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  box-shadow: none;
+  color: var(--sgg-ink);
+  font-size: 13px;
+}
+.sgg-sle select:focus,
+.sgg-sle input:focus {
+  border-color: var(--sgg-accent);
+  box-shadow: 0 0 0 3px rgba(14, 138, 147, 0.15);
+}
+.sgg-sle input[type='number'] {
+  width: 78px;
+}
+.sgg-sle input[type='color'] {
+  width: 44px;
+  height: 30px;
+  padding: 2px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+}
+.sgg-sle-number,
+.sgg-sle-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.sgg-sle-suffix {
+  color: var(--sgg-muted);
+  font-size: 12px;
+}
+.sgg-sle-devices {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.sgg-sle-device {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border: 1px solid var(--sgg-line);
+  border-radius: 8px;
+  background: var(--sgg-surface);
+}
+.sgg-sle-device .fa {
+  width: 12px;
+  color: var(--sgg-muted);
+  text-align: center;
+}
+.sgg-sle-device input[type='number'] {
+  width: 62px;
+  min-height: 28px;
+}
+.sgg-sle-note {
+  margin: 6px 0;
+  color: var(--sgg-muted);
+  font-size: 12px;
+}
+/* ---------- PRO notes of the cards (free version): a premium callout; Read more opens the window of the feature
+   (Upsell module, data-sgg-upsell) */
+.sgg-sle-pro-note {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 8px 12px;
+  align-items: start;
+  margin: 10px 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(74, 232, 234, 0.3);
+  border-radius: 12px;
+  background:
+    radial-gradient(120% 150% at 100% 0%, rgba(74, 232, 234, 0.2) 0%, rgba(74, 232, 234, 0) 55%),
+    linear-gradient(150deg, #23364c 0%, #172536 100%);
+  box-shadow: 0 12px 26px -18px rgba(15, 23, 42, 0.75);
+  color: #d6e2ee;
+}
+.sgg-sle-pro-note-icon {
+  grid-row: span 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #4ae8ea 0%, #377dff 100%);
+  box-shadow: 0 6px 14px -6px rgba(74, 232, 234, 0.9);
+  color: #fff;
+  font-size: 13px;
+}
+.sgg-sle-pro-note-text {
+  display: block;
+  color: #d6e2ee;
+  font-size: 12.5px;
+  line-height: 1.5;
+  white-space: normal;
+}
+.sgg-sle-pro-note-tag {
+  display: inline-block;
+  margin-right: 7px;
+  padding: 0 7px;
+  border: 1px solid rgba(127, 248, 239, 0.45);
+  border-radius: 999px;
+  background: rgba(127, 248, 239, 0.14);
+  color: #7ff8ef;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  line-height: 16px;
+  vertical-align: 1px;
+}
+.sgg-sle .sgg-sle-pro-note a.sgg-sle-pro-note-more {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 13px;
+  border: 1px solid rgba(127, 248, 239, 0.5);
+  border-radius: 999px;
+  background: rgba(127, 248, 239, 0.1);
+  color: #7ff8ef;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+  text-decoration: none;
+  box-shadow: none;
+  transition: background-color 0.15s, color 0.15s;
+}
+.sgg-sle .sgg-sle-pro-note a.sgg-sle-pro-note-more:hover,
+.sgg-sle .sgg-sle-pro-note a.sgg-sle-pro-note-more:focus {
+  background: #4ae8ea;
+  color: #0f2236;
+}
+.sgg-sle .sgg-sle-pro-note a.sgg-sle-pro-note-more:focus-visible {
+  outline: 2px solid #7ff8ef;
+  outline-offset: 2px;
+}
+.sgg-sle-pro-note-more .fa {
+  font-size: 10px;
+}
+
+.sgg-sle-checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+}
+.sgg-sle-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+/* Switches: a button with role="switch" over a hidden field */
+.sgg-sle-switch-wrap {
+  display: inline-flex;
+}
+.sgg-sle-switch {
+  position: relative;
+  display: inline-block;
+  flex: none;
+  width: 36px;
+  height: 20px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  cursor: pointer;
+}
+.sgg-sle-switch span {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: #cbd5e1;
+  transition: background-color 0.18s;
+}
+.sgg-sle-switch span:after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.3);
+  transition: transform 0.18s cubic-bezier(0.3, 0.7, 0.4, 1);
+}
+.sgg-sle-switch[aria-checked='true'] span {
+  background: var(--sgg-brand);
+}
+.sgg-sle-switch[aria-checked='true'] span:after {
+  transform: translateX(16px);
+}
+.sgg-sle-switch:focus-visible span {
+  box-shadow: 0 0 0 3px rgba(14, 138, 147, 0.25);
+}
+
+/* ---------- Preview ---------- */
+.sgg-sle-preview {
+  position: sticky;
+  top: 46px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--sgg-line);
+  border-radius: 14px;
+  background: var(--sgg-surface);
+  box-shadow: var(--sgg-shadow);
+}
+.sgg-sle-preview-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.sgg-sle-preview-title {
+  color: var(--sgg-ink);
+  font-size: 13px;
+  font-weight: 700;
+}
+.sgg-sle-devices-switch {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--sgg-line);
+  border-radius: 10px;
+  background: #fff;
+}
+.sgg-sle-devices-switch button {
+  width: 34px;
+  height: 28px;
+  border: 0;
+  border-radius: 7px;
+  background: none;
+  color: var(--sgg-muted);
+  cursor: pointer;
+}
+.sgg-sle-devices-switch button.is-active {
+  background: var(--sgg-navy);
+  color: #fff;
+}
+.sgg-sle-frame {
+  margin: 0 auto;
+  padding: 18px;
+  border-radius: 12px;
+  background: #fff;
+  transition: max-width 0.25s ease;
+}
+.sgg-sle-frame[data-device='t'] {
+  max-width: 820px;
+  border: 10px solid #1e293b;
+  border-radius: 24px;
+}
+/* The phone and its bars appear only on the phone preview */
+.sgg-sle-status,
+.sgg-sle-home {
+  display: none;
+}
+
+/* Phone: an iPhone with a titanium band, a black border, Dynamic Island, the status bar and the home indicator around
+   a 393 x 852 screen, the screen of a visitor's phone. The slider inside has the phone's width and takes its viewport
+   height from this screen. When the browser window is too low, editor.js scales the whole phone down
+   (--sgg-sle-k) and the negative margin takes away the room the scaling frees. */
+.sgg-sle-frame[data-device='m'] {
+  --sgg-sle-k: 1;
+  box-sizing: border-box;
+  width: 423px;
+  max-width: none;
+  height: 882px;
+  margin-bottom: calc((var(--sgg-sle-k) - 1) * 882px);
+  padding: 4px;
+  border-radius: 70px;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 6%, rgba(255, 255, 255, 0) 94%, rgba(255, 255, 255, 0.45)),
+    linear-gradient(160deg, #d7d9dc 0%, #8f9298 14%, #e6e7e9 26%, #6f7279 46%, #b4b7bc 66%, #74777d 84%, #c9cbce 100%);
+  box-shadow: 0 30px 50px -28px rgba(15, 23, 42, 0.55), 0 0 0 0.6px rgba(0, 0, 0, 0.45), inset 0 0 0 0.8px rgba(255, 255, 255, 0.7);
+  transform: scale(var(--sgg-sle-k));
+  transform-origin: top center;
+  transition: none;
+}
+.sgg-sle-frame[data-device='m'] .sgg-sle-screen {
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border: 11px solid #050506;
+  border-radius: 66px;
+  /* White under the bars too, so no dark seam shows between them when the phone is scaled */
+  background: #fff padding-box;
+}
+.sgg-sle-frame[data-device='m'] .sgg-sle-status {
+  flex: none;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 54px;
+  padding: 4px 30px 0 46px;
+  border-radius: 55px 55px 0 0;
+  background: #fff;
+  color: #0b0c0e;
+}
+.sgg-sle-status b {
+  font: 600 17px/1 -apple-system, 'SF Pro Text', 'Segoe UI', sans-serif;
+  letter-spacing: -0.01em;
+}
+.sgg-sle-status-icons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.sgg-sle-status svg {
+  width: auto;
+  height: 12px;
+  fill: currentColor;
+}
+.sgg-sle-island {
+  position: absolute;
+  top: 11px;
+  left: 50%;
+  width: 126px;
+  height: 37px;
+  border-radius: 100px;
+  background: #000;
+  transform: translateX(-50%);
+}
+/* The page under the status bar: a site's usual side room, scrolled inside the screen when it is longer */
+.sgg-sle-frame[data-device='m'] .sgg-sle-canvas {
+  flex: 1;
+  min-height: 0;
+  padding: 16px 16px 40px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border-radius: 0 0 55px 55px;
+  background: #fff;
+  scrollbar-width: none;
+}
+.sgg-sle-frame[data-device='m'] .sgg-sle-canvas::-webkit-scrollbar {
+  display: none;
+}
+/* Height in % of the screen: 70% of this phone's screen, not of the admin window */
+.sgg-sle-frame[data-device='m'] .sgg-sl-h-viewport .sgg-sl-media {
+  height: calc(var(--sgg-sl-vhn, 70) * 8.52px);
+}
+.sgg-sle-frame[data-device='m'] .sgg-sle-home {
+  display: block;
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  width: 139px;
+  height: 5px;
+  border-radius: 100px;
+  background: #0b0c0e;
+  transform: translateX(-50%);
+}
+.sgg-sle.is-updating .sgg-sle-canvas {
+  opacity: 0.55;
+  transition: opacity 0.15s;
+}
+.sgg-sle-canvas .sgg-sl {
+  margin-bottom: 0;
+}
+
+@media (max-width: 1100px) {
+  .sgg-sle-body {
+    grid-template-columns: 1fr;
+  }
+  .sgg-sle-preview {
+    position: static;
+    order: -1;
+  }
+}
+
+/* ---------- Pickers of posts and categories ---------- */
+.sgg-sle-picker {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+.sgg-sle-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.sgg-sle-chips:empty {
+  display: none;
+}
+.sgg-sle-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  padding: 2px 4px 2px 10px;
+  border-radius: 14px;
+  background: #eef2ff;
+  color: #1e3a8a;
+  font-size: 12px;
+  line-height: 20px;
+}
+.sgg-sle-chip > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sgg-sle-chip button {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  font-size: 15px;
+  line-height: 18px;
+  cursor: pointer;
+}
+.sgg-sle-chip button:hover {
+  background: rgba(30, 58, 138, 0.12);
+}
+.sgg-sle-picker-search {
+  width: 100%;
+}
+.sgg-sle-picker-list {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  left: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  max-height: 240px;
+  margin-top: 2px;
+  overflow-y: auto;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 12px 30px -12px rgba(15, 23, 42, 0.35);
+}
+.sgg-sle-picker-list[hidden] {
+  display: none;
+}
+.sgg-sle-picker-option {
+  padding: 7px 10px;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+.sgg-sle-picker-option:hover,
+.sgg-sle-picker-option:focus {
+  background: #f1f5f9;
+}
+
+/* Rows inside a block that shows or hides with a setting keep the line between rows */
+.sgg-sle-card > div > .sgg-sle-row:first-child,
+.sgg-sle-card > div > div > .sgg-sle-row:first-child {
+  border-top: 1px solid var(--sgg-line-soft);
+}
+.sgg-sle-card > h3 + div > .sgg-sle-row:first-child {
+  border-top: 0;
+}
+
+/* The plugin pages keep paragraphs on one line (.supsystic-item p); notes of the cards wrap */
+.sgg-sle p.sgg-sle-note,
+.sgg-sle .sgg-sle-card p {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+}
+
+/* ---------- PRO guard before a save ---------- */
+.sgg-pg {
+  width: min(560px, 94vw);
+  padding: 22px 24px 20px;
+  border: 0;
+  border-radius: 14px;
+  color: #3b4b5c;
+  box-shadow: 0 30px 80px -24px rgba(15, 23, 42, 0.55);
+}
+.sgg-pg::backdrop {
+  background: rgba(15, 23, 42, 0.55);
+}
+.sgg-pg-head {
+  display: flex;
+  gap: 14px;
+}
+.sgg-pg-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: #fff7ed;
+  color: #ea580c;
+  font-size: 18px;
+}
+.sgg-pg-head h2 {
+  margin: 0 0 6px;
+  padding: 0;
+  color: #13202e;
+  font-size: 17px;
+}
+.sgg-pg p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: normal;
+}
+.sgg-pg-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 14px 0;
+  padding: 0;
+  list-style: none;
+}
+.sgg-pg-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 7px 10px;
+  border: 1px solid #e3e9f0;
+  border-radius: 8px;
+  color: #13202e;
+  font-weight: 600;
+}
+.sgg-pg-pro {
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: #f59e0b;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+}
+.sgg-pg-note {
+  display: flex;
+  gap: 8px;
+  padding: 9px 11px;
+  border-radius: 8px;
+  background: #ecfdf5;
+  color: #065f46;
+}
+.sgg-pg-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 16px;
+}
+.sgg-pg-end {
+  display: inline-flex;
+  gap: 8px;
+}
+.sgg-pg-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+  background: #fff;
+  color: #13202e;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+.sgg-pg-reset {
+  border-color: transparent;
+  background: transparent;
+  color: #b91c1c;
+}
+.sgg-pg-primary,
+.sgg-pg-primary:hover,
+.sgg-pg-primary:focus {
+  border-color: #0e8a93;
+  background: #0e8a93;
+  color: #fff;
+}
+
+/* Selects of a card share one width, so the right edge of the values lines up */
+.sgg-sle .sgg-sle-row > select,
+.sgg-sle .sgg-sle-row .sgg-sle-inline select {
+  min-width: 160px;
+  padding-right: 28px;
+}
+.sgg-sle .sgg-sle-row .sgg-sle-inline select {
+  min-width: 72px;
+}
+
+/* Full white fields over the old plugin-wide field rule */
+.supsystic-plugin .sgg-sle input[type='text'],
+.supsystic-plugin .sgg-sle input[type='number'],
+.supsystic-plugin .sgg-sle input[type='url'],
+.supsystic-plugin .sgg-sle input[type='search'],
+.supsystic-plugin .sgg-sle textarea {
+  float: none;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: none;
+  color: #13202e;
+}
+.supsystic-plugin .sgg-sle input[type='text']:focus,
+.supsystic-plugin .sgg-sle input[type='number']:focus,
+.supsystic-plugin .sgg-sle input[type='url']:focus,
+.supsystic-plugin .sgg-sle input[type='search']:focus,
+.supsystic-plugin .sgg-sle textarea:focus {
+  border-color: #0e8a93;
+  box-shadow: 0 0 0 3px rgba(14, 138, 147, 0.15);
+  outline: none;
+}

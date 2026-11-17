@@ -1,0 +1,978 @@
+/* Layers card and layer editor of the Slider. The layers on the canvas use the very same rules as on the site
+   (sliders.css), the editor only adds the selection, the handle and the guides. */
+
+/* ---------- Card ---------- */
+.sgg-ly-summary {
+  margin: 6px 0 10px;
+  color: #334155;
+  font-weight: 600;
+}
+.sgg-ly-open.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  min-height: 36px;
+}
+.sgg-ly-pro {
+  margin-top: 10px;
+}
+.sgg-ly-pro-tag {
+  display: inline-block;
+  margin: 0 6px 0 0;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: #f59e0b;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 16px;
+  vertical-align: 1px;
+}
+legend .sgg-ly-pro-tag {
+  margin: 0 0 0 8px;
+}
+
+/* ---------- Dialog ---------- */
+.sgg-ly {
+  --sgg-ly-accent: #2563eb;
+  --sgg-ly-line: #e2e8f0;
+  width: min(1560px, 96vw);
+  max-width: none;
+  height: min(940px, 94vh);
+  max-height: none;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 14px;
+  background: #fff;
+  color: #0f172a;
+  box-shadow: 0 30px 80px -20px rgba(15, 23, 42, 0.5);
+}
+.sgg-ly[open] {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+.sgg-ly::backdrop {
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(2px);
+}
+.sgg-ly *,
+.sgg-ly *:before,
+.sgg-ly *:after {
+  box-sizing: border-box;
+}
+.sgg-ly button {
+  font: inherit;
+}
+/* The plugin pages keep paragraphs on one line (.supsystic-item p); the editor's notes wrap */
+dialog.sgg-ly p {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+}
+
+.sgg-ly-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--sgg-ly-line);
+}
+.sgg-ly-bar h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+.sgg-ly-bar h2 .fa {
+  color: var(--sgg-ly-accent);
+}
+.sgg-ly-devices {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 9px;
+  background: #f1f5f9;
+}
+.sgg-ly-devices button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #475569;
+  cursor: pointer;
+}
+.sgg-ly-devices button[aria-pressed='true'] {
+  background: #fff;
+  color: var(--sgg-ly-accent);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.15);
+}
+.sgg-ly-size {
+  color: #64748b;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.sgg-ly-status {
+  color: #15803d;
+  font-size: 13px;
+}
+.sgg-ly-done.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+
+/* Slides */
+.sgg-ly-slides {
+  display: flex;
+  gap: 8px;
+  padding: 10px 18px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--sgg-ly-line);
+  background: #f8fafc;
+  scrollbar-width: thin;
+}
+.sgg-ly-thumb {
+  position: relative;
+  flex: none;
+  width: 92px;
+  height: 58px;
+  padding: 0;
+  overflow: hidden;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  background: #e2e8f0;
+  cursor: pointer;
+}
+.sgg-ly-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.sgg-ly-thumb.is-active {
+  border-color: var(--sgg-ly-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--sgg-ly-accent) 22%, transparent);
+}
+.sgg-ly-thumb-num,
+.sgg-ly-thumb-count {
+  position: absolute;
+  top: 4px;
+  min-width: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 18px;
+  text-align: center;
+}
+.sgg-ly-thumb-num {
+  left: 4px;
+  background: rgba(15, 23, 42, 0.65);
+  color: #fff;
+}
+.sgg-ly-thumb-count {
+  right: 4px;
+  background: var(--sgg-ly-accent);
+  color: #fff;
+}
+
+/* ---------- Canvas ---------- */
+.sgg-ly-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  min-height: 0;
+}
+.sgg-ly-workspace {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  padding: 24px;
+  overflow: auto;
+  background-color: #e2e8f0;
+  background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+.sgg-ly-scaler {
+  position: relative;
+  flex: none;
+}
+.sgg-ly-scaler[hidden] {
+  display: none;
+}
+.sgg-sl.sgg-ly-stage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  max-width: none;
+  margin: 0;
+  transform-origin: 0 0;
+  box-shadow: 0 20px 50px -24px rgba(15, 23, 42, 0.55);
+  border-radius: var(--sgg-sl-radius, 12px);
+}
+.sgg-ly-stage .sgg-sl-media {
+  height: 100%;
+}
+.sgg-ly-stage .sgg-sl-media img {
+  transition: none;
+  pointer-events: none;
+  user-select: none;
+}
+.sgg-ly-stage .sgg-sl-layers {
+  overflow: visible;
+}
+.sgg-ly-empty {
+  max-width: 360px;
+  color: #475569;
+  text-align: center;
+}
+
+.sgg-ly-stage .sgg-ly-item {
+  white-space: pre-line;
+  outline: 1px dashed transparent;
+  outline-offset: 2px;
+  cursor: move;
+  pointer-events: auto;
+  touch-action: none;
+  user-select: none;
+}
+.sgg-ly-stage .sgg-ly-item:hover {
+  outline-color: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.35);
+}
+.sgg-ly-stage .sgg-ly-item:focus {
+  outline-style: solid;
+}
+.sgg-ly-stage .sgg-ly-item.is-selected {
+  outline: 2px solid var(--sgg-ly-accent, #2563eb);
+  z-index: 2;
+}
+.sgg-ly-stage .sgg-ly-item.is-off {
+  display: block;
+  opacity: 0.35;
+}
+.sgg-ly-stage .sgg-ly-item.is-over {
+  opacity: 0.45;
+  filter: grayscale(1);
+}
+.sgg-ly-stage .sgg-ly-item.is-blank {
+  font-style: italic;
+  opacity: 0.7;
+}
+.sgg-ly-handle {
+  position: absolute;
+  top: 50%;
+  right: -8px;
+  width: 10px;
+  height: 26px;
+  border: 2px solid var(--sgg-ly-accent, #2563eb);
+  border-radius: 4px;
+  background: #fff;
+  translate: 0 -50%;
+  cursor: ew-resize;
+}
+.sgg-ly-guide {
+  position: absolute;
+  z-index: 3;
+  display: none;
+  background: #ec4899;
+  pointer-events: none;
+}
+.sgg-ly-guide.is-on {
+  display: block;
+}
+.sgg-ly-guide-v {
+  top: 0;
+  bottom: 0;
+  width: 1px;
+}
+.sgg-ly-guide-h {
+  right: 0;
+  left: 0;
+  height: 1px;
+}
+
+/* ---------- Panel ---------- */
+.sgg-ly-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+  padding: 16px;
+  overflow-y: auto;
+  border-left: 1px solid var(--sgg-ly-line);
+}
+.sgg-ly-add-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.sgg-ly-count {
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.sgg-ly-add-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+.sgg-ly-add-buttons .button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  height: auto;
+  min-height: 0;
+  padding: 7px 2px;
+  font-size: 12px;
+  line-height: 1.3;
+}
+.sgg-ly-add-buttons .fa {
+  font-size: 15px;
+}
+
+.sgg-ly-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.sgg-ly-list:empty {
+  display: none;
+}
+.sgg-ly-list li {
+  margin: 0;
+}
+.sgg-ly-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid var(--sgg-ly-line);
+  border-radius: 8px;
+  background: #fff;
+  color: #0f172a;
+  text-align: left;
+  cursor: pointer;
+}
+.sgg-ly-row:hover {
+  border-color: #cbd5e1;
+}
+.sgg-ly-row.is-selected {
+  border-color: var(--sgg-ly-accent);
+  background: color-mix(in srgb, var(--sgg-ly-accent) 7%, #fff);
+}
+.sgg-ly-row.is-over,
+.sgg-ly-row.is-off {
+  opacity: 0.6;
+}
+.sgg-ly-row .fa {
+  width: 16px;
+  color: #64748b;
+  text-align: center;
+}
+.sgg-ly-row-type {
+  flex: none;
+  font-weight: 600;
+}
+.sgg-ly-row-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: #64748b;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sgg-ly-hint {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.sgg-ly-props {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--sgg-ly-line);
+}
+.sgg-ly-props[hidden] {
+  display: none;
+}
+.sgg-ly-tools {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.sgg-ly-tool-buttons {
+  display: inline-flex;
+  gap: 4px;
+}
+.sgg-ly-tool-buttons button,
+.sgg-ly-seg button,
+.sgg-ly-bg button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid var(--sgg-ly-line);
+  border-radius: 7px;
+  background: #fff;
+  color: #334155;
+  cursor: pointer;
+}
+.sgg-ly-tool-buttons button:hover:not(:disabled),
+.sgg-ly-seg button:hover,
+.sgg-ly-bg button:hover {
+  border-color: #94a3b8;
+}
+.sgg-ly-tool-buttons button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.sgg-ly-tool-buttons .is-danger:hover:not(:disabled) {
+  border-color: #dc2626;
+  color: #dc2626;
+}
+.sgg-ly-seg {
+  display: inline-flex;
+  gap: 4px;
+}
+.sgg-ly-seg button[aria-pressed='true'],
+.sgg-ly-bg button[aria-pressed='true'] {
+  border-color: var(--sgg-ly-accent);
+  background: color-mix(in srgb, var(--sgg-ly-accent) 10%, #fff);
+  color: var(--sgg-ly-accent);
+}
+
+.sgg-ly-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+}
+.sgg-ly-field > span:first-child,
+.sgg-ly-line > span:first-child,
+.sgg-ly-range > span:first-child {
+  color: #475569;
+  font-size: 12px;
+  font-weight: 600;
+}
+.sgg-ly-field textarea,
+.sgg-ly-field input[type='url'],
+.sgg-ly-field select {
+  width: 100%;
+  max-width: none;
+}
+.sgg-ly-field textarea {
+  min-height: 64px;
+  resize: vertical;
+}
+.sgg-ly-field input[type='color'],
+.sgg-ly-bg input[type='color'] {
+  width: 44px;
+  height: 30px;
+  padding: 2px;
+  border: 1px solid var(--sgg-ly-line);
+  border-radius: 7px;
+  background: #fff;
+  cursor: pointer;
+}
+.sgg-ly-bg {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.sgg-ly-bg.is-none input[type='color'],
+.sgg-ly-bg.is-none .sgg-cp-chip {
+  opacity: 0.35;
+}
+
+/* ---------- Color with transparency (alpha-picker.js): the chip shows the color over a checkerboard */
+.sgg-cp {
+  display: inline-flex;
+}
+.sgg-ly .sgg-cp-chip {
+  position: relative;
+  width: 44px;
+  height: 30px;
+  padding: 3px;
+  overflow: hidden;
+  border: 1px solid var(--sgg-ly-line);
+  border-radius: 7px;
+  background: #fff;
+  cursor: pointer;
+}
+.sgg-ly .sgg-cp-chip:hover,
+.sgg-ly .sgg-cp-chip[aria-expanded='true'] {
+  border-color: #94a3b8;
+}
+.sgg-ly .sgg-cp-chip:focus-visible {
+  outline: 2px solid var(--sgg-ly-accent);
+  outline-offset: 1px;
+}
+.sgg-cp-chip:before,
+.sgg-cp-swatch:before {
+  position: absolute;
+  inset: 3px;
+  border-radius: 4px;
+  background: repeating-conic-gradient(#cbd5e1 0% 25%, #fff 0% 50%) 0 0 / 8px 8px;
+  content: '';
+}
+.sgg-cp-chip i,
+.sgg-cp-swatch i {
+  position: absolute;
+  inset: 3px;
+  display: block;
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.12);
+}
+.sgg-cp-pop {
+  position: fixed;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 248px;
+  padding: 12px;
+  border: 1px solid var(--sgg-ly-line);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 18px 40px -12px rgba(15, 23, 42, 0.45);
+}
+.sgg-cp-pop[hidden] {
+  display: none;
+}
+.sgg-cp-sv {
+  position: relative;
+  height: 150px;
+  border-radius: 8px;
+  background: linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, var(--cp-hue, #f00));
+  cursor: crosshair;
+  touch-action: none;
+}
+.sgg-cp-sv:focus-visible {
+  outline: 2px solid var(--sgg-ly-accent);
+  outline-offset: 2px;
+}
+.sgg-cp-sv-knob {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.45), 0 2px 4px rgba(15, 23, 42, 0.35);
+  pointer-events: none;
+}
+/* The old rule input[type="range"] { height: 1px !important } of the gallery pages would make the strips a line */
+.sgg-ly .sgg-cp-pop input[type='range'] {
+  width: 100%;
+  height: 14px !important;
+  margin: 0;
+  padding: 0;
+  border-radius: 99px;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+.sgg-ly .sgg-cp-hue {
+  background: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
+}
+.sgg-cp-alpha-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sgg-cp-alpha-track {
+  flex: 1;
+  border-radius: 99px;
+  background: repeating-conic-gradient(#cbd5e1 0% 25%, #fff 0% 50%) 0 0 / 10px 10px;
+}
+.sgg-ly .sgg-cp-alpha {
+  display: block;
+  background: linear-gradient(to right, transparent, var(--cp-solid, #000));
+}
+.sgg-ly .sgg-cp-pop input[type='range']::-webkit-slider-thumb {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.45), 0 1px 3px rgba(15, 23, 42, 0.4);
+  -webkit-appearance: none;
+  appearance: none;
+}
+.sgg-ly .sgg-cp-pop input[type='range']::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.45);
+}
+.sgg-cp-alpha-row output {
+  min-width: 38px;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: right;
+}
+.sgg-cp-code {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sgg-cp-now {
+  display: block;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.15);
+}
+.sgg-ly .sgg-cp-code input[type='text'] {
+  flex: 1;
+  min-width: 0;
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid var(--sgg-ly-line);
+  border-radius: 7px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+}
+.sgg-cp-swatches {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 6px;
+}
+.sgg-ly .sgg-cp-swatch {
+  position: relative;
+  height: 26px;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--sgg-ly-line);
+  border-radius: 7px;
+  background: #fff;
+  cursor: pointer;
+}
+.sgg-ly .sgg-cp-swatch:hover,
+.sgg-ly .sgg-cp-swatch:focus-visible {
+  border-color: var(--sgg-ly-accent);
+  outline: none;
+}
+.sgg-ly-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 12px;
+}
+.sgg-ly-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.sgg-ly-device,
+.sgg-ly-anim {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 12px;
+  border: 1px solid var(--sgg-ly-line);
+  border-radius: 10px;
+}
+.sgg-ly-device {
+  border-color: color-mix(in srgb, var(--sgg-ly-accent) 35%, #fff);
+  background: color-mix(in srgb, var(--sgg-ly-accent) 4%, #fff);
+}
+.sgg-ly-device legend,
+.sgg-ly-anim legend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 6px;
+  font-weight: 600;
+}
+.sgg-ly-device legend .fa {
+  color: var(--sgg-ly-accent);
+}
+.sgg-ly-inherit {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 10px;
+  margin: 0;
+  color: #64748b;
+  font-size: 12px;
+}
+.sgg-ly-inherit[hidden] {
+  display: none;
+}
+.sgg-ly-inherit.is-own {
+  color: #b45309;
+}
+.sgg-ly-inherit .button-link {
+  font-size: 12px;
+}
+.sgg-ly-range {
+  display: grid;
+  grid-template-columns: 74px minmax(0, 1fr) 88px;
+  align-items: center;
+  gap: 8px;
+}
+.sgg-ly-range input[type='range'] {
+  width: 100%;
+  accent-color: var(--sgg-ly-accent);
+}
+.sgg-ly-range .sgg-sle-number input,
+.sgg-ly-field .sgg-sle-number input {
+  width: 64px;
+}
+.sgg-ly-tip {
+  margin: -4px 0 0;
+  color: #94a3b8;
+  font-size: 12px;
+}
+.sgg-ly-anim.is-locked select,
+.sgg-ly-anim.is-locked input {
+  opacity: 0.55;
+}
+
+@media (max-width: 960px) {
+  .sgg-ly-main {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(260px, 1fr) auto;
+    overflow-y: auto;
+  }
+  .sgg-ly-panel {
+    border-top: 1px solid var(--sgg-ly-line);
+    border-left: 0;
+    overflow: visible;
+  }
+  .sgg-ly-devices span {
+    display: none;
+  }
+}
+
+/* ---------- Tabs and the Slide pane ---------- */
+.sgg-ly-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 9px;
+  background: #f1f5f9;
+}
+.sgg-ly-tabs button {
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #475569;
+  font-weight: 600;
+  cursor: pointer;
+}
+.sgg-ly-tabs button[aria-selected='true'] {
+  background: #fff;
+  color: var(--sgg-ly-accent);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.15);
+}
+.sgg-ly-pane {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.sgg-ly-pane[hidden] {
+  display: none;
+}
+.sgg-ly-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--sgg-ly-line);
+  border-radius: 10px;
+}
+.sgg-ly-section h4 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 13px;
+}
+.sgg-ly-section h4 .fa {
+  width: 16px;
+  color: var(--sgg-ly-accent);
+  text-align: center;
+}
+.sgg-ly-section h4 .sgg-ly-pro-tag {
+  margin: 0 0 0 4px;
+}
+.sgg-ly-section .sgg-ly-tip {
+  margin: 0;
+}
+.sgg-ly-section.is-locked input,
+.sgg-ly-section.is-locked select,
+.sgg-ly-section.is-locked .button {
+  opacity: 0.55;
+}
+.sgg-ly-media {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sgg-ly-media-preview {
+  flex: none;
+  width: 84px;
+  height: 56px;
+  overflow: hidden;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+.sgg-ly-media-preview img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.sgg-ly-media-preview img[hidden] {
+  display: none;
+}
+.sgg-ly-media-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+}
+.sgg-ly-remove.button-link {
+  color: #b91c1c;
+}
+.sgg-ly-compare-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.sgg-ly-compare-fields[hidden] {
+  display: none;
+}
+.sgg-ly-field input[type='text'] {
+  width: 100%;
+}
+.sgg-ly-videourl {
+  display: flex;
+  gap: 6px;
+}
+.sgg-ly-videourl input {
+  flex: 1;
+  min-width: 0;
+}
+.sgg-ly-videourl .button {
+  flex: none;
+}
+
+/* Marks on the canvas and on the slides strip */
+.sgg-ly-stage .sgg-ly-compare {
+  pointer-events: none;
+}
+.sgg-ly-stage .sgg-ly-compare[hidden] {
+  display: none;
+}
+.sgg-ly-videoflag {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 3;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.7);
+  color: #fff;
+  font-size: 12px;
+  pointer-events: none;
+}
+.sgg-ly-videoflag[hidden] {
+  display: none;
+}
+.sgg-ly-thumb-flags {
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  display: flex;
+  gap: 3px;
+}
+.sgg-ly-thumb-flags .fa {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  background: rgba(15, 23, 42, 0.7);
+  color: #fff;
+  font-size: 11px;
+  line-height: 18px;
+  text-align: center;
+}
+
+/* PRO tags open the window of their feature */
+button.sgg-ly-pro-tag {
+  border: 0;
+  cursor: pointer;
+}
+.sgg-ly-more {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  margin: 0 0 8px;
+  padding: 6px 8px;
+  border: 1px dashed #f59e0b;
+  border-radius: 8px;
+  background: #fffbeb;
+  color: #92400e;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+.sgg-ly-more .sgg-ly-pro-tag {
+  margin: 0;
+}
+
+.sgg-ly h2:focus {
+  outline: none;
+}
+
+/* A color of the style: the brush is pressed, the picker shows the color the style gives now */
+.sgg-ly-palette-note {
+  grid-column: 1 / -1;
+  margin: -4px 0 0;
+  overflow: visible;
+  color: #64748b;
+  font-size: 11.5px;
+  line-height: 1.45;
+  text-overflow: clip;
+  white-space: normal;
+}

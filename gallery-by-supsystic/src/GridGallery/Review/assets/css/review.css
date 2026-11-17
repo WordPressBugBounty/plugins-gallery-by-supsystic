@@ -1,0 +1,421 @@
+/* Review request card at the top of the plugin pages */
+.sgg-review {
+  --sgg-review-navy: #263546;
+  --sgg-review-teal: #149b93;
+  --sgg-review-cyan: #4ae8ea;
+  --sgg-review-text: #52627a;
+  --sgg-review-line: #e2e8f0;
+  --sgg-review-star: #ffb900;
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  /* Lines up with the 15px gutter of the plugin pages */
+  margin: 16px 15px 22px;
+  padding: 22px 56px 22px 22px;
+  overflow: hidden;
+  box-sizing: border-box;
+  background: #fff;
+  border: 1px solid var(--sgg-review-line);
+  border-radius: 14px;
+  box-shadow: 0 14px 34px -24px rgba(38, 53, 70, .55), 0 1px 2px rgba(38, 53, 70, .06);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--sgg-review-navy);
+  animation: sggReviewIn .45s cubic-bezier(.2, .8, .2, 1) both;
+}
+
+/* Same column as the Overview content */
+.sgg-review.is-overview {
+  width: calc(100% - 20px);
+  max-width: 1200px;
+  margin: 20px auto 0;
+}
+
+.sgg-review::before {
+  content: "";
+  position: absolute;
+  top: -120px;
+  right: -90px;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(74, 232, 234, .16) 0%, rgba(74, 232, 234, 0) 68%);
+  pointer-events: none;
+}
+
+.sgg-review::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, var(--sgg-review-cyan), var(--sgg-review-teal));
+}
+
+.sgg-review *,
+.sgg-review *::before,
+.sgg-review *::after {
+  box-sizing: border-box;
+}
+
+.sgg-review.is-leaving {
+  transition: opacity .3s ease, transform .3s ease, max-height .35s ease .15s, margin .35s ease .15s, padding .35s ease .15s, border-width .35s ease .15s;
+  opacity: 0;
+  transform: translateY(-6px);
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-width: 0;
+}
+
+/* Art */
+.sgg-review-art {
+  position: relative;
+  flex: 0 0 72px;
+  width: 72px;
+  height: 72px;
+  margin-left: 4px;
+  border-radius: 20px;
+  background: linear-gradient(140deg, var(--sgg-review-cyan) 0%, var(--sgg-review-teal) 62%, #0f7f79 100%);
+  box-shadow: 0 10px 22px -12px rgba(20, 155, 147, .9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sgg-review-icon {
+  display: block;
+}
+
+.sgg-review-badge {
+  position: absolute;
+  right: -6px;
+  bottom: -6px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--sgg-review-navy);
+  border: 3px solid #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: sggReviewPop .5s cubic-bezier(.3, 1.6, .5, 1) .35s both;
+}
+
+.sgg-review-spark {
+  position: absolute;
+  animation: sggReviewTwinkle 2.8s ease-in-out infinite;
+}
+
+.sgg-review-spark.is-one {
+  top: -7px;
+  left: -6px;
+}
+
+.sgg-review-spark.is-two {
+  top: 4px;
+  right: -9px;
+  animation-delay: .9s;
+}
+
+.sgg-review-spark.is-three {
+  bottom: 10px;
+  left: -10px;
+  animation-delay: 1.7s;
+}
+
+/* Body */
+.sgg-review-body {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.sgg-review-step[hidden] {
+  display: none !important;
+}
+
+.sgg-review-step.is-active {
+  animation: sggReviewStep .32s ease both;
+}
+
+.sgg-review .sgg-review-eyebrow {
+  margin: 0 0 4px;
+  padding: 0;
+  font-size: 11px;
+  line-height: 1.4;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--sgg-review-teal);
+}
+
+.sgg-review .sgg-review-title {
+  margin: 0;
+  padding: 0;
+  font-size: 18px;
+  line-height: 1.35;
+  font-weight: 600;
+  color: var(--sgg-review-navy);
+  overflow-wrap: anywhere;
+}
+
+.sgg-review .sgg-review-text {
+  margin: 6px 0 0;
+  padding: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--sgg-review-text);
+}
+
+/* Some plugin pages turn every link of the content into a block */
+.sgg-review .sgg-review-inline-link {
+  display: inline;
+  margin: 0;
+  color: var(--sgg-review-teal);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.sgg-review .sgg-review-inline-link:hover,
+.sgg-review .sgg-review-inline-link:focus {
+  color: #0f7f79;
+  text-decoration: underline;
+}
+
+.sgg-review-question {
+  margin: 16px 0 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--sgg-review-navy);
+}
+
+.sgg-review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+/* Buttons */
+.sgg-review .sgg-review-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 38px;
+  margin: 0;
+  padding: 8px 18px;
+  border: 1px solid #cdd6e1;
+  border-radius: 9px;
+  background: #fff;
+  box-shadow: none;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--sgg-review-navy);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease, transform .15s ease, box-shadow .15s ease;
+}
+
+.sgg-review .sgg-review-btn:hover {
+  border-color: #aebbc9;
+  background: #f6f8fb;
+  color: var(--sgg-review-navy);
+  transform: translateY(-1px);
+}
+
+.sgg-review .sgg-review-btn.is-primary {
+  border-color: var(--sgg-review-navy);
+  background: var(--sgg-review-navy);
+  color: #fff;
+  box-shadow: 0 8px 18px -10px rgba(38, 53, 70, .9);
+}
+
+.sgg-review .sgg-review-btn.is-primary:hover {
+  border-color: #17222e;
+  background: #17222e;
+  color: #fff;
+  box-shadow: 0 10px 20px -10px rgba(38, 53, 70, .95);
+}
+
+.sgg-review .sgg-review-link {
+  display: inline-block;
+  margin: 0 0 0 4px;
+  padding: 6px 2px;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sgg-review-text);
+  text-decoration: underline;
+  text-decoration-color: rgba(82, 98, 122, .35);
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.sgg-review .sgg-review-link:hover {
+  color: var(--sgg-review-navy);
+  text-decoration-color: currentColor;
+}
+
+.sgg-review .sgg-review-btn:focus-visible,
+.sgg-review .sgg-review-link:focus-visible,
+.sgg-review .sgg-review-inline-link:focus-visible,
+.sgg-review .sgg-review-close:focus-visible {
+  outline: 2px solid var(--sgg-review-teal);
+  outline-offset: 2px;
+}
+
+.sgg-review .sgg-review-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #8a97a8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color .15s ease, color .15s ease;
+}
+
+.sgg-review .sgg-review-close:hover {
+  background: #f1f4f8;
+  color: var(--sgg-review-navy);
+}
+
+/* Stars */
+.sgg-review-stars {
+  display: flex;
+  gap: 4px;
+  margin-top: 12px;
+}
+
+.sgg-review-star {
+  fill: var(--sgg-review-star);
+  filter: drop-shadow(0 2px 3px rgba(255, 185, 0, .35));
+}
+
+.sgg-review-step.is-active .sgg-review-star {
+  animation: sggReviewPop .45s cubic-bezier(.3, 1.6, .5, 1) both;
+  animation-delay: calc(var(--sgg-star, 1) * 70ms + 80ms);
+}
+
+/* The yes step sits on a warm wash, the thanks step celebrates */
+.sgg-review.is-step-yes::before,
+.sgg-review.is-step-thanks::before {
+  background: radial-gradient(circle, rgba(255, 185, 0, .16) 0%, rgba(255, 185, 0, 0) 68%);
+}
+
+.sgg-review.is-step-thanks .sgg-review-art {
+  animation: sggReviewBounce .6s cubic-bezier(.3, 1.6, .5, 1) both;
+}
+
+@keyframes sggReviewIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes sggReviewStep {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes sggReviewPop {
+  from {
+    opacity: 0;
+    transform: scale(.3);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes sggReviewTwinkle {
+  0%, 100% {
+    opacity: .25;
+    transform: scale(.7) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1) rotate(25deg);
+  }
+}
+
+@keyframes sggReviewBounce {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.12) rotate(-4deg);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+@media (max-width: 782px) {
+  .sgg-review {
+    gap: 14px;
+    padding: 18px 48px 18px 18px;
+  }
+
+  .sgg-review-art {
+    flex-basis: 52px;
+    width: 52px;
+    height: 52px;
+    border-radius: 15px;
+  }
+
+  .sgg-review-icon {
+    width: 34px;
+    height: 34px;
+  }
+
+  .sgg-review .sgg-review-title {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sgg-review {
+    flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sgg-review,
+  .sgg-review *,
+  .sgg-review.is-leaving {
+    animation: none !important;
+    transition: none !important;
+  }
+}

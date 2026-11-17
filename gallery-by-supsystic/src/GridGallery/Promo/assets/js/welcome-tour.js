@@ -13,6 +13,8 @@
     this.slides = data.slides || [];
     this.i18n = data.i18n || {};
     this.closeAction = data.closeAction;
+    // With PRO active every feature is simply included: one list, no Free / PRO labels
+    this.isPro = !!data.isPro;
     this.current = 0;
     this.$modal = null;
   }
@@ -51,7 +53,9 @@
       : '';
     var cta = proCta || tourCta ? '<div class="sgg-wt-cta-wrap">' + tourCta + proCta + '</div>' : '';
     var eyebrow = slide.eyebrow ? '<div class="sgg-wt-eyebrow">' + slide.eyebrow + '</div>' : '';
-    var featureCards = this.buildList(slide.free, 'Free', 'free') + this.buildList(slide.pro, 'PRO', 'pro');
+    var featureCards = this.isPro
+      ? this.buildList((slide.free || []).concat(slide.pro || []), this.i18n.included || 'Included', 'free')
+      : this.buildList(slide.free, this.i18n.free || 'Free', 'free') + this.buildList(slide.pro, this.i18n.pro || 'PRO', 'pro');
 
     return (
       '<section class="sgg-wt-slide" data-index="' + index + '" aria-hidden="' + (index === 0 ? 'false' : 'true') + '">' +
@@ -66,7 +70,7 @@
       eyebrow +
       '<h3 class="sgg-wt-title">' + slide.title + '</h3>' +
       '<div class="sgg-wt-text">' + slide.text + '</div>' +
-      '<div class="sgg-wt-features">' + featureCards + '</div>' +
+      '<div class="sgg-wt-features' + (this.isPro ? ' sgg-wt-features-single' : '') + '">' + featureCards + '</div>' +
       cta +
       '</div>' +
       '</section>'

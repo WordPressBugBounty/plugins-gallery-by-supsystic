@@ -1,0 +1,79 @@
+<section class="sgg-review{% if environment.isModule('overview') %} is-overview{% endif %}" data-sgg-review data-ajax-url="{{ card.ajaxUrl }}" data-nonce="{{ card.nonce }}" aria-label="{{ environment.translate('Rate Photo Gallery') }}">
+    <div class="sgg-review-art" aria-hidden="true">
+        <svg class="sgg-review-icon" viewBox="0 0 48 48" width="48" height="48" focusable="false">
+            <rect x="6" y="9" width="36" height="30" rx="5" fill="#fff" fill-opacity=".18" stroke="#fff" stroke-width="2.4"/>
+            <circle cx="17" cy="19" r="3.6" fill="#fff" fill-opacity=".85"/>
+            <path d="M8.5 35.5l10-10.5 7 7 4.5-4.5 9.5 9" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+        </svg>
+        <span class="sgg-review-badge">
+            <svg viewBox="0 0 16 16" width="14" height="14" focusable="false"><path d="M3.5 8.3l3 3 6-6.6" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <svg class="sgg-review-spark is-one" viewBox="0 0 10 10" width="12" height="12" focusable="false"><path d="M5 0l1.2 3.8L10 5 6.2 6.2 5 10 3.8 6.2 0 5l3.8-1.2z" fill="#ffc53d"/></svg>
+        <svg class="sgg-review-spark is-two" viewBox="0 0 10 10" width="9" height="9" focusable="false"><path d="M5 0l1.2 3.8L10 5 6.2 6.2 5 10 3.8 6.2 0 5l3.8-1.2z" fill="#4ae8ea"/></svg>
+        <svg class="sgg-review-spark is-three" viewBox="0 0 10 10" width="7" height="7" focusable="false"><path d="M5 0l1.2 3.8L10 5 6.2 6.2 5 10 3.8 6.2 0 5l3.8-1.2z" fill="#ffc53d"/></svg>
+    </div>
+
+    <div class="sgg-review-body" aria-live="polite">
+        <div class="sgg-review-step is-active" data-review-step="ask">
+            <p class="sgg-review-eyebrow">{{ card.eyebrow }}</p>
+            <h3 class="sgg-review-title">{{ card.title }}</h3>
+            <p class="sgg-review-text">
+                {{ card.text }}
+                {% if card.link is defined and card.link %}
+                    <a class="sgg-review-inline-link" href="{{ card.link }}" target="_blank" rel="noopener noreferrer">{{ card.linkText }} &rarr;</a>
+                {% endif %}
+            </p>
+            <div class="sgg-review-question">{{ environment.translate('Is Photo Gallery working well for you?') }}</div>
+            <div class="sgg-review-actions">
+                <button type="button" class="sgg-review-btn is-primary" data-review-go="yes">{{ environment.translate('Yes, it works great') }}</button>
+                <button type="button" class="sgg-review-btn" data-review-go="no">{{ environment.translate('Not really') }}</button>
+            </div>
+        </div>
+
+        <div class="sgg-review-step" data-review-step="yes" hidden>
+            <p class="sgg-review-eyebrow">{{ environment.translate('Glad to hear it') }}</p>
+            <h3 class="sgg-review-title">{{ environment.translate('Would you rate Photo Gallery on WordPress.org?') }}</h3>
+            <p class="sgg-review-text">{{ environment.translate('It takes about a minute. Your review helps other site owners find the plugin and keeps us improving it.') }}</p>
+            <div class="sgg-review-stars" aria-hidden="true">
+                {% for i in 1..5 %}
+                    <svg class="sgg-review-star" style="--sgg-star: {{ i }}" viewBox="0 0 24 24" width="26" height="26" focusable="false"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4l-5.8 3.1 1.1-6.5-4.7-4.6 6.5-.9z"/></svg>
+                {% endfor %}
+            </div>
+            <div class="sgg-review-actions">
+                <a class="sgg-review-btn is-primary" href="{{ card.reviewUrl }}" target="_blank" rel="noopener noreferrer" data-review-answer="rate">
+                    {{ environment.translate('Write a review') }}
+                    <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true" focusable="false"><path d="M6 3h7v7M13 3L5 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </a>
+                <button type="button" class="sgg-review-btn" data-review-answer="later">{{ environment.translate('Not now') }}</button>
+                <button type="button" class="sgg-review-link" data-review-answer="done">{{ environment.translate('I already did') }}</button>
+            </div>
+        </div>
+
+        <div class="sgg-review-step" data-review-step="no" hidden>
+            <p class="sgg-review-eyebrow">{{ environment.translate('We are here to help') }}</p>
+            <h3 class="sgg-review-title">{{ environment.translate('Sorry it is not working the way you need') }}</h3>
+            <p class="sgg-review-text">{{ environment.translate('Tell us what went wrong and our support team will help you sort it out.') }}</p>
+            <div class="sgg-review-actions">
+                <a class="sgg-review-btn is-primary" href="{{ card.supportUrl }}" target="_blank" rel="noopener noreferrer" data-review-answer="support">{{ environment.translate('Contact support') }}</a>
+                <button type="button" class="sgg-review-btn" data-review-answer="later">{{ environment.translate('Not now') }}</button>
+                <a class="sgg-review-link" href="{{ card.reviewUrl }}" target="_blank" rel="noopener noreferrer" data-review-answer="rate">{{ environment.translate('Leave a review anyway') }}</a>
+            </div>
+        </div>
+
+        <div class="sgg-review-step" data-review-step="thanks" hidden>
+            <p class="sgg-review-eyebrow">{{ environment.translate('Thank you') }}</p>
+            <h3 class="sgg-review-title">{{ environment.translate('You made our day') }}</h3>
+            <p class="sgg-review-text">{{ environment.translate('Every review helps the whole Supsystic team keep making Photo Gallery better.') }}</p>
+        </div>
+
+        <div class="sgg-review-step" data-review-step="support" hidden>
+            <p class="sgg-review-eyebrow">{{ environment.translate('Thank you') }}</p>
+            <h3 class="sgg-review-title">{{ environment.translate('We will get it sorted') }}</h3>
+            <p class="sgg-review-text">{{ environment.translate('Our support page is open in a new tab. Describe the problem and we will get back to you.') }}</p>
+        </div>
+    </div>
+
+    <button type="button" class="sgg-review-close" data-review-answer="close" aria-label="{{ environment.translate('Dismiss') }}">
+        <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+</section>

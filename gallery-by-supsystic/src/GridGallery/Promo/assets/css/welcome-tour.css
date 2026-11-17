@@ -514,3 +514,25 @@
     padding: 0 10px;
   }
 }
+
+/* PRO active: one list of what is included, in two columns */
+.sgg-wt-features-single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.sgg-wt-features-single ul {
+  columns: 2;
+  column-gap: 22px;
+}
+
+.sgg-wt-features-single li,
+.sgg-wt-features-single li:first-child {
+  margin: 0 0 8px;
+  break-inside: avoid;
+}
+
+@media (max-width: 782px) {
+  .sgg-wt-features-single ul {
+    columns: 1;
+  }
+}

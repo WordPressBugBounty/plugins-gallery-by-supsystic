@@ -1,0 +1,1107 @@
+/*
+ * One look for all admin pages of Photo Gallery (Design module). Printed after the old plugin-wide stylesheet, so the
+ * same selectors win; !important only where the old rules use it.
+ */
+.supsystic-plugin,
+.ui-dialog,
+.sgg-st,
+.sgg-up {
+  --sgg-ui-ink: #13202e;
+  --sgg-ui-text: #334155;
+  --sgg-ui-muted: #64748b;
+  --sgg-ui-line: #e2e8f0;
+  --sgg-ui-field: #cbd5e1;
+  --sgg-ui-surface: #f8fafc;
+  --sgg-ui-accent: #0e8a93;
+  --sgg-ui-accent-soft: #e6f6f7;
+  --sgg-ui-navy: linear-gradient(145deg, #26384c 0%, #1d2b3c 100%);
+  --sgg-ui-navy-hover: #17222e;
+  --sgg-ui-radius: 8px;
+  --sgg-ui-control: 34px;
+}
+
+/* ---------- Buttons ---------- */
+.supsystic-plugin .button:not(.wp-color-result),
+.supsystic-plugin .button-secondary:not(.wp-color-result),
+.supsystic-plugin a.button,
+.ui-dialog .ui-dialog-buttonpane .button,
+.ui-dialog .ui-dialog-buttonpane .ui-button,
+.ui-dialog .button:not(.wp-color-result) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: var(--sgg-ui-control);
+  min-height: var(--sgg-ui-control);
+  margin: 0;
+  padding: 0 14px;
+  border: 1px solid var(--sgg-ui-line) !important;
+  border-radius: var(--sgg-ui-radius) !important;
+  background: #fff !important;
+  box-shadow: none !important;
+  color: var(--sgg-ui-text) !important;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1 !important;
+  text-decoration: none;
+  text-shadow: none !important;
+  white-space: nowrap;
+  vertical-align: middle;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+}
+.supsystic-plugin .button .fa,
+.ui-dialog .button .fa {
+  width: auto;
+  margin: 0;
+  color: inherit;
+  font-size: 13px;
+  line-height: 1;
+}
+.supsystic-plugin .button:not(.wp-color-result):hover,
+.supsystic-plugin .button:not(.wp-color-result):focus,
+.supsystic-plugin .button.hover:not(.wp-color-result),
+.supsystic-plugin .button.focus:not(.wp-color-result),
+.ui-dialog .button:not(.wp-color-result):hover,
+.ui-dialog .button:not(.wp-color-result):focus,
+.ui-dialog .ui-dialog-buttonpane .ui-button:hover,
+.ui-dialog .ui-dialog-buttonpane .ui-button:focus {
+  border-color: var(--sgg-ui-accent) !important;
+  background: #fff !important;
+  color: var(--sgg-ui-accent) !important;
+}
+.supsystic-plugin .button:not(.wp-color-result):focus-visible,
+.ui-dialog .button:not(.wp-color-result):focus-visible {
+  box-shadow: 0 0 0 3px rgba(14, 138, 147, 0.2) !important;
+  outline: none;
+}
+
+/* Main action: navy */
+.supsystic-plugin .button-primary,
+.supsystic-plugin .button.button-primary,
+.ui-dialog .button-primary {
+  border-color: transparent !important;
+  background: var(--sgg-ui-navy) !important;
+  color: #fff !important;
+}
+.supsystic-plugin .button-primary:hover,
+.supsystic-plugin .button-primary:focus,
+.supsystic-plugin .button.button-primary:hover,
+.supsystic-plugin .button.button-primary:focus,
+.ui-dialog .button-primary:hover,
+.ui-dialog .button-primary:focus {
+  border-color: transparent !important;
+  background: var(--sgg-ui-navy-hover) !important;
+  color: #fff !important;
+}
+.supsystic-plugin .button.button-hero {
+  height: 44px;
+  min-height: 44px;
+  padding: 0 22px;
+  font-size: 14px;
+  line-height: 1 !important;
+}
+
+/* Disabled */
+.supsystic-plugin .button[disabled],
+.supsystic-plugin .button:disabled,
+.supsystic-plugin .button.disabled,
+.supsystic-plugin .button-disabled {
+  border-color: var(--sgg-ui-line) !important;
+  background: var(--sgg-ui-surface) !important;
+  color: #a3adb9 !important;
+  cursor: default;
+}
+
+/* Link buttons: teal text, no underline */
+.supsystic-plugin .button-link,
+.supsystic-plugin button.button-link {
+  height: auto;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--sgg-ui-accent);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+.supsystic-plugin .button-link:hover,
+.supsystic-plugin .button-link:focus {
+  color: #0b6e75;
+  text-decoration: underline;
+}
+
+/* ---------- Fields and selects ---------- */
+.supsystic-plugin input[type='text'],
+.supsystic-plugin input[type='number'],
+.supsystic-plugin input[type='search'],
+.supsystic-plugin input[type='url'],
+.supsystic-plugin input[type='email'],
+.supsystic-plugin input[type='password'],
+.supsystic-plugin select,
+.supsystic-plugin textarea {
+  min-height: var(--sgg-ui-control);
+  border: 1px solid var(--sgg-ui-field);
+  border-radius: var(--sgg-ui-radius);
+  background-color: #fff;
+  box-shadow: none;
+  color: var(--sgg-ui-ink);
+  font-size: 13px;
+}
+.supsystic-plugin input[type='text'],
+.supsystic-plugin input[type='number'],
+.supsystic-plugin input[type='search'],
+.supsystic-plugin input[type='url'],
+.supsystic-plugin input[type='email'],
+.supsystic-plugin input[type='password'] {
+  padding: 0 10px;
+}
+.supsystic-plugin select {
+  padding: 0 28px 0 10px;
+  line-height: 1.2;
+}
+.supsystic-plugin textarea {
+  padding: 8px 10px;
+}
+.supsystic-plugin input[type='text']:focus,
+.supsystic-plugin input[type='number']:focus,
+.supsystic-plugin input[type='search']:focus,
+.supsystic-plugin input[type='url']:focus,
+.supsystic-plugin input[type='email']:focus,
+.supsystic-plugin input[type='password']:focus,
+.supsystic-plugin select:focus,
+.supsystic-plugin textarea:focus {
+  border-color: var(--sgg-ui-accent);
+  box-shadow: 0 0 0 3px rgba(14, 138, 147, 0.15);
+  outline: none;
+}
+.supsystic-plugin input[readonly] {
+  background-color: var(--sgg-ui-surface);
+}
+.supsystic-plugin input::placeholder,
+.supsystic-plugin textarea::placeholder {
+  color: #94a3b8;
+}
+
+/* ---------- Gallery editor header: room around the cover and the actions ---------- */
+.supsystic-plugin .gg-detailed-info {
+  align-items: flex-start;
+  gap: 18px;
+  padding: 16px 18px;
+}
+.supsystic-plugin .gg-detailed-info .gg-detailed-info-preview {
+  padding: 0;
+}
+.supsystic-plugin .gg-detailed-info .gg-detailed-info-preview img {
+  border-radius: 12px;
+}
+.supsystic-plugin .gg-detailed-info .gg-detailed-info-heading {
+  align-items: center;
+  margin: 0 0 12px;
+  padding: 0 0 14px;
+  border-bottom: 1px solid var(--sgg-ui-line);
+}
+.supsystic-plugin .gg-detailed-info .gg-feature-status-list {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--sgg-ui-line);
+}
+.supsystic-plugin #single-gallery-toolbar .supsystic-bar-controls,
+.supsystic-plugin .gg-code-switcher {
+  gap: 8px;
+}
+.supsystic-plugin #single-gallery-toolbar .supsystic-bar-controls > li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.supsystic-plugin .gg-code-switcher .supsystic-tooltip {
+  margin-left: 2px;
+  color: var(--sgg-ui-muted);
+}
+
+/* ---------- Toolbars of the lists ---------- */
+.supsystic-plugin ul.supsystic-bar-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.supsystic-plugin ul.supsystic-bar-controls > li.separator,
+.supsystic-plugin #single-gallery-toolbar ul.supsystic-bar-controls > li.separator {
+  display: block;
+  flex: none;
+  width: 1px;
+  height: 22px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: var(--sgg-ui-line);
+  color: transparent;
+  font-size: 0;
+}
+
+/* ---------- Style library undo ---------- */
+.supsystic-plugin .sgg-st-undo.button {
+  padding: 0 12px;
+}
+.supsystic-plugin .sgg-st-undo[hidden] {
+  display: none !important;
+}
+
+/* One main action in the editor header: Save. The other buttons there are plain even when their markup says primary */
+.supsystic-plugin .gg-detailed-info .button-primary:not(#btnSave) {
+  border-color: var(--sgg-ui-line) !important;
+  background: #fff !important;
+  color: var(--sgg-ui-text) !important;
+}
+.supsystic-plugin .gg-detailed-info .button-primary:not(#btnSave):hover,
+.supsystic-plugin .gg-detailed-info .button-primary:not(#btnSave):focus {
+  border-color: var(--sgg-ui-accent) !important;
+  color: var(--sgg-ui-accent) !important;
+}
+
+/* The Save of a settings page is its main action */
+.supsystic-plugin .sgg-page-actions .button:not(.sgg-plain) {
+  border-color: transparent !important;
+  background: var(--sgg-ui-navy) !important;
+  color: #fff !important;
+}
+.supsystic-plugin .sgg-page-actions .button:not(.sgg-plain):hover,
+.supsystic-plugin .sgg-page-actions .button:not(.sgg-plain):focus {
+  background: var(--sgg-ui-navy-hover) !important;
+  color: #fff !important;
+}
+
+/* ---------- Checkboxes and radios (iCheck) in one modern look; the cards of the gallery settings keep their switches */
+/* jQuery UI moves its dialogs to <body>, outside .supsystic-plugin. Without a frame of their own the invisible click
+   layers of iCheck there cover the whole dialog, and nothing under them takes a click (the popup style cards). */
+.ui-dialog .icheckbox_minimal,
+.ui-dialog .iradio_minimal {
+  position: relative;
+}
+.supsystic-plugin .icheckbox_minimal,
+.supsystic-plugin .iradio_minimal {
+  position: relative;
+  display: inline-block;
+  flex: none;
+  box-sizing: border-box;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  border: 1.5px solid #94a3b8;
+  background: #fff;
+  vertical-align: -4px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+}
+.supsystic-plugin .icheckbox_minimal {
+  border-radius: 5px;
+}
+.supsystic-plugin .iradio_minimal {
+  border-radius: 50%;
+}
+.supsystic-plugin .icheckbox_minimal.hover,
+.supsystic-plugin .iradio_minimal.hover {
+  border-color: var(--sgg-ui-accent);
+}
+.supsystic-plugin .icheckbox_minimal.checked {
+  border-color: var(--sgg-ui-accent);
+  background: var(--sgg-ui-accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5l3 3 6-7' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 12px no-repeat;
+}
+.supsystic-plugin .iradio_minimal.checked {
+  border-color: var(--sgg-ui-accent);
+  background: radial-gradient(circle, var(--sgg-ui-accent) 0 4px, #fff 4.5px);
+}
+.supsystic-plugin .icheckbox_minimal.disabled,
+.supsystic-plugin .iradio_minimal.disabled {
+  border-color: var(--sgg-ui-field);
+  background-color: var(--sgg-ui-surface);
+  cursor: default;
+}
+.supsystic-plugin label > .icheckbox_minimal,
+.supsystic-plugin label > .iradio_minimal {
+  margin-right: 8px;
+}
+
+/* ---------- E-commerce: the warning and the file tool as cards like the settings above them ---------- */
+.supsystic-plugin .gg-ecommerce-security-warning {
+  max-width: none;
+  margin: 16px 0;
+  padding: 16px 18px;
+  border: 1px solid #fecaca;
+  border-left: 4px solid #dc2626;
+  border-radius: 12px;
+  background: #fff7f7;
+  box-shadow: none;
+}
+.supsystic-plugin form[action*='regenerateOriginalFilenames'] {
+  padding: 16px 18px;
+  border: 1px solid var(--sgg-ui-line);
+  border-radius: 12px;
+  background: #fff;
+}
+.supsystic-plugin form[action*='regenerateOriginalFilenames'] p {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  margin: 0;
+}
+.supsystic-plugin .gg-ecommerce-regenerate-description {
+  color: var(--sgg-ui-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.supsystic-plugin .supsystic-content form > p:has(> .button-primary) {
+  margin: 16px 0;
+}
+
+/* Images list toolbar: one main action there (Add Images); Apply of the bulk actions is plain */
+.supsystic-plugin .sgg-all-img-info-sect .button-primary:not(.import-to-gallery) {
+  border-color: var(--sgg-ui-line) !important;
+  background: #fff !important;
+  color: var(--sgg-ui-text) !important;
+}
+.supsystic-plugin .sgg-all-img-info-sect .button-primary:not(.import-to-gallery):hover,
+.supsystic-plugin .sgg-all-img-info-sect .button-primary:not(.import-to-gallery):focus {
+  border-color: var(--sgg-ui-accent) !important;
+  color: var(--sgg-ui-accent) !important;
+}
+
+/* Icon-only buttons (sort direction of the images list): a square like the other controls */
+.supsystic-plugin .button.button-invisible {
+  width: var(--sgg-ui-control);
+  min-width: var(--sgg-ui-control);
+  padding: 0;
+}
+
+/* Row actions of the lists: all plain outline buttons with grey icons, even when the markup says primary;
+   the delete button turns red on hover */
+.supsystic-plugin .sgg-row-actions .sggActionButtons,
+.supsystic-plugin .sgg-row-actions .sggActionButtons.button-primary {
+  height: 32px;
+  min-height: 32px;
+  border-color: var(--sgg-ui-line) !important;
+  background: #fff !important;
+  color: var(--sgg-ui-text) !important;
+}
+.supsystic-plugin .sgg-row-actions .sgg-act-icon,
+.supsystic-plugin .sgg-row-actions .sgg-act-icon.button-primary {
+  width: 32px;
+  padding: 0;
+  color: var(--sgg-ui-muted) !important;
+}
+.supsystic-plugin .sgg-row-actions .sggActionButtons:hover,
+.supsystic-plugin .sgg-row-actions .sggActionButtons:focus {
+  border-color: var(--sgg-ui-accent) !important;
+  color: var(--sgg-ui-accent) !important;
+}
+.supsystic-plugin .sgg-row-actions .sgg-act-danger:hover,
+.supsystic-plugin .sgg-row-actions .sgg-act-danger:focus {
+  border-color: #dc2626 !important;
+  color: #dc2626 !important;
+}
+
+/* ---------- Form pages (gallery group): the page head and the card of Advanced Settings ---------- */
+.supsystic-plugin .sgg-form-page {
+  max-width: 900px;
+  padding: 6px 4px 10px;
+  color: var(--sgg-ui-text);
+  line-height: 1.5;
+}
+.supsystic-plugin .sgg-form-page .sgg-page-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin: 0 0 18px;
+}
+.supsystic-plugin .sgg-form-page .sgg-page-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.supsystic-plugin .sgg-form-page .sgg-page-icon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: linear-gradient(145deg, rgba(74, 232, 234, 0.22), rgba(55, 125, 255, 0.16));
+  color: #1f5fd6;
+  font-size: 18px;
+}
+.supsystic-plugin .sgg-form-page .sgg-page-title h2 {
+  margin: 0;
+  padding: 0;
+  color: var(--sgg-ui-ink);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+.supsystic-plugin .sgg-form-page .sgg-page-title p {
+  margin: 2px 0 0;
+  color: var(--sgg-ui-muted);
+  font-size: 13px;
+}
+.supsystic-plugin .sgg-page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.supsystic-plugin .sgg-form-card {
+  padding: 4px 20px;
+  border: 1px solid var(--sgg-ui-line);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 16px -8px rgba(15, 23, 42, 0.1);
+}
+.supsystic-plugin .sgg-form-card .form-table {
+  margin: 0;
+}
+.supsystic-plugin .sgg-form-card .form-table tr + tr > th,
+.supsystic-plugin .sgg-form-card .form-table tr + tr > td {
+  border-top: 1px solid #f1f5f9;
+}
+.supsystic-plugin .sgg-form-card .form-table th {
+  width: 200px;
+  padding: 12px 16px 12px 0 !important;
+  color: var(--sgg-ui-ink);
+  font-weight: 600;
+  line-height: 34px;
+  vertical-align: top;
+}
+.supsystic-plugin .sgg-form-card .form-table td {
+  padding: 12px 0 !important;
+  line-height: 34px;
+}
+.supsystic-plugin .sgg-form-card .form-table th .supsystic-tooltip {
+  margin-left: 4px;
+  color: var(--sgg-ui-muted);
+}
+
+/* Search-and-pick fields (gallery groups, e-commerce): chips as pills, the list as a dropdown card */
+.supsystic-plugin .gg-ajax-selected:empty {
+  display: none;
+}
+.supsystic-plugin .gg-ajax-chip {
+  gap: 4px;
+  padding: 3px 4px 3px 10px;
+  border: 1px solid #bfe3e6;
+  border-radius: 999px;
+  background: var(--sgg-ui-accent-soft);
+  color: #0b6e75;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 20px;
+}
+.supsystic-plugin .gg-ajax-chip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  color: #0b6e75;
+  font-size: 14px;
+}
+.supsystic-plugin .gg-ajax-chip-remove:hover,
+.supsystic-plugin .gg-ajax-chip-remove:focus {
+  background: rgba(14, 138, 147, 0.15);
+  color: #0b6e75;
+}
+.supsystic-plugin .gg-ajax-results {
+  border-color: var(--sgg-ui-line);
+  border-radius: 8px;
+  box-shadow: 0 10px 24px -10px rgba(15, 23, 42, 0.25);
+}
+.supsystic-plugin .gg-ajax-result {
+  line-height: 1.4;
+}
+.supsystic-plugin .gg-ajax-result:hover,
+.supsystic-plugin .gg-ajax-result:focus {
+  background: var(--sgg-ui-surface);
+  color: var(--sgg-ui-accent);
+}
+
+/* Color fields (WordPress picker): the swatch on the left is the inline background of the button, the text part on
+   the right; the same height, border and radius as the other fields */
+.supsystic-plugin .wp-picker-container .wp-color-result.button {
+  display: inline-block;
+  height: var(--sgg-ui-control);
+  min-height: var(--sgg-ui-control);
+  margin: 0;
+  padding: 0 0 0 34px;
+  overflow: hidden;
+  border: 1px solid var(--sgg-ui-field) !important;
+  border-radius: var(--sgg-ui-radius) !important;
+  box-shadow: none !important;
+  vertical-align: middle;
+}
+.supsystic-plugin .wp-picker-container .wp-color-result .wp-color-result-text {
+  display: block;
+  height: calc(var(--sgg-ui-control) - 2px);
+  padding: 0 12px;
+  border-left: 1px solid var(--sgg-ui-line);
+  border-radius: 0 7px 7px 0;
+  background: var(--sgg-ui-surface);
+  color: var(--sgg-ui-text);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: calc(var(--sgg-ui-control) - 2px);
+}
+.supsystic-plugin .wp-picker-container .wp-color-result:hover,
+.supsystic-plugin .wp-picker-container .wp-color-result:focus {
+  border-color: var(--sgg-ui-accent) !important;
+}
+
+/* Settings / Posts switch of the gallery editor: pills like the e-commerce sections, in line with the breadcrumbs */
+.supsystic-plugin .gg-settings-header-row {
+  margin: 0 0 0 75px;
+  padding: 16px 0;
+}
+.supsystic-plugin .gg-settings-header-row .form-tabs {
+  display: inline-flex !important;
+  flex: none;
+  width: auto !important;
+  min-width: 0 !important;
+  gap: 4px;
+  margin: 0 !important;
+  padding: 4px !important;
+  border: 1px solid var(--sgg-ui-line) !important;
+  border-radius: 12px;
+  background: #fff;
+  line-height: 1;
+}
+.supsystic-plugin .gg-settings-header-row .form-tabs .nav-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  float: none;
+  height: 32px;
+  margin: 0 !important;
+  padding: 0 14px !important;
+  border: 0 !important;
+  border-radius: 9px;
+  background: none;
+  color: var(--sgg-ui-text);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+}
+.supsystic-plugin .gg-settings-header-row .form-tabs .nav-tab:hover {
+  background: #f1f5f9;
+  color: var(--sgg-ui-ink);
+}
+.supsystic-plugin .gg-settings-header-row .form-tabs .nav-tab.active,
+.supsystic-plugin .gg-settings-header-row .form-tabs .nav-tab.nav-tab-active {
+  background: var(--sgg-ui-navy);
+  color: #fff;
+}
+.supsystic-plugin .gg-settings-header-row .form-tabs .nav-tab .fa {
+  color: inherit;
+  font-size: 13px;
+}
+@media screen and (max-width: 810px) {
+  .supsystic-plugin .gg-settings-header-row {
+    margin-left: 40px;
+  }
+}
+
+/* Gallery settings cards: room between the options of a radio group; buttons inside a card are plain (Save is the
+   only main action of the page) */
+.supsystic-plugin .sgg-settings-ui .sgg-section label + .iradio_minimal {
+  margin-left: 16px;
+}
+.supsystic-plugin .sgg-settings-ui .sgg-section .iradio_minimal + label {
+  margin-left: 2px;
+}
+.supsystic-plugin .sgg-settings-ui .sgg-section .button-primary {
+  border-color: var(--sgg-ui-line) !important;
+  background: #fff !important;
+  color: var(--sgg-ui-text) !important;
+}
+.supsystic-plugin .sgg-settings-ui .sgg-section .button-primary:hover,
+.supsystic-plugin .sgg-settings-ui .sgg-section .button-primary:focus {
+  border-color: var(--sgg-ui-accent) !important;
+  color: var(--sgg-ui-accent) !important;
+}
+
+/* ---------- Old jQuery UI dialogs: rounded frame, white title, button bar; the action button dark, Cancel plain ---------- */
+.supsystic-plugin ~ .ui-dialog.ui-widget,
+body.wp-admin .ui-dialog.ui-widget {
+  padding: 0;
+  border: 1px solid var(--sgg-ui-line) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 24px 48px -16px rgba(15, 23, 42, 0.35) !important;
+}
+.ui-dialog .ui-dialog-titlebar.ui-widget-header {
+  padding: 12px 16px !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--sgg-ui-line) !important;
+  border-radius: 12px 12px 0 0 !important;
+  background: #fff !important;
+  color: var(--sgg-ui-ink) !important;
+  font-size: 15px;
+  font-weight: 700;
+}
+.ui-dialog .ui-dialog-content {
+  padding: 16px !important;
+  color: var(--sgg-ui-text);
+}
+.ui-dialog .ui-dialog-buttonpane {
+  margin: 0 !important;
+  padding: 10px 16px !important;
+  border-top: 1px solid var(--sgg-ui-line) !important;
+  border-radius: 0 0 12px 12px;
+  background: var(--sgg-ui-surface) !important;
+}
+.ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  float: none;
+}
+.ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset .button {
+  margin: 0 !important;
+}
+.ui-dialog .ui-dialog-buttonpane .button-primary:not(.sgg-dlg-plain) {
+  border-color: transparent !important;
+  background: var(--sgg-ui-navy) !important;
+  color: #fff !important;
+}
+.ui-dialog .ui-dialog-buttonpane .button-primary:not(.sgg-dlg-plain):hover,
+.ui-dialog .ui-dialog-buttonpane .button-primary:not(.sgg-dlg-plain):focus {
+  border-color: transparent !important;
+  background: var(--sgg-ui-navy-hover) !important;
+  color: #fff !important;
+}
+.ui-dialog .ui-dialog-buttonpane .button.sgg-dlg-plain:hover,
+.ui-dialog .ui-dialog-buttonpane .button.sgg-dlg-plain:focus {
+  border-color: var(--sgg-ui-accent) !important;
+  background: #fff !important;
+  color: var(--sgg-ui-accent) !important;
+}
+
+/* Save of the Carousel and Slider editors: the main action, dark like the Save of the other editors */
+.supsystic-plugin .sgg-sle .sgg-sle-save {
+  border-color: transparent !important;
+  background: var(--sgg-ui-navy) !important;
+  color: #fff !important;
+}
+.supsystic-plugin .sgg-sle .sgg-sle-save:hover,
+.supsystic-plugin .sgg-sle .sgg-sle-save:focus {
+  background: var(--sgg-ui-navy-hover) !important;
+  color: #fff !important;
+}
+
+/* Select2 pickers (products, categories, posts): one frame like the other fields; the search inside has none,
+   the picked values are pills */
+.supsystic-plugin .select2-container .select2-search__field {
+  min-height: 0 !important;
+  margin: 0;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.supsystic-plugin .select2-container--default .select2-selection--multiple,
+.supsystic-plugin .select2-container--default .select2-selection--single {
+  min-height: var(--sgg-ui-control);
+  border: 1px solid var(--sgg-ui-field) !important;
+  border-radius: var(--sgg-ui-radius) !important;
+  background: #fff;
+}
+.supsystic-plugin .select2-container--default.select2-container--focus .select2-selection--multiple,
+.supsystic-plugin .select2-container--default.select2-container--open .select2-selection--multiple,
+.supsystic-plugin .select2-container--default.select2-container--open .select2-selection--single {
+  border-color: var(--sgg-ui-accent) !important;
+  box-shadow: 0 0 0 3px rgba(14, 138, 147, 0.15);
+}
+.supsystic-plugin .select2-container--default .select2-selection--multiple .select2-selection__choice {
+  border: 1px solid #bfe3e6;
+  border-radius: 999px;
+  background: var(--sgg-ui-accent-soft);
+  color: #0b6e75;
+  font-size: 12px;
+  font-weight: 600;
+}
+.supsystic-plugin .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+  border: 0;
+  background: none;
+  color: #0b6e75;
+}
+
+/* ---------- Add Images window (choose the source): a list of sources; Media Library is the main one ---------- */
+:is(#importDialog, .sgg-empty-images) .media-wrapr {
+  width: auto !important;
+}
+:is(#importDialog, .sgg-empty-images) .media-wrapr > br {
+  display: none;
+}
+:is(#importDialog, .sgg-empty-images) .media-wrapr > label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 4px;
+  color: var(--sgg-ui-text);
+  font-size: 13px;
+}
+:is(#importDialog, .sgg-empty-images) .media-wrapr > label input[type='checkbox'] {
+  margin: 0;
+  accent-color: var(--sgg-ui-accent);
+}
+:is(#importDialog, .sgg-empty-images) .media-wrapr h1 {
+  margin: 12px 0 10px;
+  padding: 0;
+  color: var(--sgg-ui-ink);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+:is(#importDialog, .sgg-empty-images) .media-wrapr h3 {
+  margin: 18px 0 8px !important;
+  color: var(--sgg-ui-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+:is(#importDialog, .sgg-empty-images) .media-wrapr .button.button-hero {
+  justify-content: flex-start;
+  gap: 10px;
+  width: 100% !important;
+  height: 44px;
+  min-height: 44px;
+  margin: 0 0 8px !important;
+  padding: 0 14px;
+  border-color: var(--sgg-ui-line) !important;
+  background: #fff !important;
+  color: var(--sgg-ui-text) !important;
+  font-size: 13px;
+  font-weight: 600;
+}
+:is(#importDialog, .sgg-empty-images) .media-wrapr .button.button-hero .fa,
+:is(#importDialog, .sgg-empty-images) .media-wrapr .button.button-hero [class*='fa-'] {
+  width: 18px;
+  color: var(--sgg-ui-accent);
+  font-size: 15px;
+  text-align: center;
+}
+:is(#importDialog, .sgg-empty-images) .media-wrapr .button.button-hero:hover,
+:is(#importDialog, .sgg-empty-images) .media-wrapr .button.button-hero:focus {
+  border-color: var(--sgg-ui-accent) !important;
+  color: var(--sgg-ui-accent) !important;
+}
+:is(#importDialog, .sgg-empty-images) .media-wrapr #gg-btn-upload.button-hero,
+:is(#importDialog, .sgg-empty-images) .media-wrapr a.button-hero[target='_blank']:not(.disabled) {
+  border-color: transparent !important;
+  background: var(--sgg-ui-navy) !important;
+  color: #fff !important;
+}
+:is(#importDialog, .sgg-empty-images) .media-wrapr #gg-btn-upload.button-hero [class*='fa-'],
+:is(#importDialog, .sgg-empty-images) .media-wrapr a.button-hero[target='_blank']:not(.disabled) [class*='fa-'] {
+  color: #fff;
+}
+:is(#importDialog, .sgg-empty-images) .media-wrapr #gg-btn-upload.button-hero:hover,
+:is(#importDialog, .sgg-empty-images) .media-wrapr a.button-hero[target='_blank']:not(.disabled):hover {
+  background: var(--sgg-ui-navy-hover) !important;
+  color: #fff !important;
+}
+:is(#importDialog, .sgg-empty-images) .media-wrapr .button.button-hero.disabled {
+  background: var(--sgg-ui-surface) !important;
+  color: #a3adb9 !important;
+}
+:is(#importDialog, .sgg-empty-images) .media-wrapr .button.button-hero.disabled [class*='fa-'] {
+  color: #a3adb9;
+}
+
+/* ---------- Empty Images list: a card with the same source list, in two columns ---------- */
+.supsystic-plugin .sgg-empty-images {
+  max-width: 760px;
+  margin: 32px auto 40px;
+  padding: 28px 32px 22px;
+  border: 1px solid var(--sgg-ui-line);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px -12px rgba(15, 23, 42, 0.18);
+}
+.supsystic-plugin .sgg-empty-images-head {
+  margin: 0 0 6px;
+  text-align: center;
+}
+.supsystic-plugin .sgg-empty-images-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: var(--sgg-ui-accent-soft);
+  color: var(--sgg-ui-accent);
+  font-size: 24px;
+}
+.supsystic-plugin .sgg-empty-images-head h2 {
+  margin: 14px 0 6px;
+  padding: 0;
+  color: var(--sgg-ui-ink);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.supsystic-plugin .sgg-empty-images-head p {
+  margin: 0;
+  overflow: visible;
+  color: var(--sgg-ui-muted);
+  font-size: 13px;
+  line-height: 1.5;
+  text-overflow: clip;
+  white-space: normal;
+}
+.supsystic-plugin .sgg-empty-images .media-wrapr {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 10px;
+  width: auto !important;
+  margin: 0 !important;
+}
+.supsystic-plugin .sgg-empty-images .media-wrapr > label,
+.supsystic-plugin .sgg-empty-images .media-wrapr > h1,
+.supsystic-plugin .sgg-empty-images .media-wrapr > h3 {
+  grid-column: 1 / -1;
+}
+.supsystic-plugin .sgg-empty-images .media-wrapr > label {
+  justify-content: center;
+  margin: 14px 0 0;
+}
+/* The window's rules use the id of the window, so the section label of the card needs !important */
+.supsystic-plugin .sgg-empty-images .media-wrapr > h1 {
+  margin: 18px 0 8px !important;
+  color: var(--sgg-ui-muted) !important;
+  font-size: 11px !important;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.supsystic-plugin .sgg-empty-images .media-wrapr .button.button-hero {
+  margin: 0 0 10px !important;
+}
+@media screen and (max-width: 782px) {
+  .supsystic-plugin .sgg-empty-images .media-wrapr {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ---------- Posts tab of the gallery editor: the options and the list as cards, like the Settings tab ---------- */
+.supsystic-plugin .sgg-settings-ui > [data-tab='posts']:has(> .form-table) {
+  margin: 0 0 16px;
+  padding: 6px 20px 8px;
+  border: 1px solid var(--sgg-ui-line);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 16px -8px rgba(15, 23, 42, 0.1);
+}
+.supsystic-plugin .sgg-settings-ui > [data-tab='posts'] > .form-table {
+  width: 100%;
+  margin: 0;
+  border-collapse: collapse;
+}
+.supsystic-plugin .sgg-settings-ui > [data-tab='posts'] > .form-table th {
+  width: 290px;
+  padding: 11px 18px 11px 0 !important;
+  color: var(--sgg-ui-text);
+  font-size: 13px;
+  font-weight: 500 !important;
+  vertical-align: middle;
+}
+.supsystic-plugin .sgg-settings-ui > [data-tab='posts'] > .form-table td {
+  padding: 8px 0 !important;
+  color: var(--sgg-ui-text);
+  font-size: 13px;
+  vertical-align: middle;
+}
+.supsystic-plugin .sgg-settings-ui > [data-tab='posts'] > .form-table tr + tr > th,
+.supsystic-plugin .sgg-settings-ui > [data-tab='posts'] > .form-table tr + tr > td {
+  border-top: 1px solid #f1f5f9;
+}
+.supsystic-plugin .sgg-settings-ui > [data-tab='posts'] > .form-table th h3,
+.supsystic-plugin .sgg-settings-ui > [data-tab='posts'] > .form-table th h4 {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: auto;
+  margin: 0 !important;
+  padding: 4px 0;
+  border-radius: 0;
+  background: none;
+  color: var(--sgg-ui-ink);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.35;
+  text-shadow: none;
+}
+.supsystic-plugin .sgg-settings-ui > [data-tab='posts'] > .form-table th h4 {
+  font-size: 14px;
+}
+.supsystic-plugin .sgg-settings-ui > [data-tab='posts'] > .form-table th .fa-question.supsystic-tooltip {
+  border-color: var(--sgg-ui-field);
+  color: var(--sgg-ui-muted);
+}
+.supsystic-plugin .sgg-settings-ui > [data-tab='posts'] > .form-table th h3:before,
+.supsystic-plugin .sgg-settings-ui > [data-tab='posts'] > .form-table th h4:before {
+  content: '';
+  flex: none;
+  width: 4px;
+  height: 16px;
+  border-radius: 2px;
+  background: linear-gradient(135deg, #4ae8ea 0%, #377dff 100%);
+}
+.supsystic-plugin .sgg-settings-ui > [data-tab='posts'] > .form-table th h4:before {
+  background: #2b4d73;
+}
+.supsystic-plugin .sgg-settings-ui > [data-tab='posts'] > .form-table td .button {
+  margin-left: 6px;
+}
+.supsystic-plugin .sgg-settings-ui > [data-tab='posts'] > .form-table label + .iradio_minimal {
+  margin-left: 16px;
+}
+
+/* The toolbar above the list: in line with the card, not with the breadcrumbs */
+.supsystic-plugin .sgg-settings-ui .sggPostsPreTable {
+  margin: 0 0 10px;
+}
+.supsystic-plugin .sgg-settings-ui .sggPostsPreTable .supsystic-bar {
+  height: auto !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.supsystic-plugin .sgg-settings-ui .sggPostsPreTable .supsystic-bar-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+.supsystic-plugin .sgg-settings-ui .sggPostsPreTable .supsystic-bar-controls > li {
+  margin: 0;
+}
+.supsystic-plugin .sgg-settings-ui .sggPostsPreTable #remove-posts.button {
+  border-color: var(--sgg-ui-line) !important;
+  background: #fff !important;
+  color: var(--sgg-ui-text) !important;
+}
+.supsystic-plugin .sgg-settings-ui .sggPostsPreTable #remove-posts.button:hover,
+.supsystic-plugin .sgg-settings-ui .sggPostsPreTable #remove-posts.button:focus {
+  border-color: #dc2626 !important;
+  color: #dc2626 !important;
+}
+.supsystic-plugin .sgg-settings-ui .sggPostsPreTable #button-select-posts.button {
+  width: var(--sgg-ui-control);
+  padding: 0;
+}
+
+/* The list of chosen posts and pages (jqGrid) */
+.supsystic-plugin .sgg-settings-ui [data-tab='posts'] .ui-jqgrid {
+  width: 100% !important;
+  box-sizing: border-box;
+  overflow: hidden;
+  border: 1px solid var(--sgg-ui-line) !important;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 16px -8px rgba(15, 23, 42, 0.1);
+}
+.supsystic-plugin .sgg-settings-ui [data-tab='posts'] .ui-jqgrid .ui-jqgrid-view,
+.supsystic-plugin .sgg-settings-ui [data-tab='posts'] .ui-jqgrid .ui-jqgrid-hdiv,
+.supsystic-plugin .sgg-settings-ui [data-tab='posts'] .ui-jqgrid .ui-jqgrid-bdiv,
+.supsystic-plugin .sgg-settings-ui [data-tab='posts'] .ui-jqgrid .ui-jqgrid-hbox {
+  width: 100% !important;
+  border: 0 !important;
+}
+.supsystic-plugin .sgg-settings-ui [data-tab='posts'] .ui-jqgrid .ui-jqgrid-hbox {
+  padding: 0 !important;
+}
+.supsystic-plugin .sgg-settings-ui [data-tab='posts'] .ui-jqgrid table.ui-jqgrid-htable,
+.supsystic-plugin .sgg-settings-ui [data-tab='posts'] .ui-jqgrid table.ui-jqgrid-btable {
+  width: 100% !important;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+.supsystic-plugin .sgg-settings-ui [data-tab='posts'] .ui-jqgrid .ui-jqgrid-labels th {
+  height: 40px;
+  padding: 0 10px !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--sgg-ui-line) !important;
+  background: var(--sgg-ui-surface) !important;
+  color: var(--sgg-ui-muted) !important;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.supsystic-plugin .sgg-settings-ui [data-tab='posts'] .ui-jqgrid .ui-jqgrid-labels th > div {
+  height: auto;
+  color: inherit;
+}
+.supsystic-plugin .sgg-settings-ui [data-tab='posts'] .ui-jqgrid .ui-jqgrid-labels th .s-ico,
+.supsystic-plugin .sgg-settings-ui [data-tab='posts'] .ui-jqgrid .ui-jqgrid-resize {
+  display: none !important;
+}
+.supsystic-plugin .sgg-settings-ui [data-tab='posts'] .ui-jqgrid .ui-jqgrid-bdiv {
+  overflow-x: hidden !important;
+}
+/* The sizing row of jqGrid has no height, only its borders showed */
+.supsystic-plugin .sgg-settings-ui [data-tab='posts'] .ui-jqgrid tr.jqgfirstrow td {
+  padding: 0 !important;
+  border: 0 !important;
+}
+.supsystic-plugin .sgg-settings-ui [data-tab='posts'] .ui-jqgrid tr.jqgrow td {
+  padding: 8px 10px !important;
+  border: 0 !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+  color: var(--sgg-ui-text);
+  font-size: 13px;
+  vertical-align: middle;
+}
+.supsystic-plugin .sgg-settings-ui [data-tab='posts'] .ui-jqgrid tr.jqgrow:last-child td {
+  border-bottom: 0 !important;
+}
+.supsystic-plugin .sgg-settings-ui [data-tab='posts'] .ui-jqgrid tr.jqgrow:hover td {
+  background: var(--sgg-ui-surface);
+}
+.supsystic-plugin .sgg-settings-ui [data-tab='posts'] .ui-jqgrid tr.jqgrow img {
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+/* ---------- Live previews of Carousel and Slider: card buttons as on the site (the palette of the style), not as the
+   buttons of the admin pages */
+.supsystic-plugin .sgg-sl:not(.sgg-sl-shop-theme) .sgg-sl-card .sgg-sl-card-button.button {
+  height: auto;
+  min-height: 0;
+  padding: 9px 16px;
+  border: 0 !important;
+  border-radius: calc(var(--sgg-sl-radius, 12px) * 0.5 + 2px) !important;
+  background: var(--sgg-sl-accent, #377dff) !important;
+  color: var(--sgg-sl-on-accent, #fff) !important;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.3;
+  white-space: normal;
+}
+.supsystic-plugin .sgg-sl:not(.sgg-sl-shop-theme) .sgg-sl-card .sgg-sl-card-button.button:hover,
+.supsystic-plugin .sgg-sl:not(.sgg-sl-shop-theme) .sgg-sl-card .sgg-sl-card-button.button:focus {
+  background: color-mix(in srgb, var(--sgg-sl-accent, #377dff) 85%, #000) !important;
+  color: var(--sgg-sl-on-accent, #fff) !important;
+}

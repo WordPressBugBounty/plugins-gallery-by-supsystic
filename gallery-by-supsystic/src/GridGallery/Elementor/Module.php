@@ -59,6 +59,11 @@ class GridGallery_Elementor_Module extends RscSgg_Mvc_Module
     if ($galleries) {
       $galleries->loadFrontendAssets();
     }
+    // Carousel and Slider galleries: Swiper, PhotoSwipe and their script
+    $carousel = $this->getModule('carousel');
+    if ($carousel && method_exists($carousel, 'enqueueFrontAssets')) {
+      $carousel->enqueueFrontAssets(true, true);
+    }
   }
 
   /**

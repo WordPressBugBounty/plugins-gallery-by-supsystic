@@ -91,7 +91,9 @@
             </h3>
         </th>
         <td>
-            <button type="button" class="button gg-pro-read-more" data-gg-pro-title="{{ title|striptags }}" data-gg-pro-desc="{{ readMoreHtml }}">
+            {% set utmParts = utmParams|split('utm_medium=') %}
+            {% set upsellKey = rowId is not empty ? rowId : (utmParts|length > 1 ? (utmParts[1]|split('&'))|first : '') %}
+            <button type="button" class="button gg-pro-read-more" data-gg-pro-title="{{ title|striptags }}" data-gg-pro-desc="{{ readMoreHtml }}"{% if upsellKey %} data-sgg-upsell="{{ upsellKey|e('html_attr') }}"{% endif %}{% if imageUrl is not empty %} data-sgg-upsell-image="{{ imageUrl|e('html_attr') }}"{% endif %}>
                 {{ translate('Read more') }} <span class="gg-pro-read-more-q">?</span>
             </button>
         </td>

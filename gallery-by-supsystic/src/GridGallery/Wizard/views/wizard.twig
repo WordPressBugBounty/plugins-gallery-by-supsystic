@@ -1,0 +1,163 @@
+{# Creation wizard on the New Gallery page (GridGallery_Wizard_Module). wizard.js runs the steps, draws the pictures
+   of the goals and styles (SggStyleMock of the Styles module), the live picture and the creation. #}
+{% set wz = environment.getModule('wizard').viewData() %}
+{% set groups = {
+    'gallery': [environment.translate('Gallery'), 'fa-th', environment.translate('A grid of images on the page. A click opens the image in a lightbox.')],
+    'carousel': [environment.translate('Carousel'), 'fa-columns', environment.translate('Several images or products in a row that slide.')],
+    'slider': [environment.translate('Slider'), 'fa-image', environment.translate('One large slide at a time.')]
+} %}
+<div class="sgg-wz" data-sgg-wz data-config="{{ wz|json_encode|e('html_attr') }}"
+     data-msg-count="{{ environment.translate('%d images chosen')|e('html_attr') }}"
+     data-msg-min="{{ environment.translate('Recommended: %d or more')|e('html_attr') }}"
+     data-msg-none="{{ environment.translate('No images yet: you can add them later on the Images page.')|e('html_attr') }}"
+     data-msg-odd="{{ environment.translate('Add one more image: every Before needs an After.')|e('html_attr') }}"
+     data-msg-pair="{{ environment.translate('Slide %d')|e('html_attr') }}"
+     data-msg-media="{{ environment.translate('Images for the gallery')|e('html_attr') }}"
+     data-msg-use="{{ environment.translate('Use these images')|e('html_attr') }}"
+     data-msg-remove="{{ environment.translate('Remove')|e('html_attr') }}"
+     data-msg-left="{{ environment.translate('Move left')|e('html_attr') }}"
+     data-msg-right="{{ environment.translate('Move right')|e('html_attr') }}"
+     data-msg-no-images="{{ environment.translate('Takes its content from your site, no images needed')|e('html_attr') }}"
+     data-msg-extras-count="{{ environment.translate('%d on')|e('html_attr') }}"
+     data-msg-no-extras="{{ environment.translate('No additional options')|e('html_attr') }}"
+     data-msg-error="{{ environment.translate('The gallery could not be created. Please try again.')|e('html_attr') }}">
+    <ol class="sgg-wz-steps">
+        {% for step, label in {'goal': environment.translate('Your goal'), 'images': environment.translate('Images'), 'style': environment.translate('Style'), 'extras': environment.translate('Additional'), 'name': environment.translate('Finish')} %}
+            <li data-wz-step-label="{{ step }}"><button type="button" data-wz-jump="{{ step }}" disabled><span>{{ loop.index }}</span><b>{{ label }}</b><small data-wz-step-value="{{ step }}"></small></button></li>
+        {% endfor %}
+    </ol>
+
+    <section class="sgg-wz-pane" data-wz-step="goal">
+        <header>
+            <h2>{{ environment.translate('What are you making?') }}</h2>
+            <p>{{ environment.translate('Pick the layout closest to what you need. The picture on each card shows how it looks on the page; every setting can be changed later in the editor.') }}</p>
+        </header>
+        {% for group, info in groups %}
+            <div class="sgg-wz-group">
+                <h3><i class="{{ 'fa ' ~ info[1] }}" aria-hidden="true"></i>{{ ' ' ~ info[0] }}<small>{{ info[2] }}</small></h3>
+                <div class="sgg-wz-goals">
+                    {% for id, goal in wz.goals if goal.group == group %}
+                        {% if goal.off %}
+                        {# Needs a plugin that is off (WooCommerce): a grey card that cannot be picked, with the way to turn it on #}
+                        <div class="sgg-wz-goal is-off" aria-disabled="true">
+                            <span class="sgg-wz-goal-pic" data-wz-goal-pic="{{ id }}"></span>
+                            <span class="sgg-wz-goal-body">
+                                <strong>{{ goal.name }}</strong>
+                                <span class="sgg-wz-goal-text">{{ goal.text }}</span>
+                                {% if goal.offUrl %}<a class="sgg-wz-goal-off" href="{{ goal.offUrl|e('html_attr') }}"><i class="fa fa-plug" aria-hidden="true"></i>{{ ' ' ~ goal.off }}</a>{% else %}<span class="sgg-wz-goal-off"><i class="fa fa-plug" aria-hidden="true"></i>{{ ' ' ~ goal.off }}</span>{% endif %}
+                            </span>
+                        </div>
+                        {% else %}
+                        <button type="button" class="sgg-wz-goal{% if goal.locked %} is-locked{% endif %}" data-wz-goal="{{ id }}"{% if goal.locked %} data-sgg-upsell="{{ goal.upsell }}"{% endif %}>
+                            <span class="sgg-wz-goal-pic" data-wz-goal-pic="{{ id }}"></span>
+                            <span class="sgg-wz-goal-body">
+                                <strong>{{ goal.name }}{% if goal.locked %}<em>PRO</em>{% endif %}</strong>
+                                <span class="sgg-wz-goal-text">{{ goal.text }}</span>
+                                {% if goal.best %}
+                                    <span class="sgg-wz-goal-best"><b>{{ environment.translate('Best for:') }}</b>{{ ' ' ~ goal.best }}</span>
+                                {% endif %}
+                                {% if goal.tags %}
+                                    <span class="sgg-wz-goal-tags">{% for tag in goal.tags %}<i>{{ tag }}</i>{% endfor %}</span>
+                                {% endif %}
+                            </span>
+                        </button>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+    </section>
+
+    <section class="sgg-wz-pane" data-wz-step="images" hidden>
+        <header>
+            <h2>{{ environment.translate('Add images') }}</h2>
+            <p data-wz-hint></p>
+        </header>
+        <div class="sgg-wz-drop">
+            <span class="sgg-wz-drop-icon"><i class="fa fa-image" aria-hidden="true"></i></span>
+            <div class="sgg-wz-drop-text">
+                <strong>{{ environment.translate('Choose from the Media Library') }}</strong>
+                <span>{{ environment.translate('Pick several images at once, or upload new ones in the same window.') }}</span>
+            </div>
+            <button type="button" class="button button-primary" data-wz-media><i class="fa fa-plus" aria-hidden="true"></i>{{ ' ' ~ environment.translate('Choose images') }}</button>
+        </div>
+        <div class="sgg-wz-count">
+            <span data-wz-count></span>
+            <span class="sgg-wz-min" data-wz-min></span>
+        </div>
+        <div class="sgg-wz-picked" data-wz-picked></div>
+        <p class="sgg-wz-note" data-wz-order-note hidden><i class="fa fa-arrows" aria-hidden="true"></i>{{ ' ' ~ environment.translate('Drag images to change their order. You can add, remove and sort images later on the Images page too.') }}</p>
+    </section>
+
+    <section class="sgg-wz-pane" data-wz-step="style" hidden>
+        <header>
+            <h2>{{ environment.translate('Choose a style') }}</h2>
+            <p data-wz-style-lead></p>
+        </header>
+        <div class="sgg-wz-style">
+            <div class="sgg-wz-style-list">
+                <div class="sgg-wz-style-tools">
+                    <span class="sgg-st-seg" role="group" data-wz-tiers>
+                        <button type="button" data-wz-tier="all" aria-pressed="true">{{ environment.translate('All') }}</button>
+                        <button type="button" data-wz-tier="free" aria-pressed="false">{{ environment.translate('Free') }}</button>
+                        <button type="button" data-wz-tier="pro" aria-pressed="false">PRO</button>
+                    </span>
+                    <select data-wz-collection aria-label="{{ environment.translate('Collection')|e('html_attr') }}">
+                        <option value="">{{ environment.translate('All collections') }}</option>
+                        {% for collection in wz.collections %}<option value="{{ collection.id }}">{{ collection.name }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="sgg-wz-styles" data-wz-styles></div>
+            </div>
+            <div class="sgg-wz-style-side">
+                <div class="sgg-wz-preview" data-wz-preview></div>
+                <div class="sgg-wz-style-info">
+                    <div class="sgg-wz-style-title">
+                        <strong data-wz-style-name></strong>
+                        <small data-wz-style-collection></small>
+                        <span class="sgg-wz-palette" data-wz-palette aria-hidden="true"></span>
+                    </div>
+                    <ul class="sgg-wz-specs" data-wz-specs></ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="sgg-wz-pane" data-wz-step="extras" hidden>
+        <header>
+            <h2>{{ environment.translate('Additional options') }}</h2>
+            <p data-wz-extras-lead></p>
+        </header>
+        <div class="sgg-wz-style sgg-wz-extras">
+            <div class="sgg-wz-extras-list" data-wz-extras></div>
+            <div class="sgg-wz-style-side">
+                <div class="sgg-wz-preview" data-wz-extras-preview></div>
+                <p class="sgg-wz-extras-note" data-wz-extras-note role="status" hidden></p>
+            </div>
+        </div>
+    </section>
+
+    <section class="sgg-wz-pane" data-wz-step="name" hidden>
+        <header>
+            <h2>{{ environment.translate('Name your gallery') }}</h2>
+            <p>{{ environment.translate('The name is for you only, visitors do not see it.') }}</p>
+        </header>
+        <div class="sgg-wz-finish">
+            <div class="sgg-wz-finish-pic" data-wz-finish-pic></div>
+            <div class="sgg-wz-finish-form">
+                <label class="sgg-wz-title"><span>{{ environment.translate('Gallery name') }}</span><input type="text" maxlength="120" data-wz-title></label>
+                <ul class="sgg-wz-summary" data-wz-summary></ul>
+                <p class="sgg-wz-after">{{ environment.translate('Next the editor opens: there you can fine-tune every option, preview the gallery and copy its shortcode to any page or post.') }}</p>
+                <div class="sgg-wz-create">
+                    <button type="button" class="button button-primary button-hero" data-wz-create><i class="fa fa-check" aria-hidden="true"></i>{{ ' ' ~ environment.translate('Create gallery') }}</button>
+                    <span class="sgg-wz-status" data-wz-status role="status" aria-live="polite"></span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="sgg-wz-foot">
+        <button type="button" class="button" data-wz-back hidden><i class="fa fa-arrow-left" aria-hidden="true"></i>{{ ' ' ~ environment.translate('Back') }}</button>
+        <button type="button" class="button button-primary" data-wz-next hidden>{{ environment.translate('Next') ~ ' ' }}<i class="fa fa-arrow-right" aria-hidden="true"></i></button>
+    </div>
+</div>

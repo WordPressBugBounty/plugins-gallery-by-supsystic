@@ -1,0 +1,969 @@
+/* Carousel, Slider and Product carousel of Photo Gallery. Sizes and colors come from the CSS variables on .sgg-sl;
+   data-device (d, t, m) is set from the width of the slider itself. */
+
+.sgg-sl {
+  --sgg-sl-gap-dots: 14px;
+  position: relative;
+  box-sizing: border-box;
+  width: var(--sgg-sl-width, 100%);
+  max-width: var(--sgg-sl-max, none);
+  margin: 0 auto 1.5em;
+}
+.sgg-sl *,
+.sgg-sl *:before,
+.sgg-sl *:after {
+  box-sizing: border-box;
+}
+.sgg-sl.sgg-sl-align-left {
+  margin-left: 0;
+  margin-right: auto;
+}
+.sgg-sl.sgg-sl-align-right {
+  margin-left: auto;
+  margin-right: 0;
+}
+.sgg-sl-stage {
+  position: relative;
+}
+.sgg-sl-swiper {
+  overflow: hidden;
+}
+.sgg-sl-slide {
+  height: auto;
+}
+.sgg-sl-empty {
+  padding: 32px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 12px;
+  color: #64748b;
+  text-align: center;
+}
+
+/* ---------- Media and height modes ---------- */
+.sgg-sl-item {
+  margin: 0;
+}
+.sgg-sl-media {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-radius: var(--sgg-sl-radius, 12px);
+  background: #f1f5f9;
+  text-decoration: none;
+}
+.sgg-sl-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  margin: 0;
+  object-fit: var(--sgg-sl-fit, cover);
+  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+a.sgg-sl-media:hover img,
+a.sgg-sl-media:focus-visible img {
+  transform: scale(1.03);
+}
+.sgg-sl-h-ratio .sgg-sl-media {
+  aspect-ratio: var(--sgg-sl-ratio, 4 / 3);
+}
+.sgg-sl-h-fixed .sgg-sl-media {
+  height: var(--sgg-sl-h-d);
+}
+.sgg-sl-h-fixed[data-device='t'] .sgg-sl-media {
+  height: var(--sgg-sl-h-t);
+}
+.sgg-sl-h-fixed[data-device='m'] .sgg-sl-media {
+  height: var(--sgg-sl-h-m);
+}
+.sgg-sl-h-viewport .sgg-sl-media {
+  height: var(--sgg-sl-vh, 70vh);
+}
+.sgg-sl-h-auto .sgg-sl-media img {
+  height: auto;
+}
+
+/* Vertical direction needs a fixed height of the whole slider */
+.sgg-sl .swiper-vertical.sgg-sl-swiper {
+  height: var(--sgg-sl-h-d);
+}
+.sgg-sl[data-device='t'] .swiper-vertical.sgg-sl-swiper {
+  height: var(--sgg-sl-h-t);
+}
+.sgg-sl[data-device='m'] .swiper-vertical.sgg-sl-swiper {
+  height: var(--sgg-sl-h-m);
+}
+.sgg-sl .swiper-vertical .sgg-sl-media {
+  height: 100%;
+  aspect-ratio: auto;
+}
+.sgg-sl .swiper-vertical .sgg-sl-item {
+  height: 100%;
+}
+
+.sgg-sl .swiper-vertical .sgg-sl-frame {
+  height: 100%;
+}
+
+/* ---------- Shadows ---------- */
+/* The shadows fall mostly down, so the room below the clipped slider holds them and the sides stay narrow (wider side
+   room would push a full-width slider out of a phone screen) */
+.sgg-sl-shadow-soft .sgg-sl-media,
+.sgg-sl-shadow-soft .sgg-sl-card {
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 8px 20px -12px rgba(15, 23, 42, 0.3);
+}
+.sgg-sl-shadow-strong .sgg-sl-media,
+.sgg-sl-shadow-strong .sgg-sl-card {
+  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.08), 0 16px 26px -16px rgba(15, 23, 42, 0.55);
+}
+/* Room for the shadows inside the clipped slider */
+.sgg-sl-shadow-soft .sgg-sl-swiper,
+.sgg-sl-shadow-strong .sgg-sl-swiper {
+  padding: 6px 4px 28px;
+  margin: -6px -4px -28px;
+}
+
+/* One slide at a time: no room at the sides, or the next slide would peek in */
+.sgg-sl--slider.sgg-sl-shadow-soft .sgg-sl-swiper,
+.sgg-sl--slider.sgg-sl-shadow-strong .sgg-sl-swiper {
+  padding-right: 0;
+  padding-left: 0;
+  margin-right: 0;
+  margin-left: 0;
+}
+/* Vertical: the slides follow each other up and down, so the room above and below showed the slides before and after
+   (Swiper makes a slide as tall as the box without that room) */
+.sgg-sl-shadow-soft .swiper-vertical.sgg-sl-swiper,
+.sgg-sl-shadow-strong .swiper-vertical.sgg-sl-swiper {
+  padding-top: 0;
+  padding-bottom: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* ---------- Captions ---------- */
+.sgg-sl-caption {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px 2px 0;
+  color: inherit;
+  font-size: 14px;
+  line-height: 1.45;
+}
+.sgg-sl-cap-center .sgg-sl-caption {
+  text-align: center;
+}
+.sgg-sl-cap-right .sgg-sl-caption {
+  text-align: right;
+}
+.sgg-sl-caption-title {
+  font-weight: 600;
+}
+.sgg-sl-caption-text {
+  opacity: 0.8;
+  font-size: 0.92em;
+}
+.sgg-sl-cap-overlay .sgg-sl-item,
+.sgg-sl-cap-hover .sgg-sl-item {
+  position: relative;
+}
+.sgg-sl-cap-overlay .sgg-sl-caption,
+.sgg-sl-cap-hover .sgg-sl-caption {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 48px 22px 20px;
+  border-radius: 0 0 var(--sgg-sl-radius, 12px) var(--sgg-sl-radius, 12px);
+  background: linear-gradient(to top, color-mix(in srgb, var(--sgg-sl-caption-bg, #0f172a) 82%, transparent), transparent);
+  color: var(--sgg-sl-caption-color, #fff);
+  pointer-events: none;
+}
+.sgg-sl--slider.sgg-sl-cap-overlay .sgg-sl-caption-title {
+  font-size: clamp(18px, 2.2vw, 28px);
+  line-height: 1.2;
+}
+.sgg-sl-cap-hover .sgg-sl-caption {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.sgg-sl-cap-hover .sgg-sl-item:hover .sgg-sl-caption,
+.sgg-sl-cap-hover .sgg-sl-item:focus-within .sgg-sl-caption {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---------- Arrows ---------- */
+.sgg-sl-arrow {
+  position: absolute;
+  top: 50%;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--sgg-sl-arrow-bg, #fff);
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.18);
+  color: var(--sgg-sl-arrow-color, #0f172a);
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition: opacity 0.2s, transform 0.2s;
+}
+.sgg-sl-arrow:hover {
+  transform: translateY(-50%) scale(1.06);
+}
+.sgg-sl-arrow:focus-visible {
+  outline: 2px solid var(--sgg-sl-accent, #377dff);
+  outline-offset: 2px;
+}
+.sgg-sl-prev {
+  inset-inline-start: 14px;
+}
+.sgg-sl-next {
+  inset-inline-end: 14px;
+}
+.sgg-sl:dir(rtl) .sgg-sl-arrow svg {
+  transform: scaleX(-1);
+}
+.sgg-sl-arrows-square .sgg-sl-arrow {
+  border-radius: 10px;
+}
+.sgg-sl-arrows-minimal .sgg-sl-arrow {
+  background: transparent;
+  box-shadow: none;
+  color: var(--sgg-sl-arrow-bg, #fff);
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.45));
+}
+.sgg-sl-arrows-bar .sgg-sl-arrow {
+  width: 38px;
+  height: 64px;
+  border-radius: 8px;
+}
+.sgg-sl-arrows-outside .sgg-sl-stage {
+  padding: 0 58px;
+}
+.sgg-sl-arrows-outside .sgg-sl-prev {
+  inset-inline-start: 4px;
+}
+.sgg-sl-arrows-outside .sgg-sl-next {
+  inset-inline-end: 4px;
+}
+/* Vertical direction with the arrows on the slides: they point up and down, at the top and the bottom of the middle
+   (at the sides they pointed the wrong way and the right one stood on the column of dots) */
+.sgg-sl:not(.sgg-sl-arrows-outside) .sgg-sl-stage:has(> .swiper-vertical) .sgg-sl-arrow {
+  inset-inline-start: auto;
+  inset-inline-end: auto;
+  left: 50%;
+  transform: translateX(-50%) rotate(90deg);
+}
+.sgg-sl:not(.sgg-sl-arrows-outside) .sgg-sl-stage:has(> .swiper-vertical) .sgg-sl-arrow:hover {
+  transform: translateX(-50%) rotate(90deg) scale(1.06);
+}
+.sgg-sl:not(.sgg-sl-arrows-outside) .sgg-sl-stage:has(> .swiper-vertical) .sgg-sl-prev {
+  top: 14px;
+}
+.sgg-sl:not(.sgg-sl-arrows-outside) .sgg-sl-stage:has(> .swiper-vertical) .sgg-sl-next {
+  top: auto;
+  bottom: 14px;
+}
+.sgg-sl-arrow.swiper-button-disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.sgg-sl-arrow.swiper-button-lock {
+  display: none;
+}
+
+/* ---------- Dots ---------- */
+.sgg-sl-dots {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 8px;
+  margin-top: var(--sgg-sl-gap-dots);
+  color: inherit;
+  font-size: 13px;
+}
+.sgg-sl-dots.swiper-pagination-lock {
+  display: none;
+}
+.sgg-sl-dots .swiper-pagination-bullet {
+  width: 8px;
+  height: 8px;
+  margin: 0 !important;
+  border-radius: 999px;
+  background: var(--sgg-sl-accent, #377dff);
+  opacity: 0.3;
+  transition: width 0.25s, opacity 0.25s;
+}
+.sgg-sl-dots .swiper-pagination-bullet-active {
+  width: 22px;
+  opacity: 1;
+}
+.sgg-sl-dots.swiper-pagination-bullets-dynamic {
+  overflow: hidden;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  white-space: nowrap;
+}
+.sgg-sl-dots.swiper-pagination-bullets-dynamic .swiper-pagination-bullet {
+  display: inline-block;
+  margin: 0 3px !important;
+}
+.sgg-sl-dots.swiper-pagination-progressbar {
+  height: 4px;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.1);
+}
+/* swiper.css gives the bar top: 0 and width: 100%. Inside the slide that pinned it to the top edge, and with the
+   20% side room it ran past the right edge, so the fill was off. The bar keeps the place of the style: under the
+   slides, or inside near the bottom. */
+.sgg-sl .sgg-sl-dots.swiper-pagination-progressbar {
+  top: auto;
+  width: auto;
+}
+.sgg-sl-dots .swiper-pagination-progressbar-fill {
+  position: absolute;
+  inset: 0;
+  background: var(--sgg-sl-accent, #377dff);
+  transform-origin: left top;
+}
+.sgg-sl-dots-inside .sgg-sl-dots {
+  position: absolute;
+  right: 0;
+  bottom: 16px;
+  left: 0;
+  z-index: 10;
+  margin: 0;
+}
+.sgg-sl-dots-inside .sgg-sl-dots .swiper-pagination-bullet {
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+.sgg-sl-dots-inside .sgg-sl-dots.swiper-pagination-progressbar {
+  right: 20%;
+  left: 20%;
+  background: rgba(255, 255, 255, 0.35);
+}
+.sgg-sl-dots-inside .sgg-sl-dots.swiper-pagination-fraction {
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+/* Vertical direction. Swiper puts vertical dots in the middle of the right edge; with the row of the style around them
+   (left and right 0) they lay across the middle of the slide. Inside the slider they stand in a column at the right
+   edge, the active one a tall pill; under the slider they stay the row of the style. */
+.sgg-sl-dots-inside .sgg-sl-dots.swiper-pagination-vertical.swiper-pagination-bullets {
+  top: 50%;
+  right: 16px;
+  bottom: auto;
+  left: auto;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  transform: translateY(-50%);
+}
+.sgg-sl-dots-inside .sgg-sl-dots.swiper-pagination-vertical .swiper-pagination-bullet {
+  transition: height 0.25s, opacity 0.25s;
+}
+.sgg-sl-dots-inside .sgg-sl-dots.swiper-pagination-vertical .swiper-pagination-bullet-active {
+  width: 8px;
+  height: 22px;
+}
+.sgg-sl:not(.sgg-sl-dots-inside) .sgg-sl-dots.swiper-pagination-vertical {
+  top: auto;
+  right: auto;
+  left: auto;
+  transform: none;
+}
+
+/* Arrows and dots per device */
+.sgg-sl[data-device='d'].sgg-sl-no-arrows-d .sgg-sl-arrow,
+.sgg-sl[data-device='t'].sgg-sl-no-arrows-t .sgg-sl-arrow,
+.sgg-sl[data-device='m'].sgg-sl-no-arrows-m .sgg-sl-arrow,
+.sgg-sl[data-device='d'].sgg-sl-no-dots-d .sgg-sl-dots,
+.sgg-sl[data-device='t'].sgg-sl-no-dots-t .sgg-sl-dots,
+.sgg-sl[data-device='m'].sgg-sl-no-dots-m .sgg-sl-dots {
+  display: none;
+}
+.sgg-sl[data-device='d'].sgg-sl-no-arrows-d.sgg-sl-arrows-outside .sgg-sl-stage,
+.sgg-sl[data-device='t'].sgg-sl-no-arrows-t.sgg-sl-arrows-outside .sgg-sl-stage,
+.sgg-sl[data-device='m'].sgg-sl-no-arrows-m.sgg-sl-arrows-outside .sgg-sl-stage {
+  padding: 0;
+}
+.sgg-sl[data-device='m'] .sgg-sl-arrow {
+  width: 36px;
+  height: 36px;
+}
+.sgg-sl[data-device='m'].sgg-sl-arrows-outside .sgg-sl-stage {
+  padding: 0 44px;
+}
+
+/* ---------- Product cards ---------- */
+.sgg-sl-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--sgg-sl-radius, 12px);
+  background: #fff;
+}
+.sgg-sl-card .sgg-sl-media {
+  border-radius: 0;
+  background: #fff;
+}
+.sgg-sl-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--sgg-sl-accent, #377dff);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+.sgg-sl-card-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px 16px;
+}
+.sgg-sl-card-title {
+  color: inherit;
+  font-weight: 600;
+  line-height: 1.35;
+  text-decoration: none;
+}
+.sgg-sl-card-title:hover {
+  color: var(--sgg-sl-accent, #377dff);
+}
+.sgg-sl-card-rating .star-rating {
+  float: none;
+  margin: 0;
+}
+.sgg-sl-card-price {
+  font-weight: 700;
+}
+.sgg-sl-card .sgg-sl-card-button {
+  align-self: flex-start;
+  margin-top: auto;
+}
+
+/* ---------- Style presets ---------- */
+.sgg-sl-preset-soft .sgg-sl-arrow {
+  background: color-mix(in srgb, var(--sgg-sl-accent, #377dff) 14%, #fff);
+  color: var(--sgg-sl-accent, #377dff);
+  box-shadow: none;
+}
+.sgg-sl-preset-framed .sgg-sl-media {
+  border: 8px solid #fff;
+  outline: 1px solid #e2e8f0;
+}
+.sgg-sl-preset-dark .sgg-sl-card {
+  border-color: #1e293b;
+  background: #0f172a;
+  color: #e2e8f0;
+}
+.sgg-sl-preset-dark .sgg-sl-card .sgg-sl-media {
+  background: #111827;
+}
+.sgg-sl-preset-dark .sgg-sl-arrow {
+  background: #0f172a;
+  color: #fff;
+}
+.sgg-sl-preset-minimal .sgg-sl-media,
+.sgg-sl-preset-minimal .sgg-sl-card {
+  border-radius: 0;
+  box-shadow: none;
+}
+.sgg-sl-preset-minimal .sgg-sl-arrow {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* ---------- Lightbox: PhotoSwipe 5 above the WordPress admin bar and theme headers ---------- */
+.pswp {
+  z-index: 100000;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sgg-sl-media img,
+  .sgg-sl-arrow,
+  .sgg-sl-caption {
+    transition: none;
+  }
+}
+
+/* ---------- Layers of the Slider ----------
+   x and y are percents where 0 is the left or top edge and 100 the right or bottom edge: the layer moves back by the
+   same part of its own size (the translate property), so it never leaves the image. Each device has its own values;
+   the transform property stays free for the hover and the entrance animations. */
+.sgg-sl-frame {
+  position: relative;
+}
+.sgg-sl-layers {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  border-radius: var(--sgg-sl-radius, 12px);
+  pointer-events: none;
+}
+.sgg-sl-layer {
+  --sgg-lx: var(--x-d, 0%);
+  --sgg-ly: var(--y-d, 0%);
+  position: absolute;
+  top: var(--sgg-ly);
+  left: var(--sgg-lx);
+  width: var(--w-d, max-content);
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  translate: calc(var(--sgg-lx) * -1) calc(var(--sgg-ly) * -1);
+  border-radius: var(--lr, 0);
+  background: var(--lb, transparent);
+  color: var(--lc, #fff);
+  font-size: var(--fs-d, 18px);
+  font-weight: var(--lw, 400);
+  line-height: 1.45;
+  text-align: left;
+  overflow-wrap: anywhere;
+  pointer-events: none;
+}
+.sgg-sl[data-device='t'] .sgg-sl-layer {
+  --sgg-lx: var(--x-t, 0%);
+  --sgg-ly: var(--y-t, 0%);
+  width: var(--w-t, max-content);
+  font-size: var(--fs-t, 16px);
+}
+.sgg-sl[data-device='m'] .sgg-sl-layer {
+  --sgg-lx: var(--x-m, 0%);
+  --sgg-ly: var(--y-m, 0%);
+  width: var(--w-m, max-content);
+  font-size: var(--fs-m, 15px);
+}
+.sgg-sl:not([data-device]) .sgg-sl-layer-hide-d,
+.sgg-sl[data-device='d'] .sgg-sl-layer-hide-d,
+.sgg-sl[data-device='t'] .sgg-sl-layer-hide-t,
+.sgg-sl[data-device='m'] .sgg-sl-layer-hide-m {
+  display: none;
+}
+.sgg-sl-layer-a-center {
+  text-align: center;
+}
+.sgg-sl-layer-a-right {
+  text-align: right;
+}
+.sgg-sl-layer--heading {
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+.sgg-sl-layer--heading.sgg-sl-layer-shadow,
+.sgg-sl-layer--text.sgg-sl-layer-shadow {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 4px 18px rgba(0, 0, 0, 0.35);
+}
+.sgg-sl-layer--button,
+.sgg-sl-layer--badge {
+  line-height: 1.2;
+}
+.sgg-sl-layer--button {
+  padding: 0.8em 1.6em;
+}
+.sgg-sl-layer--badge {
+  padding: 0.4em 0.85em;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.sgg-sl-layer--button.sgg-sl-layer-shadow,
+.sgg-sl-layer--badge.sgg-sl-layer-shadow {
+  box-shadow: 0 8px 22px -8px rgba(0, 0, 0, 0.5);
+}
+a.sgg-sl-layer {
+  text-decoration: none;
+  pointer-events: auto;
+  transition: filter 0.2s ease, transform 0.2s ease;
+}
+a.sgg-sl-layer:hover,
+a.sgg-sl-layer:focus-visible {
+  color: var(--lc, #fff);
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+a.sgg-sl-layer:focus-visible {
+  outline: 2px solid var(--sgg-sl-accent, #2563eb);
+  outline-offset: 3px;
+}
+
+/* Entrance animations: played each time the slide comes into view */
+.sgg-sl.is-ready .sgg-sl-layer[data-anim] {
+  opacity: 0;
+}
+.sgg-sl.is-ready .swiper-slide-active .sgg-sl-layer[data-anim],
+.sgg-sl.is-ready .swiper-slide-visible .sgg-sl-layer[data-anim] {
+  animation: sgg-sl-layer-in 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) var(--ld, 0ms) both;
+}
+.sgg-sl-layer[data-anim='up'] {
+  --sgg-la: translateY(28px);
+}
+.sgg-sl-layer[data-anim='down'] {
+  --sgg-la: translateY(-28px);
+}
+.sgg-sl-layer[data-anim='left'] {
+  --sgg-la: translateX(36px);
+}
+.sgg-sl-layer[data-anim='right'] {
+  --sgg-la: translateX(-36px);
+}
+.sgg-sl-layer[data-anim='zoom'] {
+  --sgg-la: scale(0.85);
+}
+@keyframes sgg-sl-layer-in {
+  from {
+    opacity: 0;
+    transform: var(--sgg-la, none);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sgg-sl.is-ready .sgg-sl-layer[data-anim] {
+    opacity: 1;
+    animation: none !important;
+  }
+}
+
+/* ---------- Thumbnails of the Slider ---------- */
+.sgg-sl-thumbs {
+  margin-top: var(--sgg-sl-thumb-gap, 10px);
+}
+.sgg-sl-thumb {
+  width: calc(var(--sgg-sl-thumb-h, 72px) * 1.5);
+  height: var(--sgg-sl-thumb-h, 72px);
+  overflow: hidden;
+  border-radius: min(var(--sgg-sl-radius, 12px), 10px);
+  background: #e2e8f0;
+  opacity: 0.55;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+.sgg-sl-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  margin: 0;
+  object-fit: cover;
+}
+.sgg-sl-thumb:hover,
+.sgg-sl-thumb.swiper-slide-thumb-active {
+  opacity: 1;
+}
+.sgg-sl-thumb.swiper-slide-thumb-active {
+  box-shadow: inset 0 0 0 2px var(--sgg-sl-accent, #377dff);
+}
+.sgg-sl-thumb.swiper-slide-thumb-active img {
+  padding: 2px;
+  border-radius: inherit;
+}
+.sgg-sl:not([data-device]).sgg-sl-no-thumbs-d .sgg-sl-thumbs,
+.sgg-sl[data-device='d'].sgg-sl-no-thumbs-d .sgg-sl-thumbs,
+.sgg-sl[data-device='t'].sgg-sl-no-thumbs-t .sgg-sl-thumbs,
+.sgg-sl[data-device='m'].sgg-sl-no-thumbs-m .sgg-sl-thumbs {
+  display: none;
+}
+
+/* ---------- Post slides ---------- */
+.sgg-sl-caption-meta {
+  opacity: 0.75;
+  font-size: 0.82em;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+/* ---------- Running line (marquee) and grey logos ---------- */
+.sgg-sl-marquee .swiper-wrapper {
+  transition-timing-function: linear !important;
+}
+.sgg-sl-gray .sgg-sl-media img {
+  filter: grayscale(1);
+  opacity: 0.7;
+  transition: filter 0.3s ease, opacity 0.3s ease, transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.sgg-sl-gray .sgg-sl-slide:hover .sgg-sl-media img,
+.sgg-sl-gray .sgg-sl-media:focus-visible img {
+  filter: none;
+  opacity: 1;
+}
+
+/* ---------- Phone image, Before / After and video of a slide ---------- */
+.sgg-sl-media picture {
+  display: contents;
+}
+.sgg-sl-compare {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  border-radius: var(--sgg-sl-radius, 12px);
+}
+.sgg-sl-compare-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  margin: 0;
+  object-fit: var(--sgg-sl-fit, cover);
+  clip-path: inset(0 0 0 var(--sgg-cmp, 50%));
+}
+.sgg-sl-compare-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--sgg-cmp, 50%);
+  width: 2px;
+  translate: -1px 0;
+  background: #fff;
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.2);
+  pointer-events: none;
+}
+.sgg-sl-compare-line:after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 44px;
+  height: 44px;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 6l-6 6 6 6M15 6l6 6-6 6' fill='none' stroke='%230f172a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 22px no-repeat;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.35);
+  content: '';
+}
+.sgg-sl-compare:has(.sgg-sl-compare-range:focus-visible) .sgg-sl-compare-line:after {
+  outline: 3px solid var(--sgg-sl-accent, #377dff);
+  outline-offset: 2px;
+}
+.sgg-sl-compare-range {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  cursor: ew-resize;
+  -webkit-appearance: none;
+  appearance: none;
+  touch-action: pan-y;
+}
+.sgg-sl-compare-label {
+  position: absolute;
+  top: 14px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.6);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+.sgg-sl-compare-before {
+  left: 14px;
+}
+.sgg-sl-compare-after {
+  right: 14px;
+}
+
+.sgg-sl-video {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  border-radius: var(--sgg-sl-radius, 12px);
+  background: #000;
+  container-type: size;
+  pointer-events: none;
+}
+.sgg-sl-video:empty {
+  display: none;
+}
+.sgg-sl-video video,
+.sgg-sl-video iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+.sgg-sl-video video {
+  object-fit: cover;
+}
+.sgg-sl-video:not(.is-bg) {
+  z-index: 4;
+  pointer-events: auto;
+}
+.sgg-sl-video:not(.is-bg) video {
+  object-fit: contain;
+}
+/* A background video covers the slide like the image: 16:9 grown to the larger side */
+.sgg-sl-video.is-bg iframe {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(100cqw, 177.78cqh);
+  height: max(100cqh, 56.25cqw);
+  translate: -50% -50%;
+}
+.sgg-sl-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  padding: 0 0 0 4px;
+  translate: -50% -50%;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.6);
+  color: #fff;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+.sgg-sl-play:hover,
+.sgg-sl-play:focus-visible {
+  background: var(--sgg-sl-accent, #377dff);
+  transform: scale(1.06);
+}
+.sgg-sl[data-device='m'] .sgg-sl-play {
+  width: 56px;
+  height: 56px;
+}
+.sgg-sl-frame.is-playing .sgg-sl-play {
+  display: none;
+}
+
+/* A background video sits over the image without a black frame while it loads */
+.sgg-sl-video.is-bg {
+  background: transparent;
+}
+.sgg-sl-video.is-bg iframe,
+.sgg-sl-video.is-bg video {
+  transition: opacity 0.6s ease;
+}
+
+/* Links of the slider keep their own colors over site-wide or admin link colors */
+.sgg-sl a.sgg-sl-card-title {
+  color: inherit;
+}
+.sgg-sl a.sgg-sl-card-title:hover,
+.sgg-sl a.sgg-sl-card-title:focus {
+  color: var(--sgg-sl-accent, #377dff);
+}
+.sgg-sl a.sgg-sl-layer,
+.sgg-sl a.sgg-sl-layer:hover,
+.sgg-sl a.sgg-sl-layer:focus {
+  color: var(--lc, #fff);
+}
+
+/* The stage holds the room for shadows inside itself: arrows are centred on the slides and dots over the slides stay
+   above their bottom edge */
+.sgg-sl-stage {
+  display: flow-root;
+}
+
+/* Themes underline links in posts; the names of product and post cards stay clean */
+.sgg-sl .sgg-sl-card a.sgg-sl-card-title,
+.sgg-sl .sgg-sl-card a.sgg-sl-media,
+.sgg-sl .sgg-sl-frame a.sgg-sl-media,
+.sgg-sl .sgg-sl-layers a.sgg-sl-layer {
+  text-decoration: none;
+  box-shadow: none;
+}
+
+/* Dynamic dots: Swiper moves them by half of the slider (left: 50%, translateX(-50%)) for its own absolute pagination;
+   here the dots are centred by their own box */
+.sgg-sl .sgg-sl-dots.swiper-pagination-bullets-dynamic {
+  left: auto;
+  transform: none;
+}
+.sgg-sl-dots-inside .sgg-sl-dots.swiper-pagination-bullets-dynamic {
+  left: 0;
+  right: 0;
+}
+
+/* ---------- Cards of products and posts in the palette of the style: surface, text, accent buttons and prices. With
+   "Use the theme's shop styles" (sgg-sl-shop-theme) buttons and prices keep the look of the theme. */
+.sgg-sl:not(.sgg-sl-shop-theme) .sgg-sl-card {
+  border-color: color-mix(in srgb, var(--sgg-sl-text, #0f172a) 14%, transparent);
+  background: var(--sgg-sl-surface, #fff);
+  color: var(--sgg-sl-text, #0f172a);
+}
+.sgg-sl:not(.sgg-sl-shop-theme) .sgg-sl-card .sgg-sl-media {
+  background: color-mix(in srgb, var(--sgg-sl-text, #0f172a) 4%, var(--sgg-sl-surface, #fff));
+}
+.sgg-sl:not(.sgg-sl-shop-theme) .sgg-sl-card .sgg-sl-card-button {
+  border: 0;
+  border-radius: calc(var(--sgg-sl-radius, 12px) * 0.5 + 2px);
+  background: var(--sgg-sl-accent, #377dff);
+  color: var(--sgg-sl-on-accent, #fff);
+  text-decoration: none;
+  text-shadow: none;
+}
+.sgg-sl:not(.sgg-sl-shop-theme) .sgg-sl-card .sgg-sl-card-button:hover,
+.sgg-sl:not(.sgg-sl-shop-theme) .sgg-sl-card .sgg-sl-card-button:focus {
+  background: color-mix(in srgb, var(--sgg-sl-accent, #377dff) 85%, #000);
+  color: var(--sgg-sl-on-accent, #fff);
+}
+.sgg-sl:not(.sgg-sl-shop-theme) .sgg-sl-card-price,
+.sgg-sl:not(.sgg-sl-shop-theme) .sgg-sl-card-price .amount,
+.sgg-sl:not(.sgg-sl-shop-theme) .sgg-sl-card-price ins {
+  color: var(--sgg-sl-accent, #377dff);
+  text-decoration: none;
+}
+.sgg-sl:not(.sgg-sl-shop-theme) .sgg-sl-card-price del,
+.sgg-sl:not(.sgg-sl-shop-theme) .sgg-sl-card-price del .amount {
+  color: var(--sgg-sl-text, #0f172a);
+  opacity: 0.55;
+}
+/* Themes such as Storefront color the filled stars on span::before, so it takes the accent too */
+.sgg-sl:not(.sgg-sl-shop-theme) .sgg-sl-card-rating .star-rating,
+.sgg-sl:not(.sgg-sl-shop-theme) .sgg-sl-card-rating .star-rating span,
+.sgg-sl:not(.sgg-sl-shop-theme) .sgg-sl-card-rating .star-rating span::before {
+  color: var(--sgg-sl-accent, #377dff);
+}
+.sgg-sl .sgg-sl-badge {
+  color: var(--sgg-sl-on-accent, #fff);
+}
+
+/* A caption over the slide stays above the dots inside the slide */
+.sgg-sl-dots-inside.sgg-sl-cap-overlay .sgg-sl-caption,
+.sgg-sl-dots-inside.sgg-sl-cap-hover .sgg-sl-caption {
+  padding-bottom: 44px;
+}
+
+/* Dark text over a photo: a light glow instead of the dark shadow */
+.sgg-sl-layer--heading.sgg-sl-layer-shadow.sgg-sl-layer-ink-dark,
+.sgg-sl-layer--text.sgg-sl-layer-shadow.sgg-sl-layer-ink-dark {
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.6), 0 2px 14px rgba(255, 255, 255, 0.55);
+}

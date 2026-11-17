@@ -1,0 +1,209 @@
+/* Dialogs of the gallery settings page and of the Images page (grid-gallery.galleries.dialogs.js) */
+/* Dialogs opened from the settings tabs (popup style, caption effect) stay in the middle of the screen: an old rule
+   pins every dialog 40px from the top of the page, which is out of view once the settings are scrolled down. No
+   transform, so the 3D caption effects inside keep their depth. A tall dialog scrolls inside. */
+.ui-dialog.gg-pth-dialog:not(.gg-pro-readmore-dialog-wrap),
+.ui-dialog.sgg-dlg-center:not(.gg-pro-readmore-dialog-wrap),
+.ui-dialog[aria-describedby='effectDialog']:not(.gg-pro-readmore-dialog-wrap) {
+  position: fixed !important;
+  /* Below the admin bar of WordPress, which stays over the dialogs */
+  inset: var(--wp-admin--admin-bar--height, 32px) 0 0 0 !important;
+  height: -webkit-fit-content !important;
+  height: fit-content !important;
+  max-width: calc(100vw - 32px);
+  margin: auto !important;
+}
+/* jQuery UI writes max-height: none on the content of a dialog, hence !important */
+.gg-pth-dialog #themeDialog,
+.ui-dialog.sgg-dlg-center:not(.gg-pro-readmore-dialog-wrap) > .ui-dialog-content,
+.ui-dialog[aria-describedby='effectDialog'] #effectDialog {
+  max-height: calc(100vh - var(--wp-admin--admin-bar--height, 32px) - 150px) !important;
+  overflow-y: auto !important;
+}
+
+/* ---------- Caption effect picker (#effectDialog): cards with the photo of the gallery ---------- */
+.sgg-fx-dialog #effectDialog {
+  padding: 18px 22px 10px;
+  background: #f8fafc;
+}
+/* The heading of the pickers (effects, icon effects, shadows) */
+.ui-dialog .sgg-fx-head h2 {
+  margin: 0 0 4px;
+  padding: 0;
+  color: #0f172a;
+  font-size: 17px;
+  font-weight: 700;
+}
+.ui-dialog .sgg-fx-head p {
+  margin: 0 0 6px;
+  color: #64748b;
+  font-size: 13px;
+}
+.sgg-fx-dialog #effectsPreview,
+.sgg-fx-dialog .captions-effect-with-icons {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 168px);
+  justify-content: center;
+  gap: 14px;
+}
+.sgg-fx-dialog #effectsPreview {
+  margin: 12px 0 0 !important;
+  padding-bottom: 6px;
+}
+.sgg-fx-dialog #effectsPreview .grid-gallery-clearfix {
+  display: none;
+}
+.sgg-fx-dialog .captions-effect-with-icons {
+  grid-column: 1 / -1;
+  margin: 8px 0 0;
+}
+.sgg-fx-dialog .captions-effect-with-icons h3 {
+  grid-column: 1 / -1;
+  margin: 4px 0 0;
+  padding: 12px 0 0;
+  border-top: 1px solid #e2e8f0;
+  color: #0f172a;
+  font-size: 14px;
+}
+.sgg-fx-dialog .sgg-fx-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 8px 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+.sgg-fx-dialog .sgg-fx-card:hover {
+  border-color: #0e8a93;
+  box-shadow: 0 12px 26px -16px rgba(15, 23, 42, 0.45);
+  transform: translateY(-2px);
+}
+.sgg-fx-dialog .sgg-fx-card:has(> figure.selected) {
+  border-color: #0e8a93;
+  box-shadow: 0 0 0 2px #0e8a93;
+}
+.sgg-fx-dialog .sgg-fx-card:has(> figure.selected)::after {
+  position: absolute;
+  top: -9px;
+  right: -9px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #0e8a93 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5l3 3 6-7' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 13px no-repeat;
+  box-shadow: 0 0 0 3px #f8fafc;
+  content: '';
+}
+.sgg-fx-dialog #effectsPreview .sgg-fx-card > figure {
+  float: none;
+  display: block;
+  margin: 0 !important;
+  border-radius: 10px;
+  outline: none !important;
+  cursor: pointer;
+}
+.sgg-fx-dialog #effectsPreview .sgg-fx-card > figure img.dialog-image {
+  object-fit: cover;
+}
+.sgg-fx-dialog .sgg-fx-name {
+  max-width: 100%;
+  color: #0f172a;
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.3;
+  text-align: center;
+  white-space: normal;
+}
+.sgg-fx-dialog .sgg-fx-card:has(> figure.selected) .sgg-fx-name {
+  color: #0e8a93;
+}
+.sgg-fx-dialog .select-element,
+.sgg-fx-dialog .available-in-pro .get-in-pro-element {
+  top: 8px;
+  right: 8px;
+  left: auto;
+  margin: 0;
+  padding: 3px 10px;
+  border: 0;
+  border-radius: 99px;
+  background: rgba(15, 23, 42, 0.74);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 16px;
+  transition: opacity 0.2s;
+}
+.sgg-fx-dialog .available-in-pro .get-in-pro-element {
+  background: #f59e0b;
+}
+.sgg-fx-dialog figure.selected .select-element {
+  display: none;
+}
+.sgg-fx-dialog .sgg-fx-card.is-locked .sgg-fx-name {
+  color: #94a3b8;
+}
+
+
+/* ---------- Icon effects (#iconsPreview): cards with the name, the chosen one marked ---------- */
+.sgg-ic-dialog #iconsPreview {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, 168px);
+  justify-content: center;
+  gap: 14px;
+  padding: 18px 22px 12px;
+  background: #f8fafc;
+}
+.sgg-ic-dialog #iconsPreview .sgg-fx-head {
+  grid-column: 1 / -1;
+}
+.sgg-ic-dialog .sgg-ic-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 8px 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.sgg-ic-dialog .sgg-ic-card:hover {
+  border-color: #0e8a93;
+}
+.sgg-ic-dialog .sgg-ic-card.is-current {
+  border-color: #0e8a93;
+  box-shadow: 0 0 0 2px #0e8a93;
+}
+.sgg-ic-dialog .sgg-ic-card.is-current::after {
+  position: absolute;
+  top: -9px;
+  right: -9px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #0e8a93 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5l3 3 6-7' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 13px no-repeat;
+  box-shadow: 0 0 0 3px #f8fafc;
+  content: '';
+}
+/* The tiles keep their size and effect; a calmer backdrop than the old grey */
+.sgg-ic-dialog .sgg-ic-card .hi-icon-wrap {
+  margin: 0;
+  border-radius: 10px;
+  background-color: #1e293b !important;
+  background-image: linear-gradient(150deg, #334155, #0f172a) !important;
+}
+.sgg-ic-dialog .sgg-ic-name {
+  color: #0f172a;
+  font-size: 12.5px;
+  font-weight: 600;
+  text-align: center;
+}
+.sgg-ic-dialog .sgg-ic-card.is-current .sgg-ic-name {
+  color: #0e8a93;
+}

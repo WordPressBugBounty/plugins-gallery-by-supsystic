@@ -18,6 +18,7 @@
 			data-gg-id="{{ gallery.id }}"
 			data-title="{{ gallery.title }}"
 			data-grid-type="{{ settings.area.grid }}"
+			{% if settings.area.grid == '2' and settings.area.justified|default('0') == '1' %} data-justified="{{ settings.area.photo_height_unit == 1 ? 'auto' : settings.area.photo_height }}"{% endif %}
 			data-offset="{{ settings.area.distance }}"
 			data-area-position="{{ settings.area.position }}"
 			data-icons="{{ settings.icons.enabled }}"
@@ -48,6 +49,12 @@
 				{% endif %}
 				{% if settings.box.type == '2' and mobile != 'true' and settings.box.enabled|default('true') == 'true' %}
 					data-popup-type="photobox"
+				{% endif %}
+				{# The new lightbox (Lightbox module): its settings travel with the gallery, its files load here #}
+				{% if settings.box.type == '3' and mobile != 'true' and settings.box.enabled|default('true') == 'true' and environment.getModule('lightbox') %}
+					data-popup-type="pswp"
+					data-sgg-lightbox="{{ environment.getModule('lightbox').galleryConfig(settings)|json_encode|e('html_attr') }}"
+					{% do environment.getModule('lightbox').enqueue() %}
 				{% endif %}
 				{% if settings.area.grid == '3' %}
 					data-columns-number="{{ settings.general.columns.number }}"
@@ -106,6 +113,9 @@
 				data-polaroid-always-show-caption="{{ settings.thumbnail.overlay.polaroidAlwaysShowCaption | default('false') }}"
 				{% if settings.captionBuilder.enabled == '1' %}
 					data-polaroid-caption-height="{{ settings.captionBuilder.title.height | default(50) }}"
+				{# The strip under the photo for the classic caption (px), set by the creation wizard; without it the strip is the frame #}
+				{% elseif settings.thumbnail.overlay.polaroidCaptionHeight is defined and settings.thumbnail.overlay.polaroidCaptionHeight matches '/^[0-9]{1,3}$/' %}
+					data-polaroid-caption-height="{{ settings.thumbnail.overlay.polaroidCaptionHeight }}"
 				{% endif %}
 			{% endif %}
 			{% if settings.area.grid == '3' %}

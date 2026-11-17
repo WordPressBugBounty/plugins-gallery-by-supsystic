@@ -147,6 +147,11 @@
                             </a>
                         </li>
 
+                        <li class="sgg-st-entry">
+                            <button type="button" class="button" data-sgg-st-open title="{{ translate('Style library')|e('html_attr') }}"><i class="fa fa-fw fa-th-large"></i>{{ ' ' ~ translate('Styles') }}</button>
+                            <button type="button" class="button sgg-st-undo" data-sgg-st-undo hidden><i class="fa fa-undo" aria-hidden="true"></i>{{ ' ' ~ translate('Undo') }}</button>
+                        </li>
+
                         <li>
                             <button class="button button-primary" id="btnSave">
                                 <i class="fa fa-fw fa-check"></i>
@@ -349,7 +354,34 @@
 								),
 								'grid-type', 'gallery-types', 'columns'
 							)}}
+							<tr id="ggMosaicUpsellRow">
+								<th scope="row"></th>
+								<td><button type="button" class="button-link gg-mosaic-upsell" data-sgg-upsell="mosaic"><i class="fa fa-th-large" aria-hidden="true"></i>{{ ' ' ~ translate('Mosaic layout is in PRO: see how it looks') }}</button></td>
+							</tr>
 						{% endblock %}
+
+						{# Horizontal only: every row fills the width of the gallery, the images keep their proportions #}
+						{{ form.row(translate('Justified rows'),
+							form.select(
+								'area[justified]',
+								{'0': translate('No'), '1': translate('Yes, fill the whole width')},
+								settings.area.justified|default('0'),
+								{ 'style': 'width: auto;' }
+							),
+							'justified-rows', null, 'ggJustifiedRow'
+						)}}
+
+						{# Texts of the picture cards of the gallery type (grid-gallery.galleries.settings-ui.js). The select
+						   area[grid] above stays the field of the form; the cards only choose its value. #}
+						<tr hidden id="sggGalleryTypeCards" data-cards="{{ {
+							'label': translate('Gallery type'),
+							'fixed': {'title': translate('Fixed'), 'text': translate('Tiles of one size in neat rows')},
+							'vertical': {'title': translate('Vertical (masonry)'), 'text': translate('Columns, every photo in its own height')},
+							'horizontal': {'title': translate('Horizontal'), 'text': translate('Rows of one height, photos keep their width')},
+							'justified': {'title': translate('Justified rows'), 'text': translate('Rows of one height that fill the whole width')},
+							'columns': {'title': translate('Fixed columns'), 'text': translate('A set number of columns across the width')},
+							'mosaic': {'title': translate('Mosaic'), 'text': translate('Big and small tiles in one grid')}
+						}|json_encode|e('html_attr') }}"></tr>
 
                         <tr id="generalColumnsRow" hidden>
                             <th scope="row">
@@ -568,6 +600,101 @@
                             ), 'box', true)
                         }}
                     </thead>
+                    {# ---------- Which lightbox: the new one (box.type 3, Lightbox module) or the classic themes (box.type
+                       0 to 2, unchanged). grid-gallery.galleries.settings-ui.js switches box[type] and box[theme] and shows the
+                       rows of the chosen one. ---------- #}
+                    {% set lbModule = environment.getModule('lightbox') %}
+                    {% if lbModule %}
+                        {% set lbOpen = lbModule.proOpen() %}
+                        {% set lbModern = settings.box.type|default('0') == '3' %}
+                        {% set lb = settings.lightbox is defined and settings.lightbox is iterable ? lbModule.defaults()|merge(settings.lightbox) : lbModule.defaults() %}
+                        {% set lbTheme = lbOpen or lb.theme in ['style', 'dark', 'light'] ? lb.theme : 'style' %}
+                        {% set lbPro = lbOpen ? '' : ' <span class="gg-feature-status-pro-badge">PRO</span>' %}
+                        <tbody class="sgg-lb-engine">
+                            <tr id="sggLbEngineRow">
+                                <th scope="row"><label>{{ translate('Lightbox') }}</label></th>
+                                <td>
+                                    <div class="sgg-lbe" role="radiogroup" aria-label="{{ translate('Lightbox')|e('html_attr') }}">
+                                        <button type="button" class="sgg-lbe-card{{ lbModern ? ' is-current' : '' }}" data-sgg-lbe="modern" role="radio" aria-checked="{{ lbModern ? 'true' : 'false' }}">
+                                            <span class="sgg-lbe-icon"><i class="fa fa-expand" aria-hidden="true"></i></span>
+                                            <span class="sgg-lbe-body"><strong>{{ translate('Modern lightbox') }}<em>{{ translate('New') }}</em></strong><span>{{ translate('Swipe and pinch to zoom, full screen, themes in the colors of your style.') }}</span></span>
+                                        </button>
+                                        <button type="button" class="sgg-lbe-card{{ lbModern ? '' : ' is-current' }}" data-sgg-lbe="classic" role="radio" aria-checked="{{ lbModern ? 'false' : 'true' }}">
+                                            <span class="sgg-lbe-icon"><i class="fa fa-window-maximize" aria-hidden="true"></i></span>
+                                            <span class="sgg-lbe-body"><strong>{{ translate('Classic popup') }}</strong><span>{{ translate('The popup themes of the earlier versions.') }}</span></span>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tbody class="sgg-lb-rows" data-sgg-lb-rows{{ lbModern ? '' : ' hidden' }}>
+                            <tr id="sggLbThemeRow">
+                                <th scope="row"><label>{{ translate('Lightbox theme') }}</label></th>
+                                <td>
+                                    {# The saved theme stays in the field even when it is a PRO theme and PRO is off (the card of the
+                                       free theme the lightbox shows instead is marked): a save in the free version keeps it, the way
+                                       the carousel editor and the PRO tools below do. A click on a theme card puts the new one here. #}
+                                    <input type="hidden" name="lightbox[theme]" value="{{ lb.theme|e('html_attr') }}" data-sgg-lbt-input>
+                                    {# The palette of the style the Style library or the wizard put here; the lightbox takes it when its colors come from the style #}
+                                    <input type="hidden" name="lightbox[paletteBg]" value="{{ lb.paletteBg|e('html_attr') }}">
+                                    <input type="hidden" name="lightbox[paletteUi]" value="{{ lb.paletteUi|e('html_attr') }}">
+                                    <input type="hidden" name="lightbox[paletteAccent]" value="{{ lb.paletteAccent|e('html_attr') }}">
+                                    <div class="sgg-lbt" role="radiogroup" aria-label="{{ translate('Lightbox theme')|e('html_attr') }}">
+                                        {% for id, theme in lbModule.themes() %}
+                                            <button type="button" class="sgg-lbt-card{{ id == lbTheme ? ' is-current' : '' }}{{ theme.locked ? ' is-locked' : '' }}" data-sgg-lbt="{{ id }}" role="radio" aria-checked="{{ id == lbTheme ? 'true' : 'false' }}"{% if theme.locked %} data-sgg-upsell="lightbox"{% endif %}>
+                                                <span class="sgg-lbt-pic" data-sgg-lbt-pic="{{ id }}"></span>
+                                                <strong>{{ theme.name }}{% if theme.locked %}<em>PRO</em>{% endif %}</strong>
+                                                <span>{{ theme.note }}</span>
+                                            </button>
+                                        {% endfor %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {{ form.row(translate('Colors'),
+                                form.select('lightbox[colors]', {'style': translate('From the gallery style'), 'own': translate('My own colors')}, lb.colors, {'style': 'width: auto;', 'data-sgg-lb-colors': '1'}),
+                                'sgg-lb-colors') }}
+                            {{ form.row(translate('Backdrop'), form.text('lightbox[bg]', lb.bg, {'class': 'gg-color-picker'}), 'sgg-lb-bg') }}
+                            {{ form.row(translate('Controls and text'), form.text('lightbox[ui]', lb.ui, {'class': 'gg-color-picker'}), 'sgg-lb-ui') }}
+                            {{ form.row(translate('Accent'), form.text('lightbox[accent]', lb.accent, {'class': 'gg-color-picker'}), 'sgg-lb-accent') }}
+                            {{ form.row(translate('Backdrop opacity'),
+                                form.input('number', 'lightbox[opacity]', lb.opacity, {'min': 40, 'max': 100, 'step': 1, 'style': {'width': '90px'}}) ~ form.span('', '%'),
+                                'sgg-lb-opacity') }}
+                            {{ form.row(translate('Arrows'),
+                                form.select('lightbox[arrows]', {'circle': translate('Round'), 'square': translate('Square'), 'minimal': translate('Minimal'), 'none': translate('Hidden')}, lb.arrows, {'style': 'width: auto;'}),
+                                'sgg-lb-arrows') }}
+                            {{ form.row(translate('Caption'),
+                                form.select('lightbox[caption]', {'auto': translate('As the theme places it'), 'below': translate('Under the photo'), 'overlay': translate('Over the photo'), 'side': translate('Beside the photo'), 'none': translate('Hidden')}, lb.caption, {'style': 'width: auto;'}),
+                                'sgg-lb-caption') }}
+                            {{ form.row(translate('Opening'),
+                                form.select('lightbox[anim]', {'zoom': translate('Zoom from the thumbnail'), 'fade': translate('Fade'), 'none': translate('At once')}, lb.anim, {'style': 'width: auto;'}),
+                                'sgg-lb-anim') }}
+                            {% set lbTools %}
+                                <span class="sgg-lb-checks">
+                                    {% for key, label in {'counter': translate('Counter'), 'zoom': translate('Zoom button'), 'fullscreen': translate('Full screen button')} %}
+                                        <span class="sgg-lb-check"><input type="hidden" name="{{ 'lightbox[' ~ key ~ ']' }}" value="0">{{ form.checkbox('lightbox[' ~ key ~ ']', '1', lb[key] ? {'checked': 'checked', 'id': 'sggLb' ~ key} : {'id': 'sggLb' ~ key}) }}{{ f.label(label, 'sggLb' ~ key) }}</span>
+                                    {% endfor %}
+                                </span>
+                            {% endset %}
+                            {{ form.row(translate('Controls'), lbTools, 'sgg-lb-tools') }}
+                            {% set lbProTools %}
+                                <span class="sgg-lb-checks">
+                                    {% for key, label in {'thumbs': translate('Thumbnail strip'), 'share': translate('Share buttons')} %}
+                                        {% set attrs = {'id': 'sggLb' ~ key} %}
+                                        {% if lb[key] and lbOpen %}{% set attrs = attrs|merge({'checked': 'checked'}) %}{% endif %}
+                                        {% if not lbOpen %}{% set attrs = attrs|merge({'disabled': 'disabled'}) %}{% endif %}
+                                        {# The free version keeps the value saved before: the checkbox is off and sends nothing #}
+                                        <span class="sgg-lb-check"><input type="hidden" name="{{ 'lightbox[' ~ key ~ ']' }}" value="{{ not lbOpen and lb[key] ? 1 : 0 }}">{{ form.checkbox('lightbox[' ~ key ~ ']', '1', attrs) }}{{ f.label(label, 'sggLb' ~ key) }}</span>
+                                    {% endfor %}
+                                    {% if not lbOpen %}<button type="button" class="button-link sgg-lb-pro" data-sgg-upsell="lightbox">PRO</button>{% endif %}
+                                </span>
+                            {% endset %}
+                            {{ form.row(translate('More in the lightbox'), lbProTools, 'sgg-lb-pro-tools') }}
+                            <tr class="sgg-lb-note-row">
+                                <th scope="row"></th>
+                                <td><p class="sgg-lb-note">{{ translate('The caption text, hidden captions, the slideshow, the download button, video and browser history below work in this lightbox too.') }}</p></td>
+                            </tr>
+                        </tbody>
+                    {% endif %}
                     <tbody>
                         {# Select popup theme #}
                         {{ form.row(translate('Popup box theme'),
@@ -1989,7 +2116,7 @@
             {% block attributes %}
                 <table class="form-table" name="attributes" id="gg-anl-attributes">
                     <thead>
-                        {{ form.getProPanelRow(translate('Custom Attributes'), 'utm_source=plugin&utm_campaign=gallery', null, tooltips['customAttributes']|default(null)) }}
+                        {{ form.getProPanelRow(translate('Custom Attributes'), 'utm_source=plugin&utm_medium=custom_attributes&utm_campaign=gallery', null, tooltips['customAttributes']|default(null)) }}
                     </thead>
                 </table>
 
@@ -2416,6 +2543,10 @@
         </div>
 
         <div id="effectDialog" title="{{ translate('Select overlay effect') }}">
+            <div class="sgg-fx-head">
+                <h2>{{ translate('Choose how captions appear') }}</h2>
+                <p>{{ translate('Hover a picture to see the effect on your photo, click it to use it.') }}</p>
+            </div>
             <div id="effectsPreview" style="margin-top: 10px;">
                 {# Caption Builder's own markup (.gg-caption-table/.gg-caption-row) only has
                 dedicated CSS for this subset of the full effects list (every
@@ -2550,10 +2681,11 @@
             </div>
         </div>
 
-        <div id="shadowDialog" title="{{ translate('Select shadow preset') }}">
-            <h1>
-                {{ translate('Select shadow') }}
-            </h1>
+        <div id="shadowDialog" title="{{ translate('Select shadow preset') }}" data-sgg-own="{{ translate('Your own shadow')|e('html_attr') }}">
+            <div class="sgg-fx-head">
+                <h2>{{ translate('Choose a shadow') }}</h2>
+                <p>{{ translate('The shadow under every image of the gallery. Pick one, then fine-tune its color, blur and offset in the settings.') }}</p>
+            </div>
             <div class="shadow-dialog-wrapper">
                 {% set shadowPresets = {
                 'effect_1': {
@@ -2629,36 +2761,31 @@
                 } %}
 
 
-                {% for value, effect in shadowPresets %}
-                    <div class="grid-gallery-caption" style="float: left; margin-left: 15px; cursor: pointer;">
-                        <div class="shadow-preset" data-offset-x="{{ effect.offset_x }}" data-offset-y="{{ effect.offset_y }}" data-blur="{{ effect.blur }}" data-color="{{ effect.color }}"
-                             style="margin: 20px; box-shadow: {{ effect.offset_x }}px {{' '}} {{ effect.offset_y }}px {{' '}} {{ effect.blur }}px {{' '}} {{ effect.color }};">
-                            <img data-src="holder.js/150x150?theme=industrial&text={{ effect.name }}" class="dialog-image"/>
+                {# Modern presets first: soft, light shadows. Each x / y / blur set is unique, the dialog finds the preset
+                   in use by them (settings.js). Colors are plain hex: the color field keeps no transparency. #}
+                {% set modernShadowPresets = {
+                    'soft': {'name': translate('Soft'), 'offset_x': '0', 'offset_y': '6', 'blur': '18', 'color': '#94a3b8'},
+                    'lifted': {'name': translate('Lifted'), 'offset_x': '0', 'offset_y': '12', 'blur': '24', 'color': '#64748b'},
+                    'floating': {'name': translate('Floating'), 'offset_x': '0', 'offset_y': '20', 'blur': '40', 'color': '#94a3b8'},
+                    'hard': {'name': translate('Hard offset'), 'offset_x': '8', 'offset_y': '8', 'blur': '0', 'color': '#0f172a'},
+                    'glow': {'name': translate('Glow'), 'offset_x': '0', 'offset_y': '0', 'blur': '18', 'color': '#0e8a93'},
+                } %}
+                {% for group, presets in {(translate('Modern')): modernShadowPresets, (translate('Classic')): shadowPresets} %}
+                    <h3 class="sgg-sh-group">{{ group }}</h3>
+                    {% for value, effect in presets %}
+                        <div class="grid-gallery-caption" data-sgg-name="{{ effect.name|e('html_attr') }}" style="float: left; margin-left: 15px; cursor: pointer;">
+                            <div class="shadow-preset" data-offset-x="{{ effect.offset_x }}" data-offset-y="{{ effect.offset_y }}" data-blur="{{ effect.blur }}" data-color="{{ effect.color }}"
+                                 style="margin: 20px; box-shadow: {{ effect.offset_x }}px {{' '}} {{ effect.offset_y }}px {{' '}} {{ effect.blur }}px {{' '}} {{ effect.color }};">
+                                <img data-src="holder.js/150x150?theme=industrial&text={{ effect.name }}" class="dialog-image"/>
+                            </div>
+                            <div class="select-element">
+                                {{ translate('Select') }}
+                            </div>
                         </div>
-                        <div class="select-element">
-                            {{ translate('Select') }}
-                        </div>
-                    </div>
+                    {% endfor %}
                 {% endfor %}
 
             </div>
-        </div>
-
-        <div id="reviewNotice" title="Review" hidden>
-            <h3>Hey, I noticed you just use Gallery by Supsystic over a week – that’s awesome!</h3>
-            <p>Could you please do me a BIG favor and give it a 5-star rating on WordPress? Just to help us spread the word and boost our motivation.</p>
-
-            <ul style="list-style: circle; padding-left: 30px;">
-                <li>
-                    <button class="button button-primary"><a href="//wordpress.org/support/view/plugin-reviews/gallery-by-supsystic?rate=5#postform" target="_blank" class="bupSendStatistic" data-statistic-code="is_shown" style="color:#000000 !important;">Ok, you deserve it</a></button>
-                </li>
-                <li>
-                    <button class="button button-primary"><span class="toeLikeLink bupSendStatistic" data-statistic-code="is_shown">Nope, maybe later</span></button>
-                </li>
-                <li>
-                    <button class="button button-primary"><span class="toeLikeLink bupSendStatistic" data-statistic-code="is_shown">I already did</span></button>
-                </li>
-            </ul>
         </div>
 
         <div id="settingsImportDialog" title="Import" hidden>
@@ -2744,7 +2871,11 @@
     </div>
 
     {% block modals %}
-        <div id="iconsPreview" title="{{ translate('Select icons effects') }}">
+        <div id="iconsPreview" title="{{ translate('Select icons effects') }}" data-sgg-label="{{ translate('Effect %s')|e('html_attr') }}">
+            <div class="sgg-fx-head">
+                <h2>{{ translate('Choose how the icons appear') }}</h2>
+                <p>{{ translate('Hover a tile to see the effect, click it to use it.') }}</p>
+            </div>
             {%
                 set iconsEffects = {
                     'hi-icon-effect-1a': { 'padding': '0', 'bg': '41ab6b'},

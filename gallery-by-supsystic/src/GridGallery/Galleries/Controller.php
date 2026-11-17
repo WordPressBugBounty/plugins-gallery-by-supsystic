@@ -140,6 +140,21 @@ class GridGallery_Galleries_Controller extends GridGallery_Core_BaseController
    * fields (gallery type label, formatted created/modified dates) used by
    * both the first-paint index view and the AJAX SSP endpoint.
    */
+  /**
+   * The module of a gallery type (carousel or slider), or null for a classic gallery and anything else.
+   * @param string $type
+   * @return GridGallery_Carousel_Module|null
+   */
+  private function getTypeModuleByName($type)
+  {
+    if (!class_exists('GridGallery_Carousel_Module') || !in_array($type, GridGallery_Carousel_Module::TYPES, true)) {
+      return null;
+    }
+    $module = $this->getEnvironment()->getModule($type);
+
+    return $module instanceof GridGallery_Carousel_Module ? $module : null;
+  }
+
   private function enrichGalleryRows($galleries)
   {
     $typeLabels = [
@@ -156,6 +171,14 @@ class GridGallery_Galleries_Controller extends GridGallery_Core_BaseController
 
       $grid = isset($gallery->settings['area']['grid']) ? (string) $gallery->settings['area']['grid'] : '0';
       $gallery->typeLabel = isset($typeLabels[$grid]) ? $typeLabels[$grid] : $typeLabels['0'];
+      if ($grid === '2' && !empty($gallery->settings['area']['justified'])) {
+        $gallery->typeLabel = 'Justified';
+      }
+      // Carousel and Slider galleries show their type instead of a gallery layout
+      $typeModule = class_exists('GridGallery_Carousel_Module') ? $this->getTypeModuleByName(GridGallery_Carousel_Module::typeOf($gallery->settings)) : null;
+      if ($typeModule) {
+        $gallery->typeLabel = $typeModule->getLabel();
+      }
 
       $gallery->createdFormatted = $gallery->created ? mysql2date($dateFormat, $gallery->created) : '—';
       $gallery->modifiedFormatted = $gallery->modified ? mysql2date($dateFormat, $gallery->modified) : '—';
@@ -563,6 +586,11 @@ class GridGallery_Galleries_Controller extends GridGallery_Core_BaseController
 
     try {
       $galleries->createFromRequest($request, $language, $config);
+      // A Carousel or a Slider is a gallery of its own type with its own settings
+      $typeModule = $this->getTypeModuleByName((string) $request->post->get('kind'));
+      if ($typeModule) {
+        $typeModule->createType($galleries->getInsertId());
+      }
       if ($defaultSettingGalleryId) {
         $createdGalleryId = $galleries->getInsertId();
         $settingsModel = $this->getModel('settings');

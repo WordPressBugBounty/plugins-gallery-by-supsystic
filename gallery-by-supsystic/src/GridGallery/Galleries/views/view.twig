@@ -210,12 +210,14 @@
         <p>{{ translate('The gallery is does not exists') }}</p>
     {% else %}
         {% if recordsTotal < 1 %}
-            <h2 style="text-align: center; color: #bfbfbf; margin: 50px 0 25px 0;">
-                <span style="margin-bottom: 20px; display: block;">
-                    {{ translate('Currently this gallery has no images') }}
-                </span>
+            <div class="sgg-empty-images">
+                <div class="sgg-empty-images-head">
+                    <span class="sgg-empty-images-icon"><i class="fa fa-image" aria-hidden="true"></i></span>
+                    <h2>{{ translate('Currently this gallery has no images') }}</h2>
+                    <p>{{ translate('Add photos from the Media Library or import them from another source.') }}</p>
+                </div>
                 {{ importTypes.show('1000', gallery.id) }}
-            </h2>
+            </div>
         {% else %}
             {# Read by Pro's Toast UI image editor (photos.js) to know which gallery an edited image belongs to. #}
             <form id="gallery-editor-hidden" style="display: none;">
@@ -365,6 +367,10 @@
     </div>
 
     <div id="effectDialog" title="{{ translate('Select overlay effect') }}" style="display:none;">
+        <div class="sgg-fx-head">
+            <h2>{{ translate('Choose how the caption of this image appears') }}</h2>
+            <p>{{ translate('Hover a picture to see the effect on your photo, click it to use it.') }}</p>
+        </div>
         <div id="effectsPreview" style="margin-top: 10px;">
             {% set effects = {
                 'none': 'None',

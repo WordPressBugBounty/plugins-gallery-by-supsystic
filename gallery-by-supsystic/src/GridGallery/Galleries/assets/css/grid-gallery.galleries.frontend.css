@@ -971,3 +971,60 @@ a.supSocialIcon:hover {
   white-space: normal;
   z-index: 999999;
 }
+
+/* Justified rows (Horizontal type): the rows are flex lines; frontend.js sizes every image */
+.grid-gallery-photos.gg-justified {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+.grid-gallery-photos.gg-justified > * {
+  float: none !important;
+  flex: 0 0 auto;
+}
+.grid-gallery-photos.gg-justified > .grid-gallery-clearfix {
+  display: none;
+}
+.grid-gallery-photos.gg-justified figure.grid-gallery-caption {
+  max-width: none;
+}
+
+/* Custom Buttons (PRO): the modern presets put these classes on the category, page and Load more buttons */
+.sgg-btn {
+  display: inline-block;
+  line-height: 1.2 !important;
+  text-decoration: none !important;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+.sgg-btn:hover {
+  transform: translateY(-1px);
+}
+.sgg-btn:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+.sgg-btn-shadow {
+  box-shadow: 0 6px 16px -8px rgba(15, 23, 42, 0.55);
+}
+.sgg-btn-shadow:hover {
+  box-shadow: 0 10px 22px -10px rgba(15, 23, 42, 0.6);
+}
+.sgg-btn-ghost:hover {
+  background-color: rgba(15, 23, 42, 0.07);
+}
+.sgg-btn-caps {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.sgg-btn-underline {
+  box-shadow: inset 0 -2px 0 currentColor;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sgg-btn {
+    transition: none;
+  }
+  .sgg-btn:hover {
+    transform: none;
+  }
+}

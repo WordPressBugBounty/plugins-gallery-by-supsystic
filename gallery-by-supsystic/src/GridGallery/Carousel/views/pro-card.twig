@@ -1,0 +1,16 @@
+{# PRO features of the type while PRO is not active: each button opens the window of its feature (Upsell module). #}
+<section class="sgg-sle-card sgg-up-card">
+    <div class="sgg-up-card-head">
+        <span class="sgg-up-eyebrow"><i class="fa fa-diamond" aria-hidden="true"></i>{{ ' ' ~ 'Photo Gallery PRO' }}</span>
+        <h3>{{ type == 'slider' ? environment.translate('Do more with this slider') : environment.translate('Do more with this carousel') }}</h3>
+        <p>{{ environment.translate('Your settings stay as they are, and the PRO options open right in these cards.') }}</p>
+    </div>
+    <div class="sgg-up-card-grid">
+        {% for key, item in proFeatures %}
+            <button type="button" data-sgg-upsell="{{ key }}"><i class="{{ 'fa ' ~ item[0] }}" aria-hidden="true"></i>{{ item[1] }}</button>
+        {% endfor %}
+    </div>
+    <div class="sgg-up-card-foot">
+        <a class="sgg-up-cta" href="{{ environment.getProUrl('utm_source=plugin&utm_medium=' ~ type ~ '_pro_card&utm_campaign=gallery')|e('html_attr') }}" target="_blank" rel="noopener">{{ environment.translate('Get PRO') }}<i class="fa fa-arrow-right" aria-hidden="true"></i></a>
+    </div>
+</section>

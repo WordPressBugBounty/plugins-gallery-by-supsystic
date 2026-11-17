@@ -1,138 +1,214 @@
-.supsystic-plugin .settings-list {
-  line-height: 0;
+/* Advanced Settings in the look of the Data Tables settings page: a header with the Save button, settings as cards. */
+
+.supsystic-plugin .sgg-settings-page {
+  --sgg-ink: #0f172a;
+  --sgg-text: #334155;
+  --sgg-muted: #64748b;
+  --sgg-line: #e2e8f0;
+  --sgg-line-soft: #f1f5f9;
+  --sgg-surface: #f8fafc;
+  --sgg-accent: #0e8a93;
+  --sgg-navy: linear-gradient(145deg, #26384c 0%, #1d2b3c 100%);
+  --sgg-icon-bg: linear-gradient(145deg, rgba(74, 232, 234, 0.22), rgba(55, 125, 255, 0.16));
+  --sgg-icon-ink: #1f5fd6;
+  --sgg-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 16px -8px rgba(15, 23, 42, 0.1);
+  padding: 6px 4px 10px;
+  color: var(--sgg-text);
+  line-height: 1.5;
 }
 
-.supsystic-plugin .settings {
-  border-bottom: 1px solid gray;
-  line-height: 0;
-  padding: 2.2em 0;
+/* ---------- Header ---------- */
+.supsystic-plugin .sgg-page-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin: 0 0 18px;
 }
-
-.supsystic-plugin .setting {
-  margin: 2.2em 0;
-}
-
-.supsystic-plugin .supsystic-tooltip {
-  clear: both;
-  margin-left: 0.5em;
-}
-
-.supsystic-plugin .settings .setting-description a {
-  display: block;
-  margin-top: 1em;
-}
-
-.supsystic-plugin .settings .setting-description {
-  width: 30%;
-  display: inline-block;
-}
-
-.supsystic-plugin .settings .setting-description label {
-  font-size: 16px;
-  font-weight: bold;
-}
-
-.supsystic-plugin .settings .setting-control {
-  display: inline-block;
-  vertical-align: top;
-}
-
-.supsystic-plugin .chosen-select {
-  min-width: 300px;
-}
-
-/* =================================================================
-   Image Optimization & CDN credentials block
-   ================================================================= */
-.sgg-svc {
-  margin-top: 26px;
-  border-top: 1px solid #e3e9ef;
-  padding-top: 4px;
-}
-
-.sgg-svc-head {
+.supsystic-plugin .sgg-page-title {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
-  padding: 18px 0 10px;
-}
-
-.sgg-svc-head h3 {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 600;
-  color: #263546;
-}
-
-.sgg-svc-head p {
-  flex: 1 1 260px;
-  margin: 0;
-  font-size: 13px;
-  color: #7f8c8d;
-}
-
-.sgg-svc-pro {
-  background: linear-gradient(135deg, #2bc4c6, #1c8b9c);
-  color: #fff;
-  font-size: 9.5px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  padding: 3px 8px;
-  border-radius: 4px;
-}
-
-.sgg-svc .setting-control input[type='text'],
-.sgg-svc .setting-control input[type='password'] {
-  width: 320px;
-  max-width: 100%;
-  height: 30px;
-  padding: 0 10px;
-  border: 1px solid #dcdcde;
-  border-radius: 4px;
-  box-sizing: border-box;
-}
-
-.sgg-svc-promo {
-  padding: 4px 0 18px;
-}
-
-.sgg-svc-promo p {
-  margin: 0 0 14px;
-  font-size: 13.5px;
-  color: #5b6b7c;
-  max-width: 70ch;
-}
-
-.sgg-svc-shots {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 12px;
-  margin-bottom: 16px;
 }
-
-.sgg-svc-shots img {
-  display: block;
-  width: 100%;
-  height: auto;
-  border: 1px solid #e3e9ef;
-  border-radius: 8px;
-  transition: border-color 0.15s, box-shadow 0.15s;
+.supsystic-plugin .sgg-page-icon,
+.supsystic-plugin .sgg-card-icon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: var(--sgg-icon-bg);
+  color: var(--sgg-icon-ink);
 }
-
-.sgg-svc-shots a:hover img {
-  border-color: #2bc4c6;
-  box-shadow: 0 6px 16px rgba(43, 196, 198, 0.18);
+.supsystic-plugin .sgg-page-icon {
+  width: 40px;
+  height: 40px;
+  font-size: 18px;
 }
-
-.sgg-svc-cta {
+.supsystic-plugin .sgg-page-title h2 {
+  margin: 0;
+  padding: 0;
+  color: var(--sgg-ink);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+.supsystic-plugin .sgg-page-title p,
+.supsystic-plugin .sgg-card-head p {
+  margin: 2px 0 0;
+  color: var(--sgg-muted);
+  font-size: 13px;
+}
+.supsystic-plugin .sgg-page-actions .button {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 6px;
+  height: 38px;
+  min-height: 38px;
+  margin: 0;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--sgg-navy);
+  box-shadow: none;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 38px;
+  text-shadow: none;
+}
+.supsystic-plugin .sgg-page-actions .button:hover,
+.supsystic-plugin .sgg-page-actions .button:focus {
+  background: #17222e;
+  color: #fff;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .sgg-svc-shots img {
-    transition: none;
+/* ---------- Cards ---------- */
+.supsystic-plugin .sgg-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+  align-items: start;
+  gap: 16px;
+  line-height: 1.5;
+}
+.supsystic-plugin .settings-list .sgg-card {
+  margin: 0;
+  padding: 16px 20px 8px;
+  border: 1px solid var(--sgg-line);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: var(--sgg-shadow);
+  line-height: 1.5;
+}
+.supsystic-plugin .sgg-card-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 0 0 6px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--sgg-line-soft);
+}
+.supsystic-plugin .sgg-card-icon {
+  width: 32px;
+  height: 32px;
+  font-size: 15px;
+}
+.supsystic-plugin .sgg-card-head h3 {
+  margin: 0;
+  color: var(--sgg-ink);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+/* ---------- Rows ---------- */
+.supsystic-plugin .sgg-card .setting {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin: 0;
+  padding: 12px 0;
+}
+.supsystic-plugin .sgg-card .setting + .setting {
+  border-top: 1px solid var(--sgg-line-soft);
+}
+.supsystic-plugin .sgg-card .setting-description {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+  width: auto;
+}
+.supsystic-plugin .sgg-card .setting-description label {
+  color: var(--sgg-text);
+  font-size: 13px;
+  font-weight: 600;
+}
+.supsystic-plugin .sgg-card .supsystic-tooltip {
+  clear: none;
+  margin-left: 0;
+}
+.supsystic-plugin .sgg-card .sgg-pro-link {
+  display: inline-flex;
+  margin: 0 0 0 4px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: #e6fbfb;
+  color: #26384c;
+  font-size: 11px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.supsystic-plugin .sgg-card .setting-control {
+  display: block;
+  flex: 0 1 auto;
+}
+.supsystic-plugin .sgg-card .setting-control select,
+.supsystic-plugin .sgg-card .setting-control input[type='text'],
+.supsystic-plugin .sgg-card .setting-control input[type='password'] {
+  width: 260px;
+  max-width: 100%;
+  min-height: 34px;
+  margin: 0;
+  padding: 0 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: none;
+  color: var(--sgg-ink);
+  font-size: 13px;
+  box-sizing: border-box;
+}
+.supsystic-plugin .sgg-card .setting-control select:focus,
+.supsystic-plugin .sgg-card .setting-control input:focus {
+  border-color: var(--sgg-accent);
+  box-shadow: 0 0 0 3px rgba(14, 138, 147, 0.15);
+}
+.supsystic-plugin .sgg-card .chosen-container {
+  min-width: 260px;
+}
+.supsystic-plugin .sgg-card .chosen-container-multi .chosen-choices {
+  min-height: 34px;
+  padding: 2px 6px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: none;
+}
+.supsystic-plugin .sgg-card .chosen-container-multi .chosen-choices li.search-choice {
+  margin: 4px 4px 2px 0;
+  border: 1px solid var(--sgg-line);
+  border-radius: 6px;
+  background: var(--sgg-surface);
+  box-shadow: none;
+  color: var(--sgg-text);
+}
+
+@media (max-width: 782px) {
+  .supsystic-plugin .sgg-cards {
+    grid-template-columns: 1fr;
   }
 }

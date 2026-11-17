@@ -1,0 +1,53 @@
+{# Form fields of the Carousel and Slider editors. Names are full form names, values are already checked. #}
+
+{% macro number(name, value, min, max, suffix, step) %}
+    <span class="sgg-sle-number">
+        <input type="number" name="{{ name }}" value="{{ value }}" min="{{ min }}" max="{{ max }}" step="{{ step|default(1) }}">
+        {% if suffix %}<span class="sgg-sle-suffix">{{ suffix }}</span>{% endif %}
+    </span>
+{% endmacro %}
+
+{# A switch is a button over a hidden field: the plugin turns every checkbox of its pages into an iCheck control #}
+{% macro toggle(name, value) %}
+    <span class="sgg-sle-switch-wrap"><input type="hidden" name="{{ name }}" value="{{ value ? 1 : 0 }}"><button type="button" class="sgg-sle-switch" role="switch" aria-checked="{{ value ? 'true' : 'false' }}" data-sgg-switch><span aria-hidden="true"></span></button></span>
+{% endmacro %}
+
+{% macro select(name, value, options, locked) %}
+    <select name="{{ name }}">
+        {% for key, label in options %}
+            <option value="{{ key }}"{% if key == value %} selected{% endif %}{% if key in locked|default([]) %} disabled{% endif %}>{{ label }}{% if key in locked|default([]) %} (PRO){% endif %}</option>
+        {% endfor %}
+    </select>
+{% endmacro %}
+
+{% macro color(name, value) %}
+    <input type="color" name="{{ name }}" value="{{ value|slice(0, 7) }}">
+{% endmacro %}
+
+{# Several ids found by a search on the site (posts or categories): the ids travel in the hidden field, the chips show
+   their names. The search box has no name, so it never reaches the settings. #}
+{% macro picker(name, ids, titles, kind, placeholder) %}
+    <span class="sgg-sle-picker" data-sgg-picker="{{ kind }}">
+        <input type="hidden" name="{{ name }}" value="{{ ids|join(',') }}">
+        <span class="sgg-sle-chips">{% for id in ids %}<span class="sgg-sle-chip" data-id="{{ id }}"><span>{{ titles[id]|default('#' ~ id)|e }}</span><button type="button" data-sgg-chip-remove aria-label="{{ environment.translate('Remove')|e('html_attr') }}">&times;</button></span>{% endfor %}</span>
+        <input type="search" class="sgg-sle-picker-search" placeholder="{{ placeholder|e('html_attr') }}" autocomplete="off" aria-label="{{ placeholder|e('html_attr') }}">
+        <span class="sgg-sle-picker-list" role="listbox" hidden></span>
+    </span>
+{% endmacro %}
+
+{# The same value for desktop, tablet and phone #}
+{% macro devices(name, values, kind, min, max, suffix) %}
+    <span class="sgg-sle-devices">
+        {% for device, icon in {'d': 'fa-desktop', 't': 'fa-tablet', 'm': 'fa-mobile'} %}
+            <label class="sgg-sle-device" title="{{ {'d': environment.translate('Desktop'), 't': environment.translate('Tablet'), 'm': environment.translate('Phone')}[device]|e('html_attr') }}">
+                <i class="{{ 'fa ' ~ icon }}" aria-hidden="true"></i>
+                {% if kind == 'toggle' %}
+                    <input type="hidden" name="{{ name }}[{{ device }}]" value="{{ values[device] ? 1 : 0 }}"><button type="button" class="sgg-sle-switch" role="switch" aria-checked="{{ values[device] ? 'true' : 'false' }}" data-sgg-switch><span aria-hidden="true"></span></button>
+                {% else %}
+                    <input type="number" name="{{ name }}[{{ device }}]" value="{{ values[device] }}" min="{{ min }}" max="{{ max }}">
+                    {% if suffix %}<span class="sgg-sle-suffix">{{ suffix }}</span>{% endif %}
+                {% endif %}
+            </label>
+        {% endfor %}
+    </span>
+{% endmacro %}

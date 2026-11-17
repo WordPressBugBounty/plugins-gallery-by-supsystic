@@ -485,6 +485,11 @@
     var hideLongTooltipTitles = this.$container.data('hide-long-tltp-title');
 
     //===========|Popup gallery scripts|===========//
+    // The new lightbox (Lightbox module, PhotoSwipe 5)
+    if (popupType == 'pswp') {
+      this.initModernLightbox();
+    }
+
     if (popupType == 'colorbox') {
       var $this = this.$container;
       // simple selector
@@ -839,6 +844,102 @@
       generateOverlayColor('#pbOverlay', popupBackground, popupOverlayTransper);
     }
     //===========|Popup gallery scripts|===========//
+  };
+
+  /**
+   * The new lightbox: the links of the gallery that are on the page now (a category filter or the pages of the
+   * gallery hide the others), all of them when the gallery shows only its first image or is a mosaic.
+   */
+  Gallery.prototype.initModernLightbox = function () {
+    var self = this,
+      config = this.$container.data('sgg-lightbox') || {};
+
+    // The figure of a link: inside it (the link around the photo) or around it (an icon over the photo)
+    function figureOf(link) {
+      var $link = $(link),
+        $figure = $link.find('figure').first();
+      return ($figure.length ? $figure : $link.closest('figure')).get(0) || link;
+    }
+
+    // One link a photo: with icons a photo can have several (popup, video, a link that opens the popup), and the
+    // lightbox showed it once for each. Whether a photo is on the page is asked of its figure, not of an icon that is
+    // only drawn on hover.
+    function linksNow() {
+      // Every photo when the gallery shows only its first one (one-photo) or is a mosaic that holds some back. A
+      // hidden-item elsewhere is a photo a category, a search or the pages filtered out: it stays out of the lightbox.
+      var all = self.$container.hasClass('one-photo') || self.$container.data('gridType') == '4',
+        seen = [];
+      return self.$container
+        .find('a.gg-pswp')
+        .get()
+        .filter(function (link) {
+          var figure = figureOf(link);
+          if (seen.indexOf(figure) !== -1 || (!all && !$(figure).is(':visible'))) {
+            return false;
+          }
+          seen.push(figure);
+          return true;
+        });
+    }
+
+    function itemOf(link) {
+      var $link = $(link),
+        $figure = $link.is('figure') ? $link : $link.find('figure').first(),
+        image,
+        size,
+        href = $link.attr('href') || '';
+      if (!$figure.length) {
+        $figure = $link.closest('figure');
+      }
+      image = $figure.find('img').get(0);
+      size = String($figure.attr('data-gg-full') || '').split('x');
+      if (href.indexOf('data:') === 0 && $link.attr('data-gg-real-image-href')) {
+        href = $link.attr('data-gg-real-image-href');
+      }
+      var item = {
+        src: href,
+        width: parseInt(size[0], 10) || (image && image.naturalWidth) || 1600,
+        height: parseInt(size[1], 10) || (image && image.naturalHeight) || 1067,
+        msrc: image ? image.currentSrc || image.src : '',
+        element: image || link,
+        thumbCropped: true,
+        alt: image ? image.alt : '',
+        title: $.trim($('<div>').html(self.getPopupTitle($link) || '').text()),
+        link: window.location.href.split('#')[0] + '#' + ($link.attr('id') || ''),
+      };
+      if ($link.attr('rel') === 'video' && window.SggLightbox) {
+        item.html = window.SggLightbox.videoHtml(href);
+        delete item.src;
+      }
+      return item;
+    }
+
+    this.$container.off('click.sggLightbox').on('click.sggLightbox', 'a.gg-pswp', function (event) {
+      if (!window.SggLightbox || $(this).is('[data-ecommerce-restrict]')) {
+        return;
+      }
+      event.preventDefault();
+      event.stopPropagation();
+      var links = linksNow(),
+        figure = figureOf(this),
+        index = 0;
+      $.each(links, function (i, link) {
+        if (figureOf(link) === figure) {
+          index = i;
+        }
+      });
+      self.popupIsOpened = true;
+      window.SggLightbox.open(links.map(itemOf), index, config, {
+        onChange: function (current) {
+          var $current = $(links[current]);
+          self.changePopUpHash($current.attr('id') || $current.attr('data-id'));
+        },
+        onClose: function () {
+          self.popupIsOpened = false;
+          self.clearPopUpHash();
+        },
+      });
+    });
   };
 
   Gallery.prototype.preventImages = function () {
@@ -1598,6 +1699,9 @@
 
     if ($img.hasClass('ggLazyImg') || $img.hasClass('ggNotInitImg')) return;
     if ($el.closest('.gg-mw-row').hasClass('sggDisplNone')) return;
+    // A figure that is not shown (another page, a category that is filtered out) measures as zero, and the caption
+    // would be placed off its strip for good: wait until the figure is shown (pages and categories call this again)
+    if (!$el[0].getClientRects().length) return;
 
     $el.addClass('initialized');
     $img.finish();
@@ -2945,6 +3049,7 @@
     this.hidePopupCaptions();
     this.preventImages();
     this.initWookmark();
+    this.initJustified();
     this.initCategories();
     this.setIconsPosition();
 
@@ -2990,6 +3095,10 @@
 
           if (self.popupType == 'photobox') {
             window._photobox && window._photobox.close();
+          }
+
+          if (self.popupType == 'pswp') {
+            window.SggLightbox && window.SggLightbox.close();
           }
         }
 
@@ -3079,7 +3188,128 @@
           self.resizeElementHeight(image, element);
         }
       });
+      // Justified rows set the sizes again after the Horizontal ones
+      if (this.justifyRows) {
+        this.justifyRows();
+      }
     }
+  };
+
+  /**
+   * Justified rows (Horizontal type with "Justified rows" on): every full row fills the width of the gallery and
+   * gets the height that keeps the proportions of its images, as close as possible to the chosen Image height; the
+   * last row keeps that height. Not with the horizontal scroll or the polaroid frame, which size the images
+   * themselves.
+   */
+  Gallery.prototype.initJustified = function () {
+    var self = this,
+      setting = this.$container.attr('data-justified'),
+      $holder = this.$container.find('.grid-gallery-photos').first(),
+      horizontalScroll = this.$container.data('horizontal-scroll'),
+      lastWidth = 0,
+      timer = null;
+    if (!setting || this.$container.data('gridType') != 2 || !$holder.length) {
+      return;
+    }
+    if ((horizontalScroll && horizontalScroll.enabled) || this.$container.find('[data-grid-gallery-type="polaroid"]').length) {
+      return;
+    }
+    $holder.addClass('gg-justified').css('justify-content', { left: 'flex-start', center: 'center', right: 'flex-end' }[this.areaPosition] || 'flex-start');
+
+    function figures() {
+      return self.$container.find('figure.grid-gallery-caption').filter(function () {
+        return $(this).css('display') !== 'none' && !$(this).hasClass('hidden-item');
+      });
+    }
+
+    function place(row, height) {
+      height = Math.max(20, Math.floor(height * 100) / 100);
+      row.forEach(function (item) {
+        var width = Math.floor(item.ratio * height * 100) / 100;
+        item.$el.css({ width: width + 'px', height: height + 'px' });
+        item.$el.find('.crop').first().css({ width: '100%', height: height + 'px' });
+        item.$img.css({ width: '100%', height: height + 'px', maxWidth: 'none', objectFit: 'cover' });
+      });
+    }
+
+    this.justifyRows = function () {
+      var width = $holder.width() - 1,
+        gap = parseInt(self.$container.data('offset'), 10) || 0,
+        target = parseInt(setting, 10),
+        row = [],
+        sum = 0;
+      if (width < 60) {
+        // Still hidden behind the preloader: try again a little later
+        clearTimeout(timer);
+        timer = setTimeout(self.justifyRows, 200);
+        return;
+      }
+      lastWidth = width;
+      if (!target) {
+        // Image height in percents: the height the Horizontal type gave the first image
+        target = parseInt(figures().first().find('img').first().height(), 10) || 240;
+        setting = String(target);
+      }
+      figures().each(function () {
+        var $el = $(this),
+          $img = $el.find('img').first();
+        if (!$img.length) {
+          return;
+        }
+        var sizes = self.getOriginalImageSizes($img.get(0)),
+          item = { $el: $el, $img: $img, ratio: sizes.width > 0 && sizes.height > 0 ? sizes.width / sizes.height : 1.5 },
+          height;
+        row.push(item);
+        sum += item.ratio;
+        // The height at which this row fills the width; at or below the chosen height the row is full
+        height = (width - row.length * gap) / sum;
+        if (height > target) {
+          return;
+        }
+        if (row.length > 1) {
+          var before = (width - (row.length - 1) * gap) / (sum - item.ratio);
+          // Ending the row before this image is closer to the chosen height: this image starts the next row
+          if (before - target < target - height) {
+            place(row.slice(0, -1), before);
+            row = [item];
+            sum = item.ratio;
+            height = (width - gap) / sum;
+            if (height > target) {
+              return;
+            }
+          }
+        }
+        place(row, height);
+        row = [];
+        sum = 0;
+      });
+      if (row.length) {
+        place(row, Math.min(target, (width - row.length * gap) / sum));
+      }
+    };
+
+    this.justifyRows();
+    // Again when the width of the gallery changes, and after the category filter or more images
+    if (window.ResizeObserver) {
+      new ResizeObserver(function () {
+        if (Math.abs($holder.width() - 1 - lastWidth) > 1) {
+          clearTimeout(timer);
+          timer = setTimeout(self.justifyRows, 80);
+        }
+      }).observe($holder.get(0));
+    } else {
+      $(window).on('resize', function () {
+        clearTimeout(timer);
+        timer = setTimeout(self.justifyRows, 120);
+      });
+    }
+    this.$container.on('click', '.grid-gallery-nav a, .gg-show-more, .gg-pagination a, [data-tag]', function () {
+      setTimeout(self.justifyRows, 120);
+      setTimeout(self.justifyRows, 700);
+    });
+    $(window).on('load', function () {
+      self.justifyRows();
+    });
   };
 
   Gallery.prototype.resizeElementHeight = function (image, element) {

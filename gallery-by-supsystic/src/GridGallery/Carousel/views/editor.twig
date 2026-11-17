@@ -1,0 +1,19 @@
+{% extends '@carousel/editor-base.twig' %}
+{# Carousel editor: several slides in a row, so the row card and centered or free scrolling are here. #}
+
+{% block typeIcon %} fa-columns{% endblock %}
+
+{% block cards %}
+    {% import '@carousel/cards.twig' as cards %}
+    {% set n = 'slider' %}
+    {{ cards.content(settings, n, hasWoo, products, categories, sources) }}
+    {{ cards.perRow(settings, n) }}
+    {{ cards.size(settings, n) }}
+    {{ cards.motion(settings, n, locked, true) }}
+    {{ cards.navigation(settings, n) }}
+    {{ cards.captions(settings, n) }}
+    {{ cards.style(settings, n) }}
+    {% if locked is not empty %}
+        {% include '@carousel/pro-card.twig' with {'proFeatures': {'effects': ['fa-cube', environment.translate('3D effects')], 'posts': ['fa-rss', environment.translate('Posts as slides')]}} %}
+    {% endif %}
+{% endblock %}

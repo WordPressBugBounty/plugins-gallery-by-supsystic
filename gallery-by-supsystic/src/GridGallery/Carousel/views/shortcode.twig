@@ -1,0 +1,106 @@
+{# Carousel and Slider. sliders.js builds Swiper from data-sgg-sl; the CSS variables give the right size and colors
+   before it runs. Every value is escaped; the price and rating come from WooCommerce as HTML. #}
+{% set s = settings %}
+<div id="{{ uid }}"
+     class="sgg-sl sgg-sl--{{ type }}{% if products %} sgg-sl--products{% if s.products.themeStyle %} sgg-sl-shop-theme{% endif %}{% endif %} sgg-sl-preset-{{ s.style.preset|e('html_attr') }} sgg-sl-shadow-{{ s.style.shadow|e('html_attr') }} sgg-sl-h-{{ s.layout.heightMode|e('html_attr') }} sgg-sl-align-{{ s.layout.align|e('html_attr') }} sgg-sl-arrows-{{ s.nav.arrowStyle|e('html_attr') }} sgg-sl-arrows-{{ s.nav.arrowPos|e('html_attr') }} sgg-sl-dots-{{ s.nav.dotsPos|e('html_attr') }} sgg-sl-cap-{{ s.captions.mode|e('html_attr') }} sgg-sl-cap-{{ s.captions.align|e('html_attr') }}{% if s.motion.marquee %} sgg-sl-marquee{% endif %}{% if s.style.grayscale %} sgg-sl-gray{% endif %}{% for device in ['d', 't', 'm'] %}{% if not s.nav.arrows[device] %} sgg-sl-no-arrows-{{ device }}{% endif %}{% if not s.nav.dots[device] %} sgg-sl-no-dots-{{ device }}{% endif %}{% if thumbs and not s.nav.thumbs[device] %} sgg-sl-no-thumbs-{{ device }}{% endif %}{% endfor %}"
+     style="{{ cssVars|e('html_attr') }}"
+     data-sgg-sl="{{ config|e('html_attr') }}"
+     role="region"{% if title|default('') %} aria-label="{{ title|e('html_attr') }}"{% endif %}
+     aria-roledescription="carousel">
+    {% if slides is empty %}
+        <div class="sgg-sl-empty">
+            {% if products and wooMissing|default(false) %}{{ environment.translate('Turn on WooCommerce to show the products here. Only the people who edit the site see this note.')|e }}{% elseif products %}{{ environment.translate('No products match the settings of this carousel.')|e }}{% elseif posts %}{{ environment.translate('No posts with a featured image match these settings.')|e }}{% else %}{{ environment.translate('Add images to show them here.')|e }}{% endif %}
+        </div>
+    {% else %}
+        <div class="sgg-sl-stage">
+            <div class="swiper sgg-sl-swiper">
+                <div class="swiper-wrapper">
+                    {% for slide in slides %}
+                        <div class="swiper-slide sgg-sl-slide" data-sgg-index="{{ loop.index0 }}"{% if slide.photoId is defined %} data-sgg-photo="{{ slide.photoId }}"{% endif %}>
+                            {% if products %}
+                                <div class="sgg-sl-card">
+                                    <a class="sgg-sl-media" href="{{ slide.link|e('html_attr') }}">
+                                        <img src="{{ slide.src|e('html_attr') }}"{% if slide.srcset %} srcset="{{ slide.srcset|e('html_attr') }}" sizes="(max-width: 767px) 90vw, 33vw"{% endif %}{% if slide.width %} width="{{ slide.width }}" height="{{ slide.height }}"{% endif %} alt="{{ (slide.alt ?: slide.title)|e('html_attr') }}" loading="lazy" decoding="async">
+                                        {% if slide.onSale %}<span class="sgg-sl-badge">{{ environment.translate('Sale')|e }}</span>{% endif %}
+                                    </a>
+                                    <div class="sgg-sl-card-body">
+                                        {% if s.products.showTitle %}<a class="sgg-sl-card-title" href="{{ slide.link|e('html_attr') }}">{{ slide.title|e }}</a>{% endif %}
+                                        {% if slide.ratingHtml %}<div class="sgg-sl-card-rating">{{ slide.ratingHtml|raw }}</div>{% endif %}
+                                        {% if slide.priceHtml %}<div class="sgg-sl-card-price">{{ slide.priceHtml|raw }}</div>{% endif %}
+                                        {% if slide.button %}
+                                            <a class="sgg-sl-card-button button{% if slide.button.ajax %} add_to_cart_button ajax_add_to_cart{% endif %}"
+                                               href="{{ slide.button.url|e('html_attr') }}"
+                                               data-quantity="1"
+                                               data-product_id="{{ slide.button.id }}"
+                                               data-product_sku="{{ slide.button.sku|e('html_attr') }}"
+                                               rel="nofollow">{{ slide.button.text|e }}</a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% else %}
+                                {% set lightbox = s.click.action == 'lightbox' %}
+                                {% set linked = s.click.action == 'link' and slide.link %}
+                                {% set extra = extras[slide.photoId|default(0)] is defined ? extras[slide.photoId|default(0)] : null %}
+                                <figure class="sgg-sl-item">
+                                    <div class="sgg-sl-frame">
+                                    {% if lightbox %}
+                                        <a class="sgg-sl-media" href="{{ slide.full|e('html_attr') }}" data-sgg-pswp data-pswp-width="{{ slide.fullWidth }}" data-pswp-height="{{ slide.fullHeight }}"{% if slide.title|default('') %} data-sgg-title="{{ slide.title|e('html_attr') }}"{% endif %}{% if slide.text|default('') %} data-sgg-text="{{ slide.text|e('html_attr') }}"{% endif %}>
+                                    {% elseif linked %}
+                                        <a class="sgg-sl-media" href="{{ slide.link|e('html_attr') }}"{% if slide.target %} target="_blank" rel="noopener"{% endif %}>
+                                    {% else %}
+                                        <div class="sgg-sl-media">
+                                    {% endif %}
+                                        {% if extra and extra.mobile %}<picture><source media="(max-width: 767px)" srcset="{{ extra.mobile|e('html_attr') }}">{% endif %}<img src="{{ slide.src|e('html_attr') }}"{% if slide.srcset %} srcset="{{ slide.srcset|e('html_attr') }}" sizes="(max-width: 767px) 100vw, 60vw"{% endif %}{% if slide.width %} width="{{ slide.width }}" height="{{ slide.height }}"{% endif %} alt="{{ (slide.alt ?: slide.title)|e('html_attr') }}"{% if loop.index > 2 %} loading="lazy"{% endif %} decoding="async">{% if extra and extra.mobile %}</picture>{% endif %}
+                                    {% if lightbox or linked %}</a>{% else %}</div>{% endif %}
+                                    {% if extra and extra.compare %}
+                                        <div class="sgg-sl-compare swiper-no-swiping" style="--sgg-cmp: {{ extra.compare.start }}%;">
+                                            <img class="sgg-sl-compare-img" src="{{ extra.compare.src|e('html_attr') }}"{% if extra.compare.srcset %} srcset="{{ extra.compare.srcset|e('html_attr') }}" sizes="(max-width: 767px) 100vw, 60vw"{% endif %} alt="{{ extra.compare.after|e('html_attr') }}" loading="lazy" decoding="async">
+                                            {% if extra.compare.before %}<span class="sgg-sl-compare-label sgg-sl-compare-before">{{ extra.compare.before|e }}</span>{% endif %}
+                                            {% if extra.compare.after %}<span class="sgg-sl-compare-label sgg-sl-compare-after">{{ extra.compare.after|e }}</span>{% endif %}
+                                            <span class="sgg-sl-compare-line" aria-hidden="true"></span>
+                                            <input class="sgg-sl-compare-range" type="range" min="0" max="100" step="0.5" value="{{ extra.compare.start }}" aria-label="{{ environment.translate('Drag to compare the images')|e('html_attr') }}" data-sgg-compare>
+                                        </div>
+                                    {% endif %}
+                                    {% if extra and extra.video %}
+                                        <div class="sgg-sl-video{% if extra.video.mode == 'background' %} is-bg{% endif %}" data-sgg-video="{{ extra.video|json_encode|e('html_attr') }}" data-sgg-video-title="{{ environment.translate('Video')|e('html_attr') }}"></div>
+                                        {% if extra.video.mode == 'click' %}
+                                            <button type="button" class="sgg-sl-play" data-sgg-play aria-label="{{ environment.translate('Play video')|e('html_attr') }}"><svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true" focusable="false"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></button>
+                                        {% endif %}
+                                    {% endif %}
+                                    {% if layers[slide.photoId] is defined and layers[slide.photoId] is not empty %}
+                                        {% include '@carousel/layers.twig' with {'items': layers[slide.photoId]} only %}
+                                    {% endif %}
+                                    </div>
+                                    {% if s.captions.mode != 'none' and ((s.captions.title and slide.title) or (s.captions.text and slide.text) or slide.meta|default('')) %}
+                                        <figcaption class="sgg-sl-caption">
+                                            {% if slide.meta|default('') %}<span class="sgg-sl-caption-meta">{{ slide.meta|e }}</span>{% endif %}
+                                            {% if s.captions.title and slide.title %}<span class="sgg-sl-caption-title">{{ slide.title|e }}</span>{% endif %}
+                                            {% if s.captions.text and slide.text %}<span class="sgg-sl-caption-text">{{ slide.text|e }}</span>{% endif %}
+                                        </figcaption>
+                                    {% endif %}
+                                </figure>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <button type="button" class="sgg-sl-arrow sgg-sl-prev" aria-label="{{ environment.translate('Previous slide')|e('html_attr') }}">
+                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button type="button" class="sgg-sl-arrow sgg-sl-next" aria-label="{{ environment.translate('Next slide')|e('html_attr') }}">
+                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            {% if s.nav.dotsPos == 'inside' %}<div class="sgg-sl-dots"></div>{% endif %}
+        </div>
+        {% if s.nav.dotsPos != 'inside' %}<div class="sgg-sl-dots"></div>{% endif %}
+        {% if thumbs %}
+            <div class="swiper sgg-sl-thumbs" aria-label="{{ environment.translate('Thumbnails')|e('html_attr') }}">
+                <div class="swiper-wrapper">
+                    {% for slide in slides %}
+                        <div class="swiper-slide sgg-sl-thumb"><img src="{{ (slide.thumb|default(slide.src))|e('html_attr') }}" alt="" loading="lazy" decoding="async"></div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+    {% endif %}
+</div>

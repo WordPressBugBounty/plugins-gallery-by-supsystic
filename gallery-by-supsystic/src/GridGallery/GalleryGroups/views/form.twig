@@ -14,8 +14,22 @@
         <div class="updated notice"><p>{{ translate('Gallery Group saved.') }}</p></div>
     {% endif %}
 
-    <form method="post" action="{{ environment.generateUrl('gallerygroups', 'save', {'_wpnonce': _wpnonce}) }}">
+    <form method="post" action="{{ environment.generateUrl('gallerygroups', 'save', {'_wpnonce': _wpnonce}) }}" class="sgg-form-page">
         <input type="hidden" name="group_id" value="{{ group.group_id }}">
+        <div class="sgg-page-head">
+            <div class="sgg-page-title">
+                <span class="sgg-page-icon" aria-hidden="true"><i class="fa fa-folder-open"></i></span>
+                <div>
+                    <h2>{{ group.group_id ? translate('Edit Group') : translate('Create Group') }}</h2>
+                    <p>{{ translate('Collect galleries into a group and show them with one shortcode.') }}</p>
+                </div>
+            </div>
+            <div class="sgg-page-actions">
+                <a class="button sgg-plain" href="{{ environment.generateUrl('gallerygroups') }}"><i class="fa fa-angle-left" aria-hidden="true"></i>{{ ' ' ~ translate('Back') }}</a>
+                <button type="submit" class="button button-primary"><i class="fa fa-save" aria-hidden="true"></i>{{ ' ' ~ translate('Save') }}</button>
+            </div>
+        </div>
+        <div class="sgg-form-card">
         <table class="form-table">
             <tbody>
                 <tr>
@@ -50,9 +64,6 @@
                 </tr>
             </tbody>
         </table>
-        <p>
-            <button type="submit" class="button button-primary">{{ translate('Save') }}</button>
-            <a class="button" href="{{ environment.generateUrl('gallerygroups') }}">{{ translate('Back') }}</a>
-        </p>
+        </div>
     </form>
 {% endblock %}

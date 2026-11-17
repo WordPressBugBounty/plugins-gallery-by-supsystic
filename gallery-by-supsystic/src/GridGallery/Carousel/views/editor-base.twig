@@ -1,0 +1,100 @@
+{% extends 'grid-gallery.twig' %}
+{# The frame of the Carousel and Slider editors: header with Save, the type's setting cards and a live preview.
+   Each type fills the "cards" block with its own cards only. #}
+
+{% block header %}
+    <nav id="supsystic-breadcrumbs" class="supsystic-breadcrumbs">
+        <a href="{{ environment.generateUrl('galleries') }}">{{ environment.translate('Galleries') }}</a>
+        <i class="fa fa-angle-right"></i>
+        <span>{{ gallery.title|default('#' ~ galleryId)|e }}</span>
+    </nav>
+{% endblock %}
+
+{% block content %}
+<div class="sgg-sle sgg-sle--{{ type }}" data-module="{{ type }}" data-gallery-id="{{ galleryId }}" data-ajax-url="{{ ajaxUrl|e('html_attr') }}" data-nonce="{{ nonce|e('html_attr') }}" data-rest-url="{{ restUrl|e('html_attr') }}" data-rest-nonce="{{ restNonce|e('html_attr') }}"
+     data-msg-saved="{{ environment.translate('Saved')|e('html_attr') }}" data-msg-error="{{ environment.translate('Could not save. Please try again.')|e('html_attr') }}"
+     data-msg-leave="{{ environment.translate('Your changes are not saved.')|e('html_attr') }}">
+    <div class="sgg-sle-head">
+        <div class="sgg-sle-title">
+            <span class="sgg-sle-kind"><i class="fa{% block typeIcon %} fa-columns{% endblock %}" aria-hidden="true"></i>{{ typeLabel|e }}</span>
+            <h2>{{ gallery.title|default('#' ~ galleryId)|e }}</h2>
+            <span class="sgg-sle-id">{{ 'ID ' ~ galleryId }}</span>
+        </div>
+        <div class="sgg-sle-actions">
+            <a class="button" href="{{ environment.generateUrl('galleries', 'view', {'gallery_id': galleryId}) }}"><i class="fa fa-th" aria-hidden="true"></i>{{ environment.translate('Images') }}</a>
+            <a class="button" target="_blank" href="{{ environment.generateUrl('galleries', 'preview', {'gallery_id': galleryId, '_wpnonce': nonce}) }}"><i class="fa fa-eye" aria-hidden="true"></i>{{ environment.translate('Preview') }}</a>
+            <button type="button" class="button sgg-sle-save" data-sgg-sle-save><i class="fa fa-check" aria-hidden="true"></i><span>{{ environment.translate('Save') }}</span></button>
+        </div>
+        <div class="sgg-sle-code">
+            <label for="sgg-sle-shortcode">{{ environment.translate('Shortcode') }}</label>
+            <input id="sgg-sle-shortcode" type="text" readonly value="{{ shortcode|e('html_attr') }}">
+            <button type="button" class="button" data-sgg-sle-copy><i class="fa fa-copy" aria-hidden="true"></i>{{ environment.translate('Copy') }}</button>
+            <span class="sgg-sle-status" role="status" aria-live="polite"></span>
+        </div>
+    </div>
+
+    <div class="sgg-sle-body">
+        <form id="sgg-sle-form" class="sgg-sle-settings" autocomplete="off">
+            {% block cards %}{% endblock %}
+        </form>
+
+        <aside class="sgg-sle-preview" aria-label="{{ environment.translate('Live preview')|e('html_attr') }}">
+            <div class="sgg-sle-preview-bar">
+                <span class="sgg-sle-preview-title">{{ environment.translate('Live preview') }}</span>
+                <div class="sgg-sle-devices-switch" role="group" aria-label="{{ environment.translate('Preview width')|e('html_attr') }}">
+                    <button type="button" class="is-active" data-sgg-sle-device="d" title="{{ environment.translate('Desktop')|e('html_attr') }}"><i class="fa fa-desktop" aria-hidden="true"></i></button>
+                    <button type="button" data-sgg-sle-device="t" title="{{ environment.translate('Tablet')|e('html_attr') }}"><i class="fa fa-tablet" aria-hidden="true"></i></button>
+                    <button type="button" data-sgg-sle-device="m" title="{{ environment.translate('Phone')|e('html_attr') }}"><i class="fa fa-mobile" aria-hidden="true"></i></button>
+                </div>
+            </div>
+            {# On a phone the frame is an iPhone: a 393 x 852 screen with its status bar, so the preview has the width
+               and the screen height a visitor's phone has #}
+            <div class="sgg-sle-frame" data-device="d">
+                <div class="sgg-sle-screen">
+                    <div class="sgg-sle-status" aria-hidden="true">
+                        <span class="sgg-sle-island"></span>
+                        <b data-sgg-sle-clock="{{ clock.offset|default(0) }}" data-twelve="{{ clock.twelve ? '1' : '0' }}">{{ clock.text|default('9:41') }}</b>
+                        <span class="sgg-sle-status-icons">
+                            <svg viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+                            <svg viewBox="0 0 16 12"><path d="M8 11.5 5.6 9a3.4 3.4 0 0 1 4.8 0z"/><path d="M3.3 6.8a6.6 6.6 0 0 1 9.4 0l-1.3 1.3a4.8 4.8 0 0 0-6.8 0z"/><path d="M1 4.5a9.9 9.9 0 0 1 14 0l-1.3 1.3a8.1 8.1 0 0 0-11.4 0z"/></svg>
+                            <svg viewBox="0 0 27 12"><rect x="0.5" y="0.5" width="23" height="11" rx="3.2" fill="none" stroke="currentColor" stroke-opacity=".4"/><rect x="2" y="2" width="17" height="8" rx="2"/><path d="M25 4v4a2 2 0 0 0 0-4z" fill-opacity=".45"/></svg>
+                        </span>
+                    </div>
+                    <div class="sgg-sle-canvas">{{ preview|raw }}</div>
+                    <span class="sgg-sle-home" aria-hidden="true"></span>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    {% if proGuard is not empty %}
+        {# Asked before a save in the free version resets PRO settings of this gallery #}
+        <dialog class="sgg-pg" data-sgg-pg aria-labelledby="sgg-pg-title">
+            <div class="sgg-pg-head">
+                <span class="sgg-pg-icon"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></span>
+                <div>
+                    <h2 id="sgg-pg-title">{{ environment.translate('Saving now will reset your PRO settings') }}</h2>
+                    <p>
+                        {% if proGuard.state == 'license' %}{{ environment.translate('Your PRO license is not active, so the plugin works as the free version.') }}{% elseif proGuard.state == 'plugin' %}{{ environment.translate('The PRO plugin is turned off, so the plugin works as the free version.') }}{% else %}{{ environment.translate('The plugin works as the free version.') }}{% endif %}
+                        {{ ' ' ~ environment.translate('It cannot keep these settings of the gallery, and a save resets them for good:') }}
+                    </p>
+                </div>
+            </div>
+            <ul class="sgg-pg-list">
+                {% for label in proGuard.labels %}<li><span class="sgg-pg-pro">PRO</span><span>{{ label }}</span></li>{% endfor %}
+            </ul>
+            <p class="sgg-pg-note"><i class="fa fa-shield" aria-hidden="true"></i><span>{{ environment.translate('Nothing is lost yet. Bring PRO back before you save, and these settings stay as they are. Layers, their animations and videos are kept in any case.') }}</span></p>
+            <div class="sgg-pg-actions">
+                <button type="button" class="sgg-pg-btn sgg-pg-reset" data-sgg-pg="confirm">{{ environment.translate('Reset PRO settings and save') }}</button>
+                <span class="sgg-pg-end">
+                    <button type="button" class="sgg-pg-btn" data-sgg-pg="cancel" autofocus>{{ environment.translate('Cancel') }}</button>
+                    <a class="sgg-pg-btn sgg-pg-primary" href="{{ proGuard.url|e('html_attr') }}" target="_blank" rel="noopener">{% if proGuard.state == 'license' %}{{ environment.translate('Activate license') }}{% elseif proGuard.state == 'plugin' %}{{ environment.translate('Turn on PRO') }}{% else %}{{ environment.translate('Get PRO') }}{% endif %}<i class="fa fa-arrow-right" aria-hidden="true"></i></a>
+                </span>
+            </div>
+        </dialog>
+    {% endif %}
+
+    {# Tools a type opens over the editor, such as the layer editor of the Slider #}
+    {% block extras %}{% endblock %}
+</div>
+{% endblock %}

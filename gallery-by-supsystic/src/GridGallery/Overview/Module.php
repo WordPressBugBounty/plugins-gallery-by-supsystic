@@ -28,6 +28,11 @@ class GridGallery_Overview_Module extends RscSgg_Mvc_Module
     if ($this->getEnvironment()->isModule('overview')) {
       $ui->asset->enqueue('styles', [$this->getLocationUrl() . '/assets/css/overview-styles.css']);
       $ui->asset->enqueue('scripts', [$this->getLocationUrl() . '/assets/js/overview-settings.js']);
+      // Free vs PRO comparison and pricing, shown while PRO is not installed (see views/partials/pro-offer.twig)
+      if (!$this->getEnvironment()->isPro()) {
+        $ui->asset->enqueue('styles', [$this->getLocationUrl() . '/assets/css/pro-offer.css']);
+        $ui->asset->enqueue('scripts', [$this->getLocationUrl() . '/assets/js/pro-offer.js']);
+      }
     }
   }
 }

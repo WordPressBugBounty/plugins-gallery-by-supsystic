@@ -4,16 +4,38 @@
 
     {% import '@core/helpers.twig' as h %}
 
-    <form action="{{ environment.generateUrl('settings', 'saveSettings', {'_wpnonce': _wpnonce}) }}" method="POST">
-        {% block beforeSettingsList %}
-            <button class="button">
-                <i class="fa fa-fw fa-save"></i>
-                {{ environment.translate('Save') }}
-            </button>
-        {% endblock %}
-        <div class="settings-list">
+    {# The look of the Data Tables settings page: a header with the Save button and cards. The field names and the
+       blocks (PRO fills beforeSettingsList with its own Save button) are the same as before. #}
+    <form action="{{ environment.generateUrl('settings', 'saveSettings', {'_wpnonce': _wpnonce}) }}" method="POST" class="sgg-settings-page">
+        <div class="sgg-page-head">
+            <div class="sgg-page-title">
+                <span class="sgg-page-icon" aria-hidden="true"><i class="fa fa-cogs"></i></span>
+                <div>
+                    <h2>{{ environment.translate('Settings') }}</h2>
+                    <p>{{ environment.translate('These options apply to all your galleries.') }}</p>
+                </div>
+            </div>
+            <div class="sgg-page-actions">
+                {% block beforeSettingsList %}
+                    <button class="button">
+                        <i class="fa fa-fw fa-save"></i>
+                        {{ environment.translate('Save') }}
+                    </button>
+                {% endblock %}
+            </div>
+        </div>
+
+        <div class="settings-list sgg-cards">
             {% block beforeSettings %}{% endblock %}
-            <div class="settings">
+
+            <div class="settings sgg-card">
+                <div class="sgg-card-head">
+                    <span class="sgg-card-icon" aria-hidden="true"><i class="fa fa-camera"></i></span>
+                    <div>
+                        <h3>{{ environment.translate('Images') }}</h3>
+                        <p>{{ environment.translate('How the plugin crops and resizes your photos.') }}</p>
+                    </div>
+                </div>
                 <div class="setting">
                     <div class="setting-description">
                         <label>{{ environment.translate('Image Preprocessor') }}</label>
@@ -24,7 +46,7 @@
                             {% set editors = {
                                 auto: 'Auto',
                                 gd: 'GD',
-								imagic: 'Imagick',
+                                imagic: 'Imagick',
                             } %}
                             {% for name, title in editors %}
                                 <option value="{{ name }}"
@@ -37,15 +59,23 @@
                         </select>
                     </div>
                 </div>
+            </div>
 
+            <div class="settings sgg-card">
+                <div class="sgg-card-head">
+                    <span class="sgg-card-icon" aria-hidden="true"><i class="fa fa-users"></i></span>
+                    <div>
+                        <h3>{{ environment.translate('Access') }}</h3>
+                        <p>{{ environment.translate('Who can work with the plugin.') }}</p>
+                    </div>
+                </div>
                 <div class="setting">
                     <div class="setting-description">
-
                         <label>{{ environment.translate('Roles') }}</label>
                         {{ h.showTooltip('Here you may assign the roles of the persons, that are allowed to use the plugin. This feature is useful when you need to depute your site management to someone else. Administrator is included by default.', 'top', true) }}
 
                         {% if environment.isPro() == false %}
-                            <a target="_blank" href="{{ build_pro_url({ 'utm_medium': 'manage_roles' }) }}">
+                            <a class="sgg-pro-link" target="_blank" href="{{ build_pro_url({ 'utm_medium': 'manage_roles' }) }}">
                                 {{ environment.translate('PRO option') }}
                             </a>
                         {% endif %}
@@ -78,10 +108,13 @@
                existing configurations carry over with nothing to re-enter. #}
             {% block serviceSettings %}
                 {% if environment.isPro() %}
-                    <div class="settings sgg-svc">
-                        <div class="sgg-svc-head">
-                            <h3>{{ environment.translate('Image Optimization & CDN') }}</h3>
-                            <p>{{ environment.translate('Connect the services once here - every gallery then uses these credentials.') }}</p>
+                    <div class="settings sgg-svc sgg-card">
+                        <div class="sgg-card-head">
+                            <span class="sgg-card-icon" aria-hidden="true"><i class="fa fa-cloud-upload"></i></span>
+                            <div>
+                                <h3>{{ environment.translate('Image Optimization & CDN') }}</h3>
+                                <p>{{ environment.translate('Connect the services once here - every gallery then uses these credentials.') }}</p>
+                            </div>
                         </div>
 
                         <div class="setting">
