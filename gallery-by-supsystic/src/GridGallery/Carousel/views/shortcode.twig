@@ -44,7 +44,8 @@
                                 <figure class="sgg-sl-item">
                                     <div class="sgg-sl-frame">
                                     {% if lightbox %}
-                                        <a class="sgg-sl-media" href="{{ slide.full|e('html_attr') }}" data-sgg-pswp data-pswp-width="{{ slide.fullWidth }}" data-pswp-height="{{ slide.fullHeight }}"{% if slide.title|default('') %} data-sgg-title="{{ slide.title|e('html_attr') }}"{% endif %}{% if slide.text|default('') %} data-sgg-text="{{ slide.text|e('html_attr') }}"{% endif %}>
+                                        {# data-elementor-open-lightbox: Elementor's own lightbox must not open on top of ours (B015) #}
+                                        <a class="sgg-sl-media" href="{{ slide.full|e('html_attr') }}" data-sgg-pswp data-elementor-open-lightbox="no" data-pswp-width="{{ slide.fullWidth }}" data-pswp-height="{{ slide.fullHeight }}"{% if slide.title|default('') %} data-sgg-title="{{ slide.title|e('html_attr') }}"{% endif %}{% if slide.text|default('') %} data-sgg-text="{{ slide.text|e('html_attr') }}"{% endif %}>
                                     {% elseif linked %}
                                         <a class="sgg-sl-media" href="{{ slide.link|e('html_attr') }}"{% if slide.target %} target="_blank" rel="noopener"{% endif %}>
                                     {% else %}

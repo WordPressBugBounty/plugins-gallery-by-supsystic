@@ -482,6 +482,24 @@
       });
     }
 
+    // Elementor opens its own lightbox for every link to an image file unless the link has
+    // data-elementor-open-lightbox="no". The popup of the gallery already shows the photo, so its links
+    // opt out (B015). Set when clicked, so photos added later (load more, pages, categories) and the
+    // icon links are covered too. External links (data-type="link") keep the site's choice.
+    if (popupType && popupType !== 'disable' && this.$container[0] && !this.$container.data('sggNoElementorLightbox')) {
+      this.$container.data('sggNoElementorLightbox', true);
+      this.$container[0].addEventListener(
+        'click',
+        function (event) {
+          var link = event.target && event.target.closest ? event.target.closest('a') : null;
+          if (link && self.$container[0].contains(link) && link.getAttribute('data-type') !== 'link') {
+            link.setAttribute('data-elementor-open-lightbox', 'no');
+          }
+        },
+        true
+      );
+    }
+
     var hideLongTooltipTitles = this.$container.data('hide-long-tltp-title');
 
     //===========|Popup gallery scripts|===========//
@@ -2628,13 +2646,19 @@
     return url;
   };
 
+  // The address of the block editor's canvas (blob: or about:srcdoc) can't change: History calls throw there
+  // and leave the lightbox half open (arrows, no photo) over the editor. Pages on http(s) are not affected.
+  function canChangePopUpUrl() {
+    return /^https?:$/.test(window.location.protocol);
+  }
+
   Gallery.prototype.changePopUpHash = function (hash) {
     var galleryId = this.$container.attr('data-gg-id'),
       galleryOpenPopupHashRegex = new RegExp('gg-' + galleryId + '(?:-(\\d+))*'),
       regexFoundGalleryImageId = galleryOpenPopupHashRegex.exec(hash),
       changedUrlDisabled = this.$container.attr('data-popup-disable-changed-url');
 
-    if (changedUrlDisabled !== 'true') {
+    if (changedUrlDisabled !== 'true' && canChangePopUpUrl()) {
       // if image id not exits
       if (!regexFoundGalleryImageId || regexFoundGalleryImageId.length < 2 || !regexFoundGalleryImageId[1]) {
         return;
@@ -2713,6 +2737,10 @@
   };
 
   Gallery.prototype.clearPopUpHash = function () {
+    if (!canChangePopUpUrl()) {
+      this.popupIsOpened = false;
+      return;
+    }
     this.historyStateChange = true;
 
     if (this.disablePopupHistory) {

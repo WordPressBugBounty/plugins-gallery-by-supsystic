@@ -23,6 +23,9 @@ class GridGallery_Elementor_Module extends RscSgg_Mvc_Module
       add_action('elementor/widgets/register', [$this, 'registerWidget']);
       add_action('elementor/widgets/register', [$this, 'registerGroupWidget']);
     }
+    add_action('elementor/elements/categories_registered', [$this, 'addSupsysticCategory'], 5);
+    add_action('elementor/editor/after_enqueue_styles', [$this, 'printEditorIconStyle']);
+    add_action('elementor/editor/after_enqueue_scripts', [$this, 'printEditorLinkScript']);
 
     if ($this->isElementorRenderContext()) {
       // The gallery's own display CSS/JS is only wp_enqueue_style()'d from
@@ -64,6 +67,86 @@ class GridGallery_Elementor_Module extends RscSgg_Mvc_Module
     if ($carousel && method_exists($carousel, 'enqueueFrontAssets')) {
       $carousel->enqueueFrontAssets(true, true);
     }
+  }
+
+  /**
+   * The shared "Supsystic" category at the top of the Elementor panel (fix/shared/gutenberg-supsystic-category.md §3).
+   * Added once, whichever Supsystic plugin comes first. Elementor has no API for the order, so the category is moved
+   * up by reflection; if that fails in some Elementor version, it simply stays where add_category() put it.
+   *
+   * @param \Elementor\Elements_Manager $elementsManager
+   */
+  public function addSupsysticCategory($elementsManager)
+  {
+    if (!is_object($elementsManager) || !method_exists($elementsManager, 'add_category')) {
+      return;
+    }
+    $categories = method_exists($elementsManager, 'get_categories') ? $elementsManager->get_categories() : [];
+    if (isset($categories['supsystic'])) {
+      return;
+    }
+    $elementsManager->add_category('supsystic', ['title' => 'Supsystic', 'icon' => 'supsystic-el-icon']);
+    try {
+      $property = new \ReflectionProperty($elementsManager, 'categories');
+      $property->setAccessible(true);
+      $all = $property->getValue($elementsManager);
+      if (is_array($all) && isset($all['supsystic'])) {
+        $property->setValue($elementsManager, ['supsystic' => $all['supsystic']] + $all);
+      }
+    } catch (\Throwable $e) {
+    }
+  }
+
+  /**
+   * The Supsystic logo as the widgets' panel icon (get_icon() 'supsystic-el-icon'): a mask in the text colour, so it
+   * has the colour and size of the other widget icons. The same rule in every Supsystic plugin
+   * (fix/shared/builder-blocks-branding.md).
+   */
+  public function printEditorIconStyle()
+  {
+    $icon = esc_url(SGG_PLUGIN_URL . 'app/assets/img/supsystic-adminbar.png');
+    wp_register_style('sgg-elementor-editor', false, [], $this->getConfig()->get('plugin_version'));
+    wp_enqueue_style('sgg-elementor-editor');
+    wp_add_inline_style(
+      'sgg-elementor-editor',
+      '.elementor-element .icon .supsystic-el-icon::before, .supsystic-el-icon::before {'
+      . ' content: ""; display: inline-block; width: 1em; height: 1em; vertical-align: middle;'
+      . ' background-color: currentColor;'
+      . ' -webkit-mask: url("' . $icon . '") center / contain no-repeat;'
+      . ' mask: url("' . $icon . '") center / contain no-repeat;'
+      . ' }'
+    );
+  }
+
+  /**
+   * "Edit this gallery / gallery group" in the widget panel opens the one picked now: the link is a list of
+   * galleries until the editor knows the picked id (widget.php, group-widget.php).
+   */
+  public function printEditorLinkScript()
+  {
+    wp_register_script('sgg-elementor-editor', false, ['jquery'], $this->getConfig()->get('plugin_version'), true);
+    wp_enqueue_script('sgg-elementor-editor');
+    wp_add_inline_script('sgg-elementor-editor', <<<'JS'
+(function ($) {
+  function currentSettings() {
+    try {
+      var page = window.elementor && elementor.getPanelView && elementor.getPanelView().getCurrentPageView();
+      var model = page && page.model;
+      return model && model.get ? model.get('settings') : null;
+    } catch (e) {
+      return null;
+    }
+  }
+  $(document).on('mouseover focusin mousedown', 'a.sgg-el-edit-link', function () {
+    var settings = currentSettings();
+    var id = settings && settings.get ? settings.get(this.getAttribute('data-sgg-setting')) : '';
+    if (id) {
+      this.href = this.getAttribute('data-sgg-edit') + encodeURIComponent(id);
+    }
+  });
+})(jQuery);
+JS
+    );
   }
 
   /**

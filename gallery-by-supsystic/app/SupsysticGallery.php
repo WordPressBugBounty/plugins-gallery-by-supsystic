@@ -27,6 +27,8 @@ class SupsysticGallery
     }
     add_action('init', [$this, '_loadPluginsTextdomain']);
     add_action('init', [$this, 'addShortcodeButton']);
+    add_action('admin_head', [$this, 'printMenuIconStyle']);
+    add_action('admin_menu', [$this, 'markMenuGroup'], 999);
 
     /* Create new plugin $environment */
     $pluginPath = dirname(dirname(__FILE__));
@@ -44,11 +46,13 @@ class SupsysticGallery
       'plugin_title_name' => 'Photo Gallery by Supsystic',
       'plugin_menu' => [
         'page_title' => __('Photo Gallery by Supsystic', 'sgg'),
-        'menu_title' => __('Photo Gallery by Supsystic', 'sgg'),
+        'menu_title' => __('Photo Gallery', 'sgg'),
         'capability' => 'manage_options',
         'menu_slug' => 'supsystic-gallery',
-        'icon_url' => 'dashicons-format-gallery',
-        'position' => '100.3',
+        // The Supsystic logo, as in the CES menu item (size: printMenuIconStyle)
+        'icon_url' => plugins_url(basename(dirname(dirname(__FILE__))) . '/app/assets/img/supsystic-adminbar.png'),
+        // Right under Dashboard, after CES (2.1) and Data Tables (2.2)
+        'position' => '2.3',
       ],
       'shortcode_name' => 'supsystic-gallery',
       'db_prefix' => 'sg_',
@@ -89,6 +93,54 @@ class SupsysticGallery
   }
 
   /**
+   * The menu icon (the Supsystic logo PNG) drawn as a mask in the menu's own colour, so it is grey, then coloured
+   * on hover and white when current in every admin colour scheme, like the WP icons. The <img> from icon_url stays
+   * as the fallback for browsers without CSS masks.
+   */
+  public function printMenuIconStyle()
+  {
+    $icon = esc_url(plugins_url(basename(dirname(dirname(__FILE__))) . '/app/assets/img/supsystic-adminbar.png'));
+    echo '<style id="sgg-menu-icon">'
+      . '#adminmenu #toplevel_page_supsystic-gallery .wp-menu-image img { display: none; }'
+      . '#adminmenu #toplevel_page_supsystic-gallery .wp-menu-image::before {'
+      . ' content: ""; display: block; box-sizing: content-box;'
+      . ' width: 20px; height: 20px; padding: 7px 0 0; margin: 0 auto;'
+      . ' background-color: currentColor;'
+      // content-box: the mask sits in the same 20px box as a dashicon (below the 7px padding), not 3.5px higher
+      . ' -webkit-mask: url("' . $icon . '") center / 20px 20px no-repeat content-box;'
+      . ' mask: url("' . $icon . '") center / 20px 20px no-repeat content-box;'
+      // The gear turns once on hover and back on leave, around its own centre (the 20px box under the padding)
+      . ' transform-origin: 50% calc(100% - 10px);'
+      . ' transition: transform .6s cubic-bezier(.4, 0, .2, 1), background-color .2s ease, color .1s ease-in;'
+      . ' }'
+      // While hovered: Supsystic cyan instead of the scheme hover colour (otherwise the scheme colours)
+      . '#adminmenu #toplevel_page_supsystic-gallery:hover .wp-menu-image::before,'
+      . ' #adminmenu #toplevel_page_supsystic-gallery > a:focus .wp-menu-image::before { transform: rotate(360deg); background-color: #4ae8ea; }'
+      . '@media (prefers-reduced-motion: reduce) {'
+      . ' #adminmenu #toplevel_page_supsystic-gallery .wp-menu-image::before { transition: color .1s ease-in; }'
+      . ' #adminmenu #toplevel_page_supsystic-gallery:hover .wp-menu-image::before,'
+      . ' #adminmenu #toplevel_page_supsystic-gallery > a:focus .wp-menu-image::before { transform: none; }'
+      . ' }'
+      // Space above the first and below the last Supsystic item (the same rules in every Supsystic plugin)
+      . '#adminmenu li:not(.supsystic-menu-group) + li.supsystic-menu-group { margin-top: 8px; }'
+      . '#adminmenu li.supsystic-menu-group + li:not(.supsystic-menu-group) { margin-top: 8px; }'
+      . '</style>';
+  }
+
+  /**
+   * Marks this plugin's top-level menu item as one of the Supsystic group (see printMenuIconStyle)
+   */
+  public function markMenuGroup()
+  {
+    global $menu;
+    foreach ((array) $menu as $key => $item) {
+      if (isset($item[2], $item[4]) && $item[2] === 'supsystic-gallery' && strpos((string) $item[4], 'supsystic-menu-group') === false) {
+        $menu[$key][4] = trim($item[4] . ' supsystic-menu-group');
+      }
+    }
+  }
+
+  /**
    * Load plugin languages
    */
   public function _loadPluginsTextDomain()
@@ -96,14 +148,22 @@ class SupsysticGallery
     load_plugin_textdomain('sgg', false, $this->environment->getConfig()->get('lang_path'));
   }
 
+  /**
+   * Classic editor (TinyMCE: Gutenberg Classic block, Elementor Text Editor, wp_editor) buttons "Insert a Photo
+   * Gallery" / "Insert a Photo Gallery Group": a dialog to pick one, then its shortcode at the cursor
+   * (fix/shared/classic-editor-buttons.md). Admin screens only; the dialog is drawn by buttons.js itself, so nothing
+   * else is enqueued.
+   */
   public function addShortcodeButton()
   {
-    add_filter('mce_external_plugins', [$this, 'addButton']);
-    add_filter('mce_buttons', [$this, 'registerButton']);
-    if (is_admin()) {
-      wp_enqueue_script('sgg-bpopup-js', $this->environment->getConfig()->get('plugin_url') . '/app/assets/js/jquery.bpopup.min.js', ['sg-ajax.js'], false, true);
-      wp_enqueue_style('sgg-popup-css', $this->environment->getConfig()->get('plugin_url') . '/app/assets/css/editor-dialog.css');
+    add_action('wp_ajax_sgg_editor_objects', [$this, 'ajaxEditorObjects']);
+    if (!is_admin()) {
+      return;
     }
+    // Priority 20: the Elementor editor removes every mce_external_plugins / mce_buttons filter at priority 10
+    add_filter('mce_external_plugins', [$this, 'addButton'], 20);
+    add_filter('mce_buttons', [$this, 'registerButton'], 20);
+    add_filter('tiny_mce_before_init', [$this, 'addEditorSettings']);
   }
 
   /**
@@ -113,19 +173,112 @@ class SupsysticGallery
    */
   public function addButton($plugin_array)
   {
-    $plugin_array['addShortcode'] = $this->environment->getConfig()->get('plugin_url') . '/app/assets/js/buttons.js';
+    if (!current_user_can('edit_posts')) {
+      return $plugin_array;
+    }
+    $file = dirname(__FILE__) . '/assets/js/buttons.js';
+    $plugin_array['supsysticGallery'] = $this->environment->getConfig()->get('plugin_url') . '/app/assets/js/buttons.js?ver='
+      . (file_exists($file) ? filemtime($file) : $this->environment->getConfig()->get('plugin_version'));
 
     return $plugin_array;
   }
 
   /**
-   * Register button
+   * Register buttons: the Supsystic group sits before the toolbar toggle (wp_adv), after a separator added by the
+   * first Supsystic plugin. The old ids (addShortcode, selectShortcode) still work as aliases in buttons.js, but are
+   * no longer put on the default toolbar.
    */
   public function registerButton($buttons)
   {
-    array_push($buttons, 'addShortcode', 'selectShortcode');
+    if (!current_user_can('edit_posts')) {
+      return $buttons;
+    }
+    $buttons = (array) $buttons;
+    $ours = ['supsysticGallery', 'supsysticGalleryGroup'];
+    $hasSupsystic = false;
+    foreach ($buttons as $button) {
+      if (is_string($button) && strpos($button, 'supsystic') === 0) {
+        $hasSupsystic = true;
+        break;
+      }
+    }
+    if (!$hasSupsystic) {
+      array_unshift($ours, '|');
+    }
+    $toggle = array_search('wp_adv', $buttons, true);
+    if ($toggle === false) {
+      $buttons = array_merge($buttons, $ours);
+    } else {
+      array_splice($buttons, $toggle, 0, $ours);
+    }
 
     return $buttons;
+  }
+
+  /**
+   * Texts, links and the AJAX nonce for buttons.js, as the TinyMCE setting "sgg_editor"
+   *
+   * @param array $init
+   * @return array
+   */
+  public function addEditorSettings($init)
+  {
+    if (!current_user_can('edit_posts')) {
+      return $init;
+    }
+    $canManage = current_user_can('manage_options');
+    $init['sgg_editor'] = wp_json_encode([
+      'ajaxUrl' => admin_url('admin-ajax.php'),
+      'nonce' => wp_create_nonce('sgg_editor_objects'),
+      'createGallery' => $canManage ? admin_url('admin.php?page=supsystic-gallery&module=galleries&action=showPresets') : '',
+      'createGroup' => $canManage ? admin_url('admin.php?page=supsystic-gallery&module=gallerygroups&action=create') : '',
+      'i18n' => [
+        'insertGallery' => __('Insert a Photo Gallery', 'sgg'),
+        'insertGroup' => __('Insert a Photo Gallery Group', 'sgg'),
+        'gallery' => __('Gallery', 'sgg'),
+        'group' => __('Gallery group', 'sgg'),
+        'search' => __('Search', 'sgg'),
+        'noGalleries' => __('No galleries yet.', 'sgg'),
+        'noGroups' => __('No gallery groups yet.', 'sgg'),
+        'noMatch' => __('Nothing found.', 'sgg'),
+        'createGallery' => __('Create a gallery in Photo Gallery', 'sgg'),
+        'createGroup' => __('Create a gallery group in Photo Gallery', 'sgg'),
+        'insert' => __('Insert', 'sgg'),
+        'cancel' => __('Cancel', 'sgg'),
+        'close' => __('Close', 'sgg'),
+        'loading' => __('Loading…', 'sgg'),
+        'error' => __('Could not load the list. Close this window and try again.', 'sgg'),
+      ],
+    ]);
+
+    return $init;
+  }
+
+  /**
+   * The galleries and gallery groups for the classic editor dialog, newest first. Read fresh on every opening, so
+   * one created in another tab shows up without reloading the editor.
+   */
+  public function ajaxEditorObjects()
+  {
+    if (!current_user_can('edit_posts') || !check_ajax_referer('sgg_editor_objects', 'nonce', false)) {
+      wp_send_json_error(null, 403);
+    }
+    $galleries = [];
+    foreach ((array) (new GridGallery_Galleries_Model_Galleries())->getList() as $gallery) {
+      if (!empty($gallery->id)) {
+        $galleries[] = ['id' => (int) $gallery->id, 'title' => !empty($gallery->title) ? wp_strip_all_tags($gallery->title) : sprintf('Gallery #%d', $gallery->id)];
+      }
+    }
+    $groups = [];
+    foreach ((array) (new GridGallery_GalleryGroups_Model_Groups())->getAll() as $group) {
+      if (!empty($group->group_id)) {
+        $groups[] = ['id' => (int) $group->group_id, 'title' => !empty($group->name) ? wp_strip_all_tags($group->name) : sprintf('Group #%d', $group->group_id)];
+      }
+    }
+    usort($groups, function ($a, $b) {
+      return $b['id'] - $a['id'];
+    });
+    wp_send_json_success(['galleries' => $galleries, 'groups' => $groups]);
   }
 
   /**

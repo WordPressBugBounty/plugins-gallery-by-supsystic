@@ -4,7 +4,7 @@ Tags: photo gallery, image gallery, masonry gallery, gallery slider, carousel sl
 Requires at least: 5.9
 Tested up to: 7.1
 Requires PHP: 7.3
-Stable tag: 1.22.0
+Stable tag: 1.23.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,19 +12,19 @@ Responsive photo and image galleries, carousels and sliders with masonry, albums
 
 == Description ==
 
-**Photo Gallery by Supsystic** is a WordPress gallery plugin for responsive photo galleries, image galleries, image carousels and sliders. Tell the creation wizard what the gallery is for, add images from the Media Library in bulk, drag them into order, pick a ready style and publish it with a Gutenberg block, an Elementor widget or a shortcode. No code required.
+**Photo Gallery by Supsystic** is a [WordPress gallery plugin](https://supsystic.com/plugins/photo-gallery/) for responsive photo galleries, image galleries, image carousels and sliders. Tell the creation wizard what the gallery is for, add images from the Media Library in bulk, drag them into order, pick a ready style and publish it with a Gutenberg block, an Elementor widget or a shortcode. No code required.
 
-Unlimited galleries, carousels, sliders and images are free.
+Unlimited galleries, carousels, sliders and images are free. See [live examples](https://supsystic.com/gallery-examples/) of galleries, carousels and sliders, or start with the [getting started guide](https://supsystic.com/documentation/gallery-getting-started/).
 
 **Try it in your browser:** [open a live demo in WordPress Playground](https://playground.wordpress.net/?plugin=gallery-by-supsystic) – no install, no account.
 
 = Three gallery types =
 
-* **Gallery** – a responsive photo gallery in a grid, masonry, justified rows or horizontal layout, with a lightbox and albums.
-* **Carousel** – an image carousel with several photos in a row, arrows, dots, autoplay and swipe. Also a logo carousel and a WooCommerce product carousel.
-* **Slider** – a full-width image slider, hero slider or slideshow with text, buttons and a thumbnail strip.
+* **Gallery** – a responsive photo gallery in a grid, [masonry](https://supsystic.com/example/masonry-gallery/), justified rows or horizontal layout, with a lightbox and albums.
+* **Carousel** – an [image carousel](https://supsystic.com/example/photo-carousel-captions-lightbox/) with several photos in a row, arrows, dots, autoplay and swipe. Also a [logo carousel](https://supsystic.com/example/logo-carousel-running-line/) and a WooCommerce product carousel.
+* **Slider** – a full-width [image slider](https://supsystic.com/example/photo-slider-fade-effect/), hero slider or slideshow with text, buttons and a thumbnail strip.
 
-Each type has its own editor with a live preview for desktop, tablet and phone.
+Each type has its own editor with a live preview for desktop, tablet and phone. [See all features](https://supsystic.com/plugins/photo-gallery/).
 
 = Creation wizard =
 
@@ -83,6 +83,14 @@ Gather several galleries into one album that visitors can browse. Gallery Groups
 * Works with Divi, Beaver Builder and other page builders through the shortcode
 * One gallery, carousel or slider on many pages: edit it once and every copy updates
 
+= Works with Gutenberg, Elementor and widgets =
+
+* **Gutenberg blocks** – "Photo Gallery" and "Photo Gallery Group" in the Supsystic category show your real gallery, carousel or slider while you edit, with the settings in the sidebar
+* **Block widget editor** – put the same blocks into sidebars and footers
+* **Classic WordPress widgets** – "Photo Gallery by Supsystic" and "Photo Gallery Group by Supsystic" for classic widget areas
+* **Elementor widgets** – live preview and settings right in the Elementor panel
+* **Classic editor** – "Insert a Photo Gallery" and "Insert a Photo Gallery Group" buttons in the toolbar, with a searchable list that inserts the shortcode
+
 = Made for =
 
 * Photography portfolios and portfolio galleries for photographers and artists
@@ -95,9 +103,11 @@ Gather several galleries into one album that visitors can browse. Gallery Groups
 * Real estate and venue photos
 * Agency and client project galleries
 
+See how [Photo Gallery by Supsystic](https://supsystic.com/plugins/photo-gallery/) looks on real sites in the [gallery examples](https://supsystic.com/gallery-examples/).
+
 = Photo Gallery Pro =
 
-Pro adds 3D effects, more kinds of slides and tools for selling and protecting photos:
+Pro adds 3D effects, more kinds of slides and tools for selling and protecting photos ([compare Free and Pro](https://supsystic.com/plugins/photo-gallery/#compare)):
 
 * 3D effects for carousels and sliders: Coverflow, Cube, Flip, Cards and Creative, plus vertical carousels and sliders
 * Before and after slider for image comparison: visitors drag a line to compare two photos
@@ -107,9 +117,11 @@ Pro adds 3D effects, more kinds of slides and tools for selling and protecting p
 * 100 more ready-made styles, category and icon templates, and all 9 lightbox themes with a slideshow, thumbnails, download and share
 * Mosaic layout and filterable galleries with category tabs, filters and search, plus pagination, Load More and infinite scroll
 * Caption Builder, hover captions, hover icons and EXIF data
-* Watermark, right-click protection, lazy load, image optimization and CDN delivery
+* [Watermark](https://supsystic.com/documentation/gallery-watermark/), right-click protection, lazy load, image optimization and CDN delivery
 * Import from Flickr, Tumblr, Google Drive and FTP, and social sharing
 * Sell access to galleries and images, paid resolution downloads and private galleries
+
+See [pricing](https://supsystic.com/plugins/photo-gallery/#pricing) for Pro licenses.
 
 = Learn more =
 
@@ -167,7 +179,7 @@ Yes. Galleries, carousels and sliders adapt to every screen, and you can set dif
 
 = How do I add a gallery to a page or post? =
 
-Use the plugin's block in the block editor, the Elementor widget, or paste the gallery shortcode into any page, post or widget area.
+Use the plugin's block in the block editor, the Elementor widget, the gallery button in the classic editor toolbar, or paste the gallery shortcode into any page, post or widget area. The [documentation](https://supsystic.com/docs/gallery/) shows each way step by step.
 
 = Does it work with my theme and page builder? =
 
@@ -212,6 +224,17 @@ Please report security issues through the [Patchstack Vulnerability Disclosure P
 == Changelog ==
 
 = 2026 =
+
+= 1.23.0 — November 21, 2026 =
+
+* New: See your real gallery, carousel or slider right in the block editor, with all settings in the sidebar.
+* New: All Supsystic blocks and Elementor widgets now sit together in one "Supsystic" category at the top of the list.
+* New: "Insert a Photo Gallery" and "Insert a Photo Gallery Group" buttons in the classic editor toolbar: pick from a searchable list and the shortcode is in place.
+* Improved: The block and the Elementor widget link straight to editing the chosen gallery, or to making a new one.
+* Improved: Clearer WordPress widgets that start empty, and the block widget editor shows each gallery block once.
+* Improved: Photo Gallery now sits near the top of the admin menu, with the Supsystic logo.
+* Fixed: Photos open once on Elementor pages, and open correctly inside the block editor.
+* Fixed: Gallery blocks can be selected, moved and dragged in from the block list like any other block.
 
 = 1.22.0 — November 12, 2026 =
 
