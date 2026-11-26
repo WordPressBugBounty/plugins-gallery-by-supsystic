@@ -68,7 +68,7 @@ class GridGallery_Galleries_Model_Resources extends GridGallery_Core_BaseModel
    */
   public function attach($galleryId, $resourceType, $resourceId, $setPosition = false)
   {
-    $query = $this->getQueryBuilder()->insertInto($this->table)->fields('gallery_id', 'resource_type', 'resource_id')->values((int) $galleryId, $resourceType, (int) $resourceId);
+    $query = $this->getQueryBuilder()->insertInto($this->table)->fields('gallery_id', 'resource_type', 'resource_id')->values((int) $galleryId, sanitize_key($resourceType), (int) $resourceId);
 
     if ($resourceType === 'folder') {
       // $this->unexclude($resourceId, $galleryId);

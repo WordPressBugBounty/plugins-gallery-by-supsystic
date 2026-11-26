@@ -7,6 +7,20 @@ Version: 3.1.6
 (function ($) {
   $.ggPrettyPhoto = { version: '3.1.6' };
 
+  // Titles are shown as HTML: cleaned by frontend.js (no scripts or event handlers), plain text without it
+  function safeHtml(html) {
+    return window.sggSafeHtml ? window.sggSafeHtml(html) : $('<i>').text(html).html();
+  }
+
+  function htmlText(html) {
+    return window.sggHtmlText ? window.sggHtmlText(html) : html;
+  }
+
+  // A value inside a quoted attribute of the markup
+  function inAttribute(value) {
+    return String(value).replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
   // Define all plugin global variables to play nice with stict mode when combined together with other scripts in minify plugins
   var settings,
     theRel,
@@ -73,10 +87,10 @@ Version: 3.1.6
       if (typeof pp_settings.attributesWidth == 'undefined') {
         pp_settings.attributesWidth = '200';
       }
-      var attributesHtml = '<div class="pp_attributes_container" style="width:' + pp_settings.attributesWidth + 'px"><div id="ppCustomAttributes"></div><div id="ppEcommerceRestrict"></div>';
+      var attributesHtml = '<div class="pp_attributes_container" style="width:' + inAttribute(pp_settings.attributesWidth) + 'px"><div id="ppCustomAttributes"></div><div id="ppEcommerceRestrict"></div>';
 
       if (pp_settings.isShowButtonLink) {
-        attributesHtml += '<div id="ppAttributeButton"><a target="_blank" href="#" style="' + pp_settings.buttonLinkStyle + '"></a></div>';
+        attributesHtml += '<div id="ppAttributeButton"><a target="_blank" href="#" style="' + inAttribute(pp_settings.buttonLinkStyle) + '"></a></div>';
       }
       attributesHtml += '</div>';
     }
@@ -425,7 +439,7 @@ Version: 3.1.6
           // unescape(pp_descriptions[set_position])
           // unescapte to allow html descriptions
           //aa_test
-          $('<div/>').html(pp_descriptions[set_position]).text()
+          safeHtml(htmlText(pp_descriptions[set_position]))
         );
       } else {
         $pp_pic_holder.find('.pp_description').hide();
@@ -458,7 +472,7 @@ Version: 3.1.6
       // Fade the holder
       $pp_pic_holder.fadeIn(function () {
         // Set the title
-        settings.show_title && pp_titles[set_position] != '' && typeof pp_titles[set_position] != 'undefined' ? $ppt.html(unescape(pp_titles[set_position])) : $ppt.html('&nbsp;');
+        settings.show_title && pp_titles[set_position] != '' && typeof pp_titles[set_position] != 'undefined' ? $ppt.html(safeHtml(unescape(pp_titles[set_position]))) : $ppt.html('&nbsp;');
 
         imgPreloader = '';
         skipInjection = false;
@@ -473,7 +487,7 @@ Version: 3.1.6
             prevImage = new Image();
             if (isSet && pp_images[set_position - 1]) prevImage.src = pp_images[set_position - 1];
 
-            $pp_pic_holder.find('#pp_full_res')[0].innerHTML = settings.image_markup.replace(/{path}/g, pp_images[set_position]);
+            $pp_pic_holder.find('#pp_full_res')[0].innerHTML = settings.image_markup.replace(/{path}/g, inAttribute(pp_images[set_position]));
 
             imgPreloader.onload = function () {
               // Fit item to viewport
@@ -520,7 +534,7 @@ Version: 3.1.6
               .replace(/{width}/g, pp_dimensions['width'])
               .replace(/{height}/g, pp_dimensions['height'])
               .replace(/{wmode}/g, settings.wmode)
-              .replace(/{path}/g, movie);
+              .replace(/{path}/g, inAttribute(movie));
             break;
 
           case 'vimeo':
@@ -537,7 +551,7 @@ Version: 3.1.6
             toInject = settings.iframe_markup
               .replace(/{width}/g, vimeo_width)
               .replace(/{height}/g, pp_dimensions['height'])
-              .replace(/{path}/g, movie);
+              .replace(/{path}/g, inAttribute(movie));
             break;
 
           case 'quicktime':
@@ -550,7 +564,7 @@ Version: 3.1.6
               .replace(/{width}/g, pp_dimensions['width'])
               .replace(/{height}/g, pp_dimensions['height'])
               .replace(/{wmode}/g, settings.wmode)
-              .replace(/{path}/g, pp_images[set_position])
+              .replace(/{path}/g, inAttribute(pp_images[set_position]))
               .replace(/{autoplay}/g, settings.autoplay);
             break;
 
@@ -568,7 +582,7 @@ Version: 3.1.6
               .replace(/{width}/g, pp_dimensions['width'])
               .replace(/{height}/g, pp_dimensions['height'])
               .replace(/{wmode}/g, settings.wmode)
-              .replace(/{path}/g, pp_images[set_position])
+              .replace(/{path}/g, inAttribute(pp_images[set_position]))
               .replace(/{autoplay}/g, settings.autoplay);
             break;
 
@@ -585,7 +599,7 @@ Version: 3.1.6
               .replace(/{width}/g, pp_dimensions['width'])
               .replace(/{height}/g, pp_dimensions['height'])
               .replace(/{wmode}/g, settings.wmode)
-              .replace(/{path}/g, filename + '?' + flash_vars);
+              .replace(/{path}/g, inAttribute(filename + '?' + flash_vars));
             break;
 
           case 'iframe':
@@ -594,7 +608,7 @@ Version: 3.1.6
             frame_url = frame_url.substr(0, frame_url.indexOf('iframe') - 1);
             toInject = pp_images[set_position].replace('watch?v=', 'embed/');
 
-            var container = $('<div>' + toInject + '</div>');
+            var container = $('<div>' + safeHtml(toInject) + '</div>');
             container.find('iframe').attr('width', pp_dimensions['width'] + 'px');
             container.find('iframe').attr('height', pp_dimensions['height'] + 'px');
 
@@ -611,7 +625,7 @@ Version: 3.1.6
 
             skipInjection = true;
             $.get(pp_images[set_position], function (responseHTML) {
-              toInject = settings.inline_markup.replace(/{content}/g, responseHTML);
+              toInject = settings.inline_markup.replace(/{content}/g, safeHtml(responseHTML));
               $pp_pic_holder.find('#pp_full_res')[0].innerHTML = toInject;
               _showContent();
             });
@@ -1190,7 +1204,7 @@ Version: 3.1.6
               }
             }
           }
-          toInject += "<li class='" + classname + "'><a href='#'><img src='" + img_src + "' width='50' alt='' /></a></li>";
+          toInject += "<li class='" + classname + "'><a href='#'><img src='" + inAttribute(img_src) + "' width='50' alt='' /></a></li>";
         }
 
         toInject = settings.gallery_markup.replace(/{gallery}/g, toInject);

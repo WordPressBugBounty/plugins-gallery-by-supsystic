@@ -8,6 +8,14 @@
 class GridGallery_Carousel_Controller extends GridGallery_Core_BaseController
 {
   /**
+   * {@inheritdoc}
+   */
+  public function requireNonces()
+  {
+    return ['saveAction', 'previewAction'];
+  }
+
+  /**
    * The name of the module this controller serves.
    * @return string
    */

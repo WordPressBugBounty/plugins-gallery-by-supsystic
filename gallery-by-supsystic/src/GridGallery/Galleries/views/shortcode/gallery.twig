@@ -12,7 +12,8 @@
 		{% endif %}
 	{% endblock %}
 
-	<div
+	{# The root is marked as printed by the plugin, see GridGallery_Galleries_Module::originKey() #}
+	<div sgg-rendered="1" data-sgg-key="{{ environment.getModule('galleries').originKey() }}"
 		{% block gallery_attributes %}
 			id="grid-gallery-{{ gallery.id }}-{{ gallery.random_val }}"
 			data-gg-id="{{ gallery.id }}"

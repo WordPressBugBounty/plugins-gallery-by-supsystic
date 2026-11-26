@@ -56,7 +56,15 @@ class RscSgg_Mvc_Controller
         wp_die($e->getMessage());
       }
     } else {
-      wp_send_json($data);
+      // The plugin's scripts ask through admin-ajax.php. A plugin page has printed its HTML already: JSON there
+      // would be a part of the page.
+      if (!wp_doing_ajax()) {
+        wp_die(esc_html__('This address answers only the requests of the plugin.', 'sgg'), '', ['response' => 400, 'back_link' => true]);
+      }
+      if (!headers_sent()) {
+        header('X-Content-Type-Options: nosniff');
+      }
+      wp_send_json($data, null, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS);
     }
 
     return RscSgg_Http_Response::create()->setContent($content);
@@ -89,7 +97,7 @@ class RscSgg_Mvc_Controller
       exit();
     }
 
-    $content = "<script type=\"text/javascript\">document.location.href = '$url'</script>";
+    $content = '<script type="text/javascript">document.location.href = ' . wp_json_encode((string) $url, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS) . '</script>';
 
     return RscSgg_Http_Response::create()->setContent($content);
   }

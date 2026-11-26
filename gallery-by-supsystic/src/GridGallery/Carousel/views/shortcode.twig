@@ -1,7 +1,7 @@
 {# Carousel and Slider. sliders.js builds Swiper from data-sgg-sl; the CSS variables give the right size and colors
    before it runs. Every value is escaped; the price and rating come from WooCommerce as HTML. #}
 {% set s = settings %}
-<div id="{{ uid }}"
+<div id="{{ uid }}" sgg-rendered="1" data-sgg-key="{{ originKey }}"
      class="sgg-sl sgg-sl--{{ type }}{% if products %} sgg-sl--products{% if s.products.themeStyle %} sgg-sl-shop-theme{% endif %}{% endif %} sgg-sl-preset-{{ s.style.preset|e('html_attr') }} sgg-sl-shadow-{{ s.style.shadow|e('html_attr') }} sgg-sl-h-{{ s.layout.heightMode|e('html_attr') }} sgg-sl-align-{{ s.layout.align|e('html_attr') }} sgg-sl-arrows-{{ s.nav.arrowStyle|e('html_attr') }} sgg-sl-arrows-{{ s.nav.arrowPos|e('html_attr') }} sgg-sl-dots-{{ s.nav.dotsPos|e('html_attr') }} sgg-sl-cap-{{ s.captions.mode|e('html_attr') }} sgg-sl-cap-{{ s.captions.align|e('html_attr') }}{% if s.motion.marquee %} sgg-sl-marquee{% endif %}{% if s.style.grayscale %} sgg-sl-gray{% endif %}{% for device in ['d', 't', 'm'] %}{% if not s.nav.arrows[device] %} sgg-sl-no-arrows-{{ device }}{% endif %}{% if not s.nav.dots[device] %} sgg-sl-no-dots-{{ device }}{% endif %}{% if thumbs and not s.nav.thumbs[device] %} sgg-sl-no-thumbs-{{ device }}{% endif %}{% endfor %}"
      style="{{ cssVars|e('html_attr') }}"
      data-sgg-sl="{{ config|e('html_attr') }}"

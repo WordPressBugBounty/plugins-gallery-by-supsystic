@@ -33,9 +33,6 @@ class RscSgg_Http_Request
   public function __construct()
   {
     $postTempVar = $_POST;
-    if (!empty($_POST) && is_string($_POST)) {
-      $postTempVar = unserialize($_POST);
-    }
     if (!is_array($postTempVar)) {
       $postTempVar = [];
     }

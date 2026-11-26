@@ -33,6 +33,7 @@ class GridGallery_Photos_Model_Position extends GridGallery_Core_BaseModel
       return false;
     }
 
+    $data['scope'] = sanitize_key($data['scope']);
     $this->clearScope($data['scope'], $data['scope_id']);
 
     foreach ($data['elements'] as $element) {
@@ -357,7 +358,8 @@ class GridGallery_Photos_Model_Position extends GridGallery_Core_BaseModel
       $removeParams[] = (int) $element['photo_id'];
     }
 
-    $this->removeByPhotoIds($data['scope_id'], $removeParams, $data['scope']);
+    $data['scope'] = sanitize_key($data['scope']);
+    $this->removeByPhotoIds((int) $data['scope_id'], $removeParams, $data['scope']);
     $this->insertPosition($insertParams, (int) $data['scope_id'], $data['scope']);
 
     return true;

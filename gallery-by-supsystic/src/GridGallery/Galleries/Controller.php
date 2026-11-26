@@ -15,6 +15,8 @@ class GridGallery_Galleries_Controller extends GridGallery_Core_BaseController
   {
     return [
       'createAction',
+      'galleriesDataAction',
+      'previewCaptionAction',
       'sideloadSaveAction',
       'attachAction',
       'chooseAction',
@@ -131,7 +133,6 @@ class GridGallery_Galleries_Controller extends GridGallery_Core_BaseController
       'perPage' => $perPage,
       'sort' => $sort,
       'dir' => $dir,
-      'search' => $search,
     ]);
   }
 

@@ -8,6 +8,15 @@
 (function ($, doc, win) {
   'use strict';
 
+  // Titles are shown as HTML: cleaned by frontend.js (no scripts or event handlers), plain text without it
+  function safeHtml(html) {
+    return window.sggSafeHtml ? window.sggSafeHtml(html) : $('<i>').text(html).html();
+  }
+
+  function htmlText(html) {
+    return window.sggHtmlText ? window.sggHtmlText(html) : html;
+  }
+
   var Photobox,
     photobox,
     options,
@@ -499,10 +508,14 @@
           if (!thumbSrc) continue;
 
           title = this.images[i][1];
-          type = link.rel ? " class='" + link.rel + "'" : '';
-          elements.push('<li' + type + '><a href="' + link.href + '"><img src="' + thumbSrc + '" alt="" title="' + $('<div />').html(title).text() + '" /></a></li>');
+          type = link.rel || '';
+          elements.push(
+            $('<li>')
+              .addClass(type)
+              .append($('<a>').attr('href', link.href).append($('<img>').attr({ src: thumbSrc, alt: '', title: htmlText(title) })))[0]
+          );
         }
-        thumbsList.html(elements.join(''));
+        thumbsList.append(elements);
         return thumbsList;
       },
 
@@ -767,8 +780,9 @@
       iframe = false;
     }
     if (iframe) {
+      // The embed code of the video
       var url = $(imageLinks[activeImage]).attr('href');
-      return url;
+      return safeHtml(url);
     }
 
     var url = images[activeImage][0],
@@ -796,7 +810,7 @@
     // if there's a callback for this point:
     if (typeof options.getTitle == 'function') title = options.getTitle(imageLinks[activeImage]);
 
-    if (options.title) caption.find('.title').html('<span>' + title + '</span>');
+    if (options.title) caption.find('.title').html('<span>' + safeHtml(title) + '</span>');
   }
 
   // Handles the history states when changing images

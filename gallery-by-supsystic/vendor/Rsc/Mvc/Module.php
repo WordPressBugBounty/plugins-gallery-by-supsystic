@@ -155,9 +155,7 @@ class RscSgg_Mvc_Module
     // the nonce with a case-insensitive match, so no casing can skip it.
     $method = $this->resolveActionMethod($controller, $action);
     if ($method !== null) {
-      $requireNonces = array_map('strtolower', (array) $controller->requireNonces());
-
-      if (in_array(strtolower($method), $requireNonces, true)) {
+      if ($this->needsNonce($controller, $method)) {
         $plugMenuSets = $this->getEnvironment()->getConfig()->get('plugin_menu');
         check_admin_referer($plugMenuSets['menu_slug']);
       }
@@ -173,6 +171,56 @@ class RscSgg_Mvc_Module
         'action' => $action,
       ]),
     );
+  }
+
+  /**
+   * The screens of the plugin pages: the only actions that open without a nonce, by a GET link of the menu, a button
+   * or a notice. PRO modules too, so that an older PRO keeps its screens.
+   * @var array
+   */
+  protected static $screens = [
+    'developer' => ['index'],
+    'ecommerce' => ['index', 'mainsettings', 'paymentproviders', 'checkoutpage', 'designlabels', 'items', 'createitem', 'edititem', 'orders', 'vieworder'],
+    'facebook' => ['index', 'authorization'],
+    'flickr' => ['index', 'authorization'],
+    'ftp' => ['index'],
+    'galleries' => ['index', 'view', 'settings', 'showpresets', 'addimages'],
+    'gallerygroups' => ['index', 'create', 'edit'],
+    'googledrive' => ['index', 'authorization'],
+    'insta' => ['index', 'authorization'],
+    'license' => ['index'],
+    'optimization' => ['index', 'legacyindex'],
+    'overview' => ['index'],
+    'photos' => ['index', 'view'],
+    'promo' => ['welcome'],
+    'settings' => ['index'],
+    'tumblr' => ['index', 'authorization'],
+  ];
+
+  /**
+   * Every action of a plugin page needs the nonce of the menu: any POST, and any action that is not a screen. The
+   * actions a controller lists in requireNonces() need it always.
+   * @param object $controller
+   * @param string $method
+   * @return bool
+   */
+  protected function needsNonce($controller, $method)
+  {
+    $method = strtolower($method);
+    if (in_array($method, array_map('strtolower', (array) $controller->requireNonces()), true)) {
+      return true;
+    }
+    $verb = strtoupper((string) $this->request->server->get('REQUEST_METHOD', 'GET'));
+    $module = strtolower((string) $this->getModuleName());
+    if ($verb !== 'GET' && $verb !== 'HEAD') {
+      // The FTP import form of PRO before 2.17.1 has no nonce; with an expired licence PRO can't be updated
+      $pro = (string) $this->getEnvironment()->getConfig()->get('pro_plugin_version');
+
+      return !($module === 'ftp' && $method === 'indexaction' && $pro !== '' && version_compare($pro, '2.17.1', '<'));
+    }
+    $screens = isset(self::$screens[$module]) ? self::$screens[$module] : [];
+
+    return !in_array(preg_replace('/action$/', '', $method), $screens, true);
   }
 
   /**

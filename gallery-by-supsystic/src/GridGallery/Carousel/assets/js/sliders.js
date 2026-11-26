@@ -134,7 +134,21 @@
   }
 
   // ---------- Video slides (PRO): a player only on the slide that is on screen
+  // Only the kinds the plugin writes (youtube, vimeo, file); for anything else there is no player
+  function fileSource(url) {
+    var parsed;
+    try {
+      parsed = new URL(String(url || ''), document.baseURI);
+    } catch (e) {
+      return '';
+    }
+    return parsed.protocol === 'https:' || parsed.protocol === 'http:' ? parsed.href : '';
+  }
+
   function videoSource(video, background) {
+    if (video.kind === 'file') {
+      return fileSource(video.src);
+    }
     if (video.kind === 'youtube') {
       return 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(video.id) + '?' +
         (background
@@ -145,7 +159,7 @@
       return 'https://player.vimeo.com/video/' + encodeURIComponent(video.id) + '?' +
         (background ? 'autoplay=1&muted=1&loop=1&controls=0&title=0&byline=0&portrait=0&autopause=0&dnt=1' : 'autoplay=1&dnt=1');
     }
-    return video.src;
+    return '';
   }
 
   function startVideo(box) {
@@ -159,10 +173,15 @@
       return;
     }
     var background = box.classList.contains('is-bg'),
+      frame = box.closest('.sgg-sl-frame'),
+      source = video && frame ? videoSource(video, background) : '',
       player;
+    if (!source) {
+      return;
+    }
     if (video.kind === 'file') {
       player = document.createElement('video');
-      player.src = video.src;
+      player.src = source;
       player.autoplay = true;
       player.playsInline = true;
       player.setAttribute('playsinline', '');
@@ -174,7 +193,7 @@
       }
     } else {
       player = document.createElement('iframe');
-      player.src = videoSource(video, background);
+      player.src = source;
       player.allow = 'autoplay; fullscreen; picture-in-picture; encrypted-media';
       player.allowFullscreen = true;
       player.title = box.getAttribute('data-sgg-video-title') || 'Video';
@@ -189,13 +208,14 @@
       });
     }
     box.appendChild(player);
-    box.closest('.sgg-sl-frame').classList.add('is-playing');
+    frame.classList.add('is-playing');
   }
 
   function stopVideo(box) {
-    if (box.firstChild) {
+    var frame = box.closest('.sgg-sl-frame');
+    if (box.firstChild && frame) {
       box.textContent = '';
-      box.closest('.sgg-sl-frame').classList.remove('is-playing');
+      frame.classList.remove('is-playing');
     }
   }
 
@@ -535,9 +555,20 @@
     return swiper;
   }
 
+  /**
+   * Only the sliders the plugin printed are started, never markup written by hand in a post. Their root has the
+   * attribute "sgg-rendered", which WordPress never keeps in the content of users without unfiltered_html, or a key
+   * of this request that the server listed in the page (for themes that run wp_kses over the finished output).
+   * A page cached before this version has no list and works as before.
+   */
+  function isPrinted(root) {
+    var keys = window.sggSliderKeys;
+    return !keys || root.hasAttribute('sgg-rendered') || keys[root.getAttribute('data-sgg-key')] === 1;
+  }
+
   function mountAll(scope) {
     Array.prototype.forEach.call((scope || document).querySelectorAll('.sgg-sl[data-sgg-sl]'), function (root) {
-      if (!root._sggSwiper) {
+      if (!root._sggSwiper && isPrinted(root)) {
         mount(root);
       }
     });

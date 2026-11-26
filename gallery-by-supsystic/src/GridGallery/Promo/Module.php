@@ -308,7 +308,7 @@ class GridGallery_Promo_Module extends GridGallery_Core_Module
         ],
         'image' => $this->getWelcomeTourImage(10),
         'imageAlt' => $this->translate('Start the step-by-step tutorial'),
-        'tourUrl' => $this->getEnvironment()->generateUrl('promo', 'showTutorial'),
+        'tourUrl' => $this->getEnvironment()->generateUrl('promo', 'showTutorial', ['_wpnonce' => wp_create_nonce('supsystic-gallery')]),
         'ctaLabel' => $this->translate('See PRO plans'),
         'ctaUrl' => $proCtaUrl,
       ],

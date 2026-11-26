@@ -573,6 +573,7 @@ class GridGallery_Carousel_Module extends RscSgg_Mvc_Module
 
     return $this->getEnvironment()->getTwig()->render('@carousel/shortcode.twig', [
       'uid' => 'sgg-sl-' . $galleryId . '-' . wp_rand(1000, 999999),
+      'originKey' => $this->originKey(),
       'title' => $this->galleryTitle($galleryId),
       'galleryId' => $galleryId,
       'type' => $this->type(),
@@ -967,13 +968,25 @@ class GridGallery_Carousel_Module extends RscSgg_Mvc_Module
   }
 
   /**
+   * sliders.js starts only the sliders the plugin printed, see GridGallery_Galleries_Module::originKey()
+   * @return string The key for the root of a slider
+   */
+  protected function originKey()
+  {
+    $key = wp_generate_password(20, false);
+    GridGallery_Galleries_Module::addOriginScript('sgg-sliders', 'window.sggSliderKeys["' . $key . '"]=1;');
+
+    return $key;
+  }
+
+  /**
    * @param bool $products
    * @param bool $lightbox
    */
   public function enqueueFrontAssets($products = false, $lightbox = false)
   {
     $url = $this->engineUrl();
-    $version = $this->getEnvironment()->getConfig()->get('plugin_version') . '-sl-26';
+    $version = $this->getEnvironment()->getConfig()->get('plugin_version') . '-sl-27';
     wp_enqueue_style('sgg-swiper', $url . '/vendor/swiper/swiper-bundle.min.css', [], '14.3.0');
     wp_enqueue_style('sgg-sliders', $url . '/css/sliders.css', ['sgg-swiper'], $version);
     wp_enqueue_script('sgg-swiper', $url . '/vendor/swiper/swiper-bundle.min.js', [], '14.3.0', true);
@@ -990,6 +1003,7 @@ class GridGallery_Carousel_Module extends RscSgg_Mvc_Module
       }
     }
     wp_enqueue_script('sgg-sliders', $url . '/js/sliders.js', $dependencies, $version, true);
+    GridGallery_Galleries_Module::addOriginScript('sgg-sliders', 'window.sggSliderKeys={};');
     if ($products && wp_script_is('wc-add-to-cart', 'registered')) {
       wp_enqueue_script('wc-add-to-cart');
     }

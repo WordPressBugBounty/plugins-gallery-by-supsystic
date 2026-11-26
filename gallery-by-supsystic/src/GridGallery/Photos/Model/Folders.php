@@ -99,7 +99,7 @@ class GridGallery_Photos_Model_Folders extends RscSgg_Mvc_Model
     $query = $this->getQueryBuilder()
       ->update($this->table)
       ->fields(['title'])
-      ->values([$title])
+      ->values([esc_sql($title)])
       ->where('id', '=', (int) $id);
 
     if (false === $this->db->query($query->build())) {

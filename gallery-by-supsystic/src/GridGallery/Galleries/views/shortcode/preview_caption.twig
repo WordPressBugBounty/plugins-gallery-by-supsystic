@@ -18,7 +18,7 @@ so this shows precisely what the frontend will render - not an approximation.
 		automatically returns a watermarked URL. #}
 		{{ set_attachment_settings('watermark', settings.watermark) }}
 	{% endif %}
-	<div id="grid-gallery-{{ gallery.id }}-preview"
+	<div id="grid-gallery-{{ gallery.id }}-preview" sgg-rendered="1"
 		class="grid-gallery grid-gallery-fixed gg-detailed-info-preview-inner"
 		data-icons="{{ settings.icons.enabled }}"
 		data-caption-buider="{% if settings.captionBuilder is defined and settings.captionBuilder.enabled == 1 %}1{% else %}0{% endif %}"

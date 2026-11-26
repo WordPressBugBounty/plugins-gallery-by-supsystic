@@ -493,6 +493,7 @@ class GridGallery_Galleries_Module extends GridGallery_Core_Module
     }
     wp_localize_script('sgg-frontend-js', 'sggStandartFontsList', $this->getModule('ui')->getStandardFontsList());
     wp_localize_script('sgg-frontend-js', 'sggIsMobile', [$this->getModel('settings')->isMobile(true) ? 1 : 0]);
+    self::addOriginScript('sgg-frontend-js', 'window.sggGalleryKeys={};');
 
     //on shutdown check is footer is printed , if not print scripts for our gallery
     //add_action('shutdown', array($this,'shutdown'));
@@ -872,6 +873,57 @@ class GridGallery_Galleries_Module extends GridGallery_Core_Module
    * @param array $attributes
    * @return string|null
    */
+  /** @var array [[handle, code], ...] of scripts that are not registered yet */
+  private static $originScripts = [];
+
+  /**
+   * The front-end script starts only the galleries the plugin printed, never markup written by hand in a post: that
+   * would let a user who can only write posts run the script over attributes of their choice. The gallery root has
+   * the attribute "sgg-rendered", which WordPress never keeps in the content of users without unfiltered_html, and a
+   * key of this request listed in the page (for themes that run wp_kses over the finished output).
+   * @return string The key for the root of a gallery
+   */
+  public function originKey()
+  {
+    $key = wp_generate_password(20, false);
+    self::addOriginScript('sgg-frontend-js', 'window.sggGalleryKeys["' . $key . '"]=1;');
+
+    return $key;
+  }
+
+  /**
+   * @param string $handle A script that is enqueued and not printed yet
+   * @param string $code
+   */
+  public static function addOriginScript($handle, $code)
+  {
+    // Block themes render the content before wp_enqueue_scripts registers the script
+    if (!wp_script_is($handle, 'registered')) {
+      if (!self::$originScripts) {
+        add_action('wp_enqueue_scripts', [__CLASS__, 'addWaitingOriginScripts'], 1000);
+        add_action('wp_footer', [__CLASS__, 'addWaitingOriginScripts'], 1);
+      }
+      self::$originScripts[] = [$handle, $code];
+
+      return;
+    }
+    $before = wp_scripts()->get_data($handle, 'before');
+    if (!is_array($before) || !in_array($code, $before, true)) {
+      wp_add_inline_script($handle, $code, 'before');
+    }
+  }
+
+  public static function addWaitingOriginScripts()
+  {
+    $waiting = self::$originScripts;
+    self::$originScripts = [];
+    foreach ($waiting as $script) {
+      if (wp_script_is($script[0], 'registered')) {
+        self::addOriginScript($script[0], $script[1]);
+      }
+    }
+  }
+
   public function renderShortcode($attributes)
   {
     if (!is_feed()) {
@@ -1235,6 +1287,10 @@ class GridGallery_Galleries_Module extends GridGallery_Core_Module
 
   public function media_sideload_image($file, $post_id, $desc = null)
   {
+    // Images from the web only, never files of the server
+    if (!is_string($file) || !preg_match('~^https?://~i', $file)) {
+      return new WP_Error('http_request_failed', __('A valid URL was not provided.'));
+    }
     preg_match('/[^\?]+\.(jpe?g|jpe|gif|png)\b/i', $file, $matches);
     $file_array = [];
     $file_array['name'] = basename($matches[0]);

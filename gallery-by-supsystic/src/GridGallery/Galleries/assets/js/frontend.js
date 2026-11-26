@@ -1,9 +1,174 @@
 ﻿(function ($, undefined) {
+  // ---------- Captions and titles are shown as HTML, so it is cleaned first
+  // These elements and attributes stay as they are, everything that can run script goes. Any other element leaves its content.
+  var SAFE_TAGS = /^(?:a|abbr|acronym|address|area|article|aside|audio|b|bdi|bdo|big|blockquote|br|button|caption|center|cite|code|col|colgroup|data|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|fieldset|figcaption|figure|font|footer|form|h[1-6]|header|hgroup|hr|i|iframe|img|input|ins|kbd|label|legend|li|main|map|mark|marquee|menu|meter|nav|nobr|object|ol|optgroup|option|output|p|picture|pre|progress|q|rp|rt|ruby|s|samp|search|section|select|small|source|span|strike|strong|sub|summary|sup|table|tbody|td|textarea|tfoot|th|thead|time|tr|track|tt|u|ul|var|video|wbr)$/,
+    SAFE_SVG = /^(?:svg|g|defs|path|circle|ellipse|line|polyline|polygon|rect|text|tspan|linearGradient|radialGradient|stop|clipPath|symbol|use)$/,
+    // Elements that go away with everything inside them
+    DROP_TAGS = /^(?:script|style|embed|applet|base|link|meta|template|title|head|noscript|noembed|noframes|frame|frameset|xmp|plaintext)$/,
+    SAFE_ATTRIBUTES = /^(?:abbr|accept|accept-charset|accesskey|action|align|allow[a-z]*|alt|aria-[\w-]+|autocomplete|autoplay|background|behavior|bgcolor|border|bordercolor|cellpadding|cellspacing|char|charoff|checked|cite|class|clear|color|cols|colspan|compact|controls|controlslist|coords|crossorigin|data-[\w.:-]+|datetime|decoding|default|dir|direction|disabled|disablepictureinpicture|download|draggable|enctype|face|fetchpriority|for|formaction|formenctype|formmethod|formnovalidate|formtarget|frame|frameborder|headers|height|hidden|high|href|hreflang|hspace|id|inputmode|ismap|itemid|itemprop|itemref|itemscope|itemtype|kind|label|lang|list|loading|longdesc|loop|low|marginheight|marginwidth|max|maxlength|media|method|min|minlength|mozallowfullscreen|multiple|muted|name|noshade|novalidate|nowrap|open|optimum|pattern|placeholder|playsinline|poster|preload|readonly|referrerpolicy|rel|required|rev|reversed|role|rows|rowspan|rules|sandbox|scope|scrollamount|scrolldelay|scrolling|selected|shape|size|sizes|span|spellcheck|src|srclang|srcset|start|step|style|summary|tabindex|target|title|translate|type|usemap|valign|value|vspace|webkit-playsinline|webkitallowfullscreen|width|wrap)$/,
+    SAFE_SVG_ATTRIBUTES = /^(?:aria-[\w-]+|class|clip-path|clip-rule|clippathunits|cx|cy|d|data-[\w.:-]+|dominant-baseline|dx|dy|fill|fill-opacity|fill-rule|focusable|font-[a-z]+|fx|fy|gradienttransform|gradientunits|height|href|id|letter-spacing|offset|opacity|points|preserveaspectratio|r|role|rx|ry|spreadmethod|stop-color|stop-opacity|stroke|stroke-[a-z]+|style|tabindex|text-anchor|transform|vector-effect|version|viewbox|width|x|x1|x2|xlink:href|xml:space|xmlns|xmlns:xlink|y|y1|y2)$/,
+    // A name on any other element stands in for a property of the page
+    NAMED_TAGS = /^(?:a|button|input|map|select|textarea)$/,
+    URL_ATTRIBUTES = /^(?:action|background|cite|formaction|href|longdesc|poster|src|srcset|xlink:href)$/,
+    MEDIA_TAGS = /^(?:audio|img|input|source|video)$/,
+    MEDIA_DATA = /^data:(?:audio|image|video)\/[a-z0-9.+-]+[;,]/i,
+    SCRIPT_SCHEME = /^(?:blob|data|feed|filesystem|jar|javascript|livescript|mocha|vbscript|view-source):$/,
+    WEB_SCHEME = /^https?:$/,
+    URL_SPACES = /[\u0000-\u0020\u007f-\u00a0\u1680\u180e\u2000-\u200f\u2028-\u202f\u205f-\u2064\u3000\ufeff]+/g;
+
+  // The HTML parsed apart from the page: nothing loads and no handler runs. A template and not a document, whose
+  // properties (body, querySelector) an element's name can replace
+  function parseApart(html) {
+    var template = document.createElement('template');
+    template.innerHTML = html;
+
+    return template;
+  }
+
+  // The scheme of an address as the browser reads it; "https:" for an address without one
+  function urlScheme(url) {
+    try {
+      return new URL(url, 'https://example.com/').protocol;
+    } catch (e) {
+      return /^https?:\/\//i.test(url) || !/^[^\/?#]*:/.test(url) ? 'https:' : 'javascript:';
+    }
+  }
+
+  function isSafeUrl(tag, name, value) {
+    var plain = value.replace(URL_SPACES, '');
+
+    if (name === 'srcset') {
+      return !/(?:java|vb|live)script:/i.test(plain);
+    }
+    if (tag === 'iframe') {
+      return /^(?:(?:https?:)?\/\/|\.{0,2}\/)/i.test(plain) && WEB_SCHEME.test(urlScheme(value));
+    }
+    if (name === 'action' || name === 'formaction') {
+      return WEB_SCHEME.test(urlScheme(value)) && WEB_SCHEME.test(urlScheme(plain));
+    }
+    if ((name === 'src' || name === 'poster') && MEDIA_TAGS.test(tag) && MEDIA_DATA.test(plain)) {
+      return true;
+    }
+
+    return !SCRIPT_SCHEME.test(urlScheme(value)) && !SCRIPT_SCHEME.test(urlScheme(plain));
+  }
+
+  function cleanHtml(html) {
+    // Properties of the parsed elements are read through the prototypes: a form field named "attributes" or "parentNode"
+    // stands in for the property of its form
+    var getter = function (proto, name) {
+        return Object.getOwnPropertyDescriptor(proto, name).get;
+      },
+      parentOf = getter(Node.prototype, 'parentNode'),
+      firstOf = getter(Node.prototype, 'firstChild'),
+      nameOf = getter(Element.prototype, 'localName'),
+      namespaceOf = getter(Element.prototype, 'namespaceURI'),
+      attributesOf = getter(Element.prototype, 'attributes'),
+      remove = function (node) {
+        Node.prototype.removeChild.call(parentOf.call(node), node);
+      },
+      template = parseApart(html),
+      walker = document.createTreeWalker(template.content, NodeFilter.SHOW_COMMENT, null),
+      comments = [];
+
+    while (walker.nextNode()) {
+      comments.push(walker.currentNode);
+    }
+    comments.forEach(remove);
+    Array.prototype.slice.call(template.content.querySelectorAll('*')).forEach(function (el) {
+      var tag = nameOf.call(el),
+        space = namespaceOf.call(el),
+        isHtml = space === 'http://www.w3.org/1999/xhtml',
+        parent = parentOf.call(el);
+
+      if (!parent) {
+        return;
+      }
+      if (isHtml ? DROP_TAGS.test(tag) : space !== 'http://www.w3.org/2000/svg' || !SAFE_SVG.test(tag)) {
+        remove(el);
+        return;
+      }
+      if (isHtml && !SAFE_TAGS.test(tag)) {
+        while (firstOf.call(el)) {
+          Node.prototype.insertBefore.call(parent, firstOf.call(el), el);
+        }
+        remove(el);
+        return;
+      }
+      // The text inside an iframe is never shown and is kept as it is, not as HTML
+      while (isHtml && tag === 'iframe' && firstOf.call(el)) {
+        remove(firstOf.call(el));
+      }
+      Array.prototype.slice.call(attributesOf.call(el)).forEach(function (attribute) {
+        var name = attribute.name.toLowerCase(),
+          value = attribute.value,
+          safe = (isHtml ? SAFE_ATTRIBUTES : SAFE_SVG_ATTRIBUTES).test(name);
+
+        if (safe && (name === 'id' || name === 'name')) {
+          // Nor a name that stands in for a property of a form or of the page
+          safe = (name === 'id' ? tag !== 'object' : NAMED_TAGS.test(tag)) && !(value in Node.prototype) && value !== 'attributes';
+        } else if (safe && URL_ATTRIBUTES.test(name)) {
+          safe = isHtml ? isSafeUrl(tag, name, value) : value.charAt(0) === '#';
+        }
+        if (!safe) {
+          Element.prototype.removeAttributeNode.call(el, attribute);
+        }
+      });
+    });
+
+    return template.innerHTML;
+  }
+
+  /**
+   * @param {string} html
+   * @return {string} The same HTML without scripts, event handlers and script URLs; as plain text if it can't be cleaned
+   */
+  function safeHtml(html) {
+    html = html === undefined || html === null ? '' : String(html);
+    if (html.indexOf('<') === -1) {
+      return html;
+    }
+    try {
+      return cleanHtml(html);
+    } catch (e) {
+      return html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+  }
+
+  // The text of an HTML string, without running anything in it
+  function htmlText(html) {
+    html = html === undefined || html === null ? '' : String(html);
+    if (html.indexOf('<') === -1 && html.indexOf('&') === -1) {
+      return html;
+    }
+    try {
+      return parseApart(html).content.textContent;
+    } catch (e) {
+      return html;
+    }
+  }
+
+  // For the popup scripts (prettyPhoto, Photobox) and PRO
+  window.sggSafeHtml = safeHtml;
+  window.sggHtmlText = htmlText;
+
+  /**
+   * Only the galleries the plugin printed are started, never markup written by hand in a post. Their root has the
+   * attribute "sgg-rendered", which WordPress never keeps in the content of users without unfiltered_html, or a key
+   * of this request that the server listed in the page (for themes that run wp_kses over the finished output).
+   * A page cached before this version has no list and works as before.
+   */
+  function isPrinted(el) {
+    var keys = window.sggGalleryKeys;
+    return !keys || el.hasAttribute('sgg-rendered') || keys[el.getAttribute('data-sgg-key')] === 1;
+  }
+
   window.supSocialSharePrintImage = function (img) {
     var printFrame = document.createElement('iframe');
     printFrame.style.display = 'none';
     document.body.appendChild(printFrame);
     var printDocument = printFrame.contentWindow.document;
+    img = String(img).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     printDocument.write('<img style="max-width:100%;" src="' + img + '">');
     printDocument.close();
     printFrame.contentWindow.print();
@@ -47,7 +212,11 @@
 
     this.loadingText = this.$container.data('show-more-loading-text');
 
-    this.popupTranslates = this.$container.data('popup-i18n-words');
+    // Plain words: the popups print them as HTML and inside attributes
+    this.popupTranslates = $.extend({}, this.$container.data('popup-i18n-words'));
+    $.each(this.popupTranslates, function (key, word) {
+      self.popupTranslates[key] = String(word).replace(/</g, '&lt;').replace(/"/g, '&quot;');
+    });
     if (this.$container.data('exif-as-popup') == 1) {
       this.popupTitleAttribute = 'data-exif-text';
     } else {
@@ -140,7 +309,7 @@
       } else {
         captionHtmlEntry = $this.text().replace(/<a(.*?)>(.*?)<\/a>/gi, "<object type='none'>$&</object>");
       }
-      $this.html(captionHtmlEntry);
+      this.innerHTML = safeHtml(captionHtmlEntry);
       $this.find('a').on('click', function (event) {
         event.stopPropagation();
       });
@@ -372,7 +541,8 @@
       title = $img.attr('title');
     }
 
-    return title;
+    // The popups print it as HTML
+    return title ? safeHtml(title) : title;
   };
 
   Gallery.prototype.initPopup = function () {
@@ -922,7 +1092,7 @@
         element: image || link,
         thumbCropped: true,
         alt: image ? image.alt : '',
-        title: $.trim($('<div>').html(self.getPopupTitle($link) || '').text()),
+        title: $.trim(htmlText(self.getPopupTitle($link) || '')),
         link: window.location.href.split('#')[0] + '#' + ($link.attr('id') || ''),
       };
       if ($link.attr('rel') === 'video' && window.SggLightbox) {
@@ -1621,17 +1791,18 @@
           isCaptionBuilderUsed = self.$container.data('caption-buider'),
           classStr = '',
           addAttr = '',
-          align = $el.find('figcaption').css('text-align');
+          align = $el.find('figcaption').css('text-align'),
+          fontStyle = ('font-family:' + self.$container.data('caption-font-family') + '; font-size:' + self.$container.data('caption-text-size')).replace(/["<>]/g, '');
 
         if (isCaptionBuilderUsed == 1) {
-          $el.attr('data-caption', '<div style="padding:0px; height: ' + $el.height() + 'px; font-family:' + self.$container.data('caption-font-family') + '; font-size:' + self.$container.data('caption-text-size') + '">' + ($el.find('figcaption').html() || '') + '</div>');
+          $el.attr('data-caption', '<div style="padding:0px; height: ' + $el.height() + 'px; ' + fontStyle + '">' + ($el.find('figcaption').html() || '') + '</div>');
         } else {
           var $ggImgCaption = $el.find('.gg-image-caption');
           if ($ggImgCaption.hasClass('ggRtlClass')) {
             classStr = 'ggRtlClass';
             addAttr = 'dir="rtl"';
           }
-          $el.attr('data-caption', '<div class="' + classStr + '" ' + addAttr + ' style="padding:20px;font-family:' + self.$container.data('caption-font-family') + '; font-size:' + self.$container.data('caption-text-size') + ';">' + ($ggImgCaption.html() || '') + '</div>');
+          $el.attr('data-caption', '<div class="' + classStr + '" ' + addAttr + ' style="padding:20px;' + fontStyle + ';">' + ($ggImgCaption.html() || '') + '</div>');
         }
 
         $el.sliphover({
@@ -2276,7 +2447,7 @@
       btns.find('.supSocialIcon').each(function () {
         var $thisBtn = $(this);
         if ($thisBtn.hasClass('supSocialIconprint')) {
-          $thisBtn.attr('onClick', 'supSocialSharePrintImage("' + imgLink + '")');
+          $thisBtn.attr('onClick', 'supSocialSharePrintImage(' + JSON.stringify(String(imgLink)) + ')');
         }
       });
 
@@ -2299,7 +2470,7 @@
     btns.find('.supSocialIcon').each(function () {
       var $this = $(this);
       if ($this.hasClass('supSocialIconprint')) {
-        $this.attr('onClick', 'supSocialSharePrintImage("' + imgLink + '")');
+        $this.attr('onClick', 'supSocialSharePrintImage(' + JSON.stringify(String(imgLink)) + ')');
       }
       $this.attr('title', newTitle);
       var origUrl = $this.attr('originalurl');
@@ -3359,7 +3530,9 @@
   };
 
   window.contentLoaded = function () {
-    var $galleries = $(".grid-gallery:not('.initialized')"),
+    var $galleries = $(".grid-gallery:not('.initialized')").filter(function () {
+        return isPrinted(this);
+      }),
       $promise = new $.Deferred().resolve();
 
     if ($galleries.length > 0) {
@@ -3527,6 +3700,7 @@
                   summary = summary + parseInt(counter);
                 }
                 var counterWrapper = '';
+                counter = String(counter).replace(/&/g, '&amp;').replace(/</g, '&lt;');
                 if (jQuery(this).hasClass('counter-standard')) {
                   jQuery(this).find('.counter-wrap.standard').remove('');
                   counterWrapper = '<div class="counter-wrap standard"><span class="counter">' + counter + '</span></div>';
